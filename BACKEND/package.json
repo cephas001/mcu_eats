@@ -1,0 +1,11 @@
+{
+  "name": "mcu_eats_backend",
+  "version": "1.0.0",
+  "description": "Backend for Mcu Eats",
+  "main": "app.js",
+  "scripts": {
+    "start": "node app.js"
+  },
+  "author": "Okodugha Peter and Oloyede Paul",
+  "license": "ISC"
+}
