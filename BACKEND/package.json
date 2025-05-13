@@ -4,8 +4,12 @@
   "description": "Backend for Mcu Eats",
   "main": "app.js",
   "scripts": {
-    "start": "node app.js"
+    "start": "node app.js",
+    "dev": "node --watch app.js"
   },
   "author": "Okodugha Peter and Oloyede Paul",
-  "license": "ISC"
+  "license": "ISC",
+  "dependencies": {
+    "express": "^5.1.0"
+  }
 }
