@@ -1,0 +1,17 @@
+@import "tailwindcss";
+@import "@fontsource-variable/manrope";
+@import '@fontsource/poppins';
+
+@theme {
+    --font-manrope: "Manrope", sans-serif;
+    --font-poppins: "Poppins", sans-serif;
+    --color-primary: #9F7240;
+    --color-primary_black: #262622;
+    --color-bottom_nav: #9f734036;
+}
+
+body {
+    font-family: "Manrope", sans-serif;
+    background-color: #fff;
+    position: relative;
+}
