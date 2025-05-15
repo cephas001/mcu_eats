@@ -1,17 +1,45 @@
 @import "tailwindcss";
+
 @import "@fontsource-variable/manrope";
 @import '@fontsource/poppins';
+@import '@fontsource-variable/montserrat';
+
+@import "@nuxt/ui";
 
 @theme {
     --font-manrope: "Manrope", sans-serif;
     --font-poppins: "Poppins", sans-serif;
+    --font-montserrat: "Montserrat", sans-serif;
     --color-primary: #9F7240;
     --color-primary_black: #262622;
     --color-bottom_nav: #9f734036;
+    --background-ivory: #F5F5F5;
 }
 
 body {
-    font-family: "Manrope", sans-serif;
+    font-family: "Poppins", sans-serif;
     background-color: #fff;
     position: relative;
+}
+
+:root {
+    --ui-primary: var(--color-green-500);
+    --ui-bg: var(--color-black);
+    --ui-bg-muted: var(--color-gray-900);
+    --ui-bg-elevated: var(--color-gray-800);
+    --ui-bg-accented: var(--color-gray-700);
+    --ui-bg-inverted: var(--color-white);
+
+    --ui-text: var(--color-primary);
+    --ui-text-muted: var(--color-primary);
+    --ui-text-dimmed: var(--color-primary);
+    --ui-text-highlighted: var(--color-primary);
+
+    --ui-border: var(--color-gray-800);
+    --ui-border-muted: var(--color-gray-800);
+    --ui-border-accented: var(--color-gray-700);
+    --ui-border-inverted: var(--color-white);
+
+    --ui-radius: var(--radius-sm);
+    --ui-container: var(--container-6xl);
 }
