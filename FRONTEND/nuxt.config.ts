@@ -28,4 +28,8 @@ export default defineNuxtConfig({
       collections: ["material-symbols"],
     },
   },
+
+  image: {
+    dir: "assets/images",
+  },
 });

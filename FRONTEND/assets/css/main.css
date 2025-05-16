@@ -4,6 +4,7 @@
 @import '@fontsource/poppins';
 @import '@fontsource-variable/montserrat';
 
+/* Remember to disable fonts */
 @import "@nuxt/ui";
 
 @theme {
@@ -12,10 +13,29 @@
     --font-montserrat: "Montserrat", sans-serif;
     --color-primary: #9F7240;
     --color-info: rgb(248, 205, 156);
-    --color-primary_light:rgb(248, 205, 156);
+    --color-primary_light: rgb(248, 205, 156);
     --color-primary_black: #262622;
     --color-bottom_nav: #9f734036;
     --background-ivory: #F5F5F5;
+
+    --animate-pingOnce: pingOnce 1s cubic-bezier(0, 0, 0.2, 1) forwards;
+
+    @keyframes pingOnce {
+        0% {
+            transform: scale(1);
+            opacity: 1;
+        }
+
+        75% {
+            transform: scale(1.5);
+            opacity: 0.5;
+        }
+
+        100% {
+            transform: scale(1);
+            opacity: 1;
+        }
+    }
 
     /* 
         --ui-primary: var(--color-green-500);
@@ -46,4 +66,5 @@ body {
     font-family: "Poppins", sans-serif;
     background-color: #fff;
     position: relative;
+    color: black;
 }

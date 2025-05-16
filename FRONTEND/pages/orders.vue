@@ -1,9 +1,9 @@
 <template>
-  <section class="p-10 flex flex-col justify-center text-center">
+  <section class="p-10 flex flex-col justify-center items-center text-center">
     <div class="mb-5">
-      <img src="@/assets/images/no_order.png" alt="No Order Image" />
+      <Media src="/no_order.png" />
     </div>
-    <div class="font-montserrat p-3">
+    <div class="font-manrope p-3">
       <h1 class="mb-5 text-gray-800 text-sm tracking-wider">
         We are waiting for your first order
       </h1>

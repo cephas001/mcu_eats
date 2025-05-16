@@ -1,5 +1,5 @@
 <template>
-    <UApp>
-        <slot />
-    </UApp>
+  <UApp>
+    <slot />
+  </UApp>
 </template>

@@ -1,10 +1,24 @@
 <template>
   <div class="bg-black px-2 py-6 flex items-center justify-around">
     <div>
-      <img src="/mcu_eats_logo_.png" alt="Logo Image" class="w-[150px]" />
+      <img
+        src="/mcu_eats_logo_.png"
+        alt="Logo Image"
+        class="w-[150px] cursor-pointer"
+        @click="navigateTo('/')"
+      />
     </div>
     <div class="flex items-center">
-      <UDropdownMenu arrow :items="items" size="lg" :ui="{ content: 'bg-black', label: 'text-primary_light', item: 'text-primary_light'}">
+      <UDropdownMenu
+        arrow
+        :items="items"
+        size="lg"
+        :ui="{
+          content: 'bg-black',
+          label: 'text-primary_light',
+          item: 'text-primary_light',
+        }"
+      >
         <UButton
           icon="i-material-symbols-menu"
           color="primary"
@@ -19,6 +33,7 @@
 
 <script setup lang="ts">
 import type { DropdownMenuItem } from "@nuxt/ui";
+import { navigateTo } from "nuxt/app";
 import { ref } from "vue";
 
 const items = ref<DropdownMenuItem[][]>([
@@ -28,14 +43,13 @@ const items = ref<DropdownMenuItem[][]>([
       avatar: {
         src: "https://github.com/benjamincanac.png",
       },
+      to: "/profile",
     },
-  ],
-  [
     {
       label: "Atuwase Room 5",
       icon: "i-material-symbols-pin-drop",
       type: "label",
-      color: "info"
+      color: "info",
     },
   ],
   [
@@ -43,13 +57,19 @@ const items = ref<DropdownMenuItem[][]>([
       label: "Home",
       icon: "i-material-symbols-house-rounded",
       to: "/",
-      color: "info"
+      color: "info",
     },
     {
       label: "View Orders (0)",
       icon: "i-material-symbols-garden-cart-outline-sharp",
       to: "/orders",
-      color: "info"
+      color: "info",
+    },
+    {
+      label: "Favourites",
+      icon: "i-material-symbols-favorite",
+      color: "info",
+      to: "/favourites",
     },
   ],
   [
@@ -62,12 +82,12 @@ const items = ref<DropdownMenuItem[][]>([
             label: "Consumer",
             icon: "i-lucide-user",
             disabled: true,
-            color: "info"
+            color: "info",
           },
           {
             label: "Delivery",
             icon: "i-material-symbols-delivery-truck-speed",
-            color: "info"
+            color: "info",
           },
         ],
       ],
@@ -75,14 +95,14 @@ const items = ref<DropdownMenuItem[][]>([
     {
       label: "Change location",
       icon: "i-material-symbols-edit-location-sharp",
-      color: "info"
+      color: "info",
     },
   ],
   [
     {
       label: "Support",
       icon: "i-material-symbols-question-mark-rounded",
-      color: "info"
+      color: "info",
     },
     {
       label: "Logout",
