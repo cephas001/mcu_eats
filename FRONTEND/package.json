@@ -13,6 +13,7 @@
     "@fontsource-variable/manrope": "^5.2.5",
     "@fontsource-variable/montserrat": "^5.2.5",
     "@fontsource/poppins": "^5.2.6",
+    "@nuxt/image": "^1.10.0",
     "@nuxt/ui": "^3.1.1",
     "@tailwindcss/vite": "^4.1.6",
     "@vueuse/nuxt": "^13.2.0",

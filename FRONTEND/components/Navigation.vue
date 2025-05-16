@@ -4,13 +4,13 @@
       <img src="/mcu_eats_logo_.png" alt="Logo Image" class="w-[150px]" />
     </div>
     <div class="flex items-center">
-      <UDropdownMenu arrow :items="items" size="lg">
+      <UDropdownMenu arrow :items="items" size="lg" :ui="{ content: 'bg-black', label: 'text-primary_light', item: 'text-primary_light'}">
         <UButton
           icon="i-material-symbols-menu"
           color="primary"
           variant="ghost"
           size="xl"
-          class="cursor-pointer bg-primary/15"
+          class="cursor-pointer bg-primary/15 text-primary_light"
         />
       </UDropdownMenu>
     </div>
@@ -35,6 +35,7 @@ const items = ref<DropdownMenuItem[][]>([
       label: "Atuwase Room 5",
       icon: "i-material-symbols-pin-drop",
       type: "label",
+      color: "info"
     },
   ],
   [
@@ -42,11 +43,13 @@ const items = ref<DropdownMenuItem[][]>([
       label: "Home",
       icon: "i-material-symbols-house-rounded",
       to: "/",
+      color: "info"
     },
     {
       label: "View Orders (0)",
       icon: "i-material-symbols-garden-cart-outline-sharp",
       to: "/orders",
+      color: "info"
     },
   ],
   [
@@ -59,10 +62,12 @@ const items = ref<DropdownMenuItem[][]>([
             label: "Consumer",
             icon: "i-lucide-user",
             disabled: true,
+            color: "info"
           },
           {
             label: "Delivery",
             icon: "i-material-symbols-delivery-truck-speed",
+            color: "info"
           },
         ],
       ],
@@ -70,12 +75,14 @@ const items = ref<DropdownMenuItem[][]>([
     {
       label: "Change location",
       icon: "i-material-symbols-edit-location-sharp",
+      color: "info"
     },
   ],
   [
     {
       label: "Support",
       icon: "i-material-symbols-question-mark-rounded",
+      color: "info"
     },
     {
       label: "Logout",
