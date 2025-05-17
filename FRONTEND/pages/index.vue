@@ -19,7 +19,6 @@
       class="rounded-md shadow-md text-sm mb-5 cursor-pointer hover:shadow-lg focus:shadow-lg"
       v-for="restaurant in restaurants"
       :key="restaurant.id"
-      @click="openRestaurant(restaurant.id, restaurant.open)"
     >
       <div class="relative">
         <div
@@ -27,17 +26,21 @@
         >
           {{ restaurant.category }}
         </div>
-        <Media :src="restaurant.image" class="rounded-t-md" />
+        <Media
+          :src="restaurant.image"
+          class="rounded-t-md"
+          @click.self="openRestaurant(restaurant.id, restaurant.open)"
+        />
         <!-- icon to favorite would be to the top right -->
         <UIcon
           :name="`i-material-symbols-favorite${
             restaurant.favourite ? '' : '-outline'
           }`"
-          class="text-black absolute top-3 right-3 font-bold text-3xl"
+          class="text-black absolute z-100 top-3 right-3 font-bold text-3xl"
           :class="
             restaurant.favourite ? 'animate-[var(--animate-pingOnce)]' : ''
           "
-          @click="restaurant.favourite = !restaurant.favourite"
+          @click.self="restaurant.favourite = !restaurant.favourite"
         />
         <div
           class="bg-black/50 absolute inset-0 flex flex-col items-center justify-center gap-5 text-white text-lg"
@@ -49,7 +52,10 @@
         </div>
       </div>
 
-      <div class="py-3 pl-5 flex justify-left items-center">
+      <div
+        class="py-3 pl-5 flex justify-left items-center"
+        @click="openRestaurant(restaurant.id, restaurant.open)"
+      >
         <div>
           <!-- avatar -->
           <img src="@/assets/images/avatar.jpg" class="w-[40px] rounded-full" />
@@ -125,7 +131,6 @@ const restaurants = ref([
   },
 ]);
 
-const route = useRoute();
 const openRestaurant = (id, open) => {
   if (open) {
     navigateTo(`/restaurants/${id}`);

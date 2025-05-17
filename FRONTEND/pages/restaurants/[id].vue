@@ -172,18 +172,18 @@ const filteredFoodItems = computed(() => {
   })
 });
 
-const filterFoodTypes = computed(() => {
-  const newArr = foodItems.value.filter((food) => {
-    types.value.forEach(type => {
-    console.log(type.name, food.type == type.name,  food.type)
-      if(food.type == type.name) return true;
-      return false;
-    });    
-  })
+// const filterFoodTypes = computed(() => {
+//   const newArr = foodItems.value.filter((food) => {
+//     types.value.forEach(type => {
+//     console.log(type.name, food.type == type.name,  food.type)
+//       if(food.type == type.name) return true;
+//       return false;
+//     });    
+//   })
 
-  console.log(newArr);
-  return [];
-});
+//   console.log(newArr);
+//   return [];
+// });
 
 const types = ref([
   {
