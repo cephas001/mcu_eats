@@ -14,7 +14,7 @@
         autofocus
         placeholder="Search dishes, restaurants or cuisines"
         :ui="{
-          base: 'rounded-none focus:bg-transparent focus:text-black',
+          base: 'rounded-none focus:bg-transparent focus:text-black hover:bg-transparent cursor-pointer',
         }"
       />
     </div>

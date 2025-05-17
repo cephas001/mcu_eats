@@ -16,9 +16,10 @@
     <h1 class="font-semibold mb-5 tracking-wide text-lg">Restaurants</h1>
 
     <div
-      class="rounded-md shadow-md text-sm mb-5"
-      v-for="(restaurant, index) in restaurants"
-      :key="index"
+      class="rounded-md shadow-md text-sm mb-5 cursor-pointer hover:shadow-lg focus:shadow-lg"
+      v-for="restaurant in restaurants"
+      :key="restaurant.id"
+      @click="openRestaurant(restaurant.id, restaurant.open)"
     >
       <div class="relative">
         <div
@@ -55,7 +56,11 @@
         </div>
         <div class="ml-2 w-[70%]">
           <h1 class="font-semibold tracking-wide">{{ restaurant.name }}</h1>
-          <p class="text-gray-700 text-sm">{{ restaurant.description }}</p>
+          <p
+            class="text-gray-700 text-sm whitespace-nowrap overflow-hidden text-ellipsis"
+          >
+            {{ restaurant.description }}
+          </p>
         </div>
       </div>
     </div>
@@ -65,6 +70,7 @@
 <script setup>
 const restaurants = ref([
   {
+    id: 1,
     image: "/food1.jpg",
     favourite: false,
     name: "Stomach Option",
@@ -73,6 +79,7 @@ const restaurants = ref([
     open: true,
   },
   {
+    id: 2,
     image: "/food4.jpg",
     favourite: false,
     name: "Zoe Aroma Kitchens",
@@ -81,6 +88,7 @@ const restaurants = ref([
     open: true,
   },
   {
+    id: 3,
     image: "/food3.jpg",
     favourite: false,
     name: "Abula Joint",
@@ -89,6 +97,7 @@ const restaurants = ref([
     open: false,
   },
   {
+    id: 4,
     image: "/food4.jpg",
     favourite: false,
     name: "Ateez Foods",
@@ -97,6 +106,7 @@ const restaurants = ref([
     open: true,
   },
   {
+    id: 5,
     image: "/food5.jpg",
     favourite: false,
     name: "MCU Bakery",
@@ -105,6 +115,7 @@ const restaurants = ref([
     open: false,
   },
   {
+    id: 6,
     image: "/food5.jpg",
     favourite: false,
     name: "Bros John's",
@@ -113,4 +124,11 @@ const restaurants = ref([
     open: true,
   },
 ]);
+
+const route = useRoute();
+const openRestaurant = (id, open) => {
+  if (open) {
+    navigateTo(`/restaurants/${id}`);
+  }
+};
 </script>

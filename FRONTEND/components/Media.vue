@@ -15,5 +15,5 @@
 </template>
 
 <script setup lang="ts">
-const props = defineProps<{ src: string; class: string }>();
+const props = defineProps<{ src: string; class?: string }>();
 </script>
