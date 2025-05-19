@@ -1,5 +1,5 @@
 <template>
-  <section class="p-5">
+  <section class="p-5" v-if="restaurants.length > 0">
     <UInput
       icon="i-material-symbols-search-rounded"
       size="lg"
@@ -12,7 +12,7 @@
     />
   </section>
 
-  <section class="p-5">
+  <section class="p-5" v-if="restaurants.length > 0">
     <h1 class="font-semibold mb-5 tracking-wide text-lg">Restaurants</h1>
 
     <div
@@ -54,11 +54,14 @@
 
       <div
         class="py-3 pl-5 flex justify-left items-center"
-        @click="openRestaurant(restaurant.id, restaurant.open)"
+        @click="openRestaurant(restaurant.id)"
       >
         <div>
           <!-- avatar -->
-          <img src="@/assets/images/avatar.jpg" class="w-[40px] rounded-full" />
+          <img
+            src="@/assets/images/avatars/avatar.jpg"
+            class="w-[40px] rounded-full"
+          />
         </div>
         <div class="ml-2 w-[70%]">
           <h1 class="font-semibold tracking-wide">{{ restaurant.name }}</h1>
@@ -71,69 +74,30 @@
       </div>
     </div>
   </section>
+
+  <section
+    class="bg-transparent h-[78vh] overflow-hidden flex flex-col items-center justify-center"
+    v-if="restaurants.length == 0"
+  >
+    <img src="/loading2.png" class="animate-pulse" />
+  </section>
 </template>
 
 <script setup>
-const restaurants = ref([
-  {
-    id: 1,
-    image: "/food1.jpg",
-    favourite: false,
-    name: "Stomach Option",
-    description: "A flavour packed experience...",
-    category: "Quick Meals",
-    open: true,
-  },
-  {
-    id: 2,
-    image: "/food4.jpg",
-    favourite: false,
-    name: "Zoe Aroma Kitchens",
-    description: "A flavour packed experience...",
-    category: "Quick Meals",
-    open: true,
-  },
-  {
-    id: 3,
-    image: "/food3.jpg",
-    favourite: false,
-    name: "Abula Joint",
-    description: "Hot amala and more...",
-    category: "Swallow and More",
-    open: false,
-  },
-  {
-    id: 4,
-    image: "/food4.jpg",
-    favourite: false,
-    name: "Ateez Foods",
-    description: "Tasty foods. Affordable rates...",
-    category: "Quick Meals",
-    open: true,
-  },
-  {
-    id: 5,
-    image: "/food5.jpg",
-    favourite: false,
-    name: "MCU Bakery",
-    description: "A flavour packed experience...",
-    category: "Pastries",
-    open: false,
-  },
-  {
-    id: 6,
-    image: "/food5.jpg",
-    favourite: false,
-    name: "Bros John's",
-    description: "A flavour packed experience...",
-    category: "Snacks and Grills",
-    open: true,
-  },
-]);
+import { onMounted } from "vue";
+const restaurants = ref([]);
+
+const fetchRestaurants = async () => {
+  restaurants.value = await $fetch("api/restaurants");
+};
 
 const openRestaurant = (id, open) => {
   if (open) {
     navigateTo(`/restaurants/${id}`);
   }
 };
+
+onMounted(() => {
+  fetchRestaurants();
+});
 </script>

@@ -1,1 +1,396 @@
-{}
+{
+  "users": [
+    {
+      "id": 1,
+      "username": "Paul Peters",
+      "type": "Student",
+      "avatar": "/avatars/avatar.jpg",
+      "role": "Consumer",
+      "password": "123",
+      "matric_number": "123456",
+      "hostel": "Atuwase Hall",
+      "room_no": "Room 5",
+      "location": "Atuwase Hall. Room 5"
+    }
+  ],
+
+  "restaurants": [
+    {
+      "id": 1,
+      "image": "/restaurant/food1.jpg",
+      "avatar": "/avatars/avatar.jpg",
+      "name": "Stomach Option",
+      "password": "123",
+      "description": "A flavour packed experience...",
+      "category": "Quick Meals",
+      "types": [1, 2, 3],
+      "opening_time": "06:00:00",
+      "closing_time": "21:00:00",
+      "menu": [
+        {
+          "id": 1,
+          "name": "Smokey Jollof Rice",
+          "description": "Delicious party style smokey jollof rice",
+          "price": 3900,
+          "type": 1
+        }
+      ]
+    },
+    {
+      "id": 2,
+      "image": "/restaurant/food4.jpg",
+      "avatar": "/avatars/avatar.jpg",
+      "password": "123",
+      "name": "Zoe Aroma Kitchens",
+      "description": "A flavour packed experience...",
+      "category": "Quick Meals",
+      "types": [1, 2, 3, 4],
+      "opening_time": "06:00:00",
+      "closing_time": "21:00:00",
+      "menu": [
+        {
+          "id": 1,
+          "name": "Village Rice",
+          "description": "Native style rice with bits of beef, fish & kpomo",
+          "price": 4000,
+          "type": 1
+        },
+        {
+          "id": 2,
+          "name": "Peppered Turkey",
+          "description": "Peppered Turkey",
+          "price": 7500,
+          "type": 2
+        }
+      ]
+    },
+    {
+      "id": 3,
+      "image": "/restaurant/food3.jpg",
+      "avatar": "/avatars/avatar2.jpg",
+      "name": "Abula Joint",
+      "password": "123",
+      "description": "Hot amala and more...",
+      "category": "Swallow and More",
+      "types": [3, 1, 2],
+      "opening_time": "06:00:00",
+      "closing_time": "21:00:00",
+      "menu": [
+        {
+          "id": 1,
+          "name": "Stewed Fried Beef",
+          "description": "Fried beef in stew",
+          "price": 3400,
+          "type": 2
+        }
+      ]
+    },
+    {
+      "id": 4,
+      "image": "/restaurant/food4.jpg",
+      "avatar": "/avatars/avatar.jpg",
+      "name": "Ateez Foods",
+      "password": "123",
+      "description": "Tasty foods. Affordable rates...",
+      "category": "Pastries",
+      "types": [1, 2, 3, 4],
+      "opening_time": "06:00:00",
+      "closing_time": "09:00:00",
+      "menu": [
+        {
+          "id": 1,
+          "name": "Original Fried Rice",
+          "description": "Classic, original & rich naija fried rice",
+          "price": 3650,
+          "type": 1
+        },
+        {
+          "id": 2,
+          "name": "Stewed Fried Chicken",
+          "description": "Fried chicken in stew.",
+          "price": 3950,
+          "type": 2
+        }
+      ]
+    },
+    {
+      "id": 5,
+      "image": "/restaurant/food5.jpg",
+      "avatar": "/avatars/avatar2.jpg",
+      "name": "MCU Bakery",
+      "password": "123",
+      "description": "A flavour packed experience...",
+      "category": "Snacks and Grills",
+      "types": [6],
+      "opening_time": "06:00:00",
+      "closing_time": "21:00:00"
+    },
+    {
+      "id": 6,
+      "image": "/restaurant/food5.jpg",
+      "avatar": "/avatars/avatar2.jpg",
+      "name": "Bros John's",
+      "password": "123",
+      "description": "A flavour packed experience...",
+      "category": "Snacks and Grills",
+      "types": [6, 2],
+      "opening_time": "19:00:00",
+      "closing_time": "21:00:00",
+      "menu": [
+        {
+          "id": 1,
+          "name": "Peppered Gizzard",
+          "description": "Peppered gizzard piecies",
+          "price": 1750,
+          "type": 2
+        }
+      ]
+    }
+  ],
+
+  "shops": [
+    {
+      "id": 1,
+      "image": "shops/shop1.jpg",
+      "avatar": "/avatars/avatar.jpg",
+      "name": "Aunty Hannah's",
+      "password": "123",
+      "description": "Buy snacks, drinks and more...",
+      "category": 4,
+      "types": [6, 7, 8],
+      "opening_time": "06:00:00",
+      "closing_time": "21:00:00",
+      "items": [
+        {
+          "id": 1,
+          "name": "Boli & Groundnut",
+          "description": "Roasted plantain served with crunchy groundnuts.",
+          "price": 800,
+          "type": 6
+        },
+        {
+          "id": 2,
+          "name": "Ice-Cold Zobo Drink",
+          "description": "Refreshing hibiscus drink infused with ginger and pineapple.",
+          "price": 500,
+          "type": 7
+        },
+        {
+          "id": 3,
+          "name": "Meat Pie",
+          "description": "Flaky pastry filled with seasoned minced meat and potatoes.",
+          "price": 1000,
+          "type": 6
+        },
+        {
+          "id": 4,
+          "name": "Chin Chin",
+          "description": "Crunchy, sweet deep-fried dough bites.",
+          "price": 700,
+          "type": 6
+        }
+      ]
+    },
+    {
+      "id": 2,
+      "image": "shops/od.jpg",
+      "avatar": "/avatars/avatar2.jpg",
+      "name": "Odidiks",
+      "password": "123",
+      "description": "Electronics that don't fail...",
+      "category": 5,
+      "types": [9],
+      "opening_time": "06:00:00",
+      "closing_time": "21:00:00",
+      "items": [
+        {
+          "id": 1,
+          "name": "Smart LED TV (55-inch)",
+          "description": "Crystal-clear 4K display with built-in streaming apps.",
+          "price": 250000,
+          "type": 9
+        },
+        {
+          "id": 2,
+          "name": "Wireless Noise-Canceling Headphones",
+          "description": "Premium audio quality with long battery life.",
+          "price": 75000,
+          "type": 9
+        },
+        {
+          "id": 3,
+          "name": "High-Speed Laptop (16GB RAM, 512GB SSD)",
+          "description": "Powerful performance for work, gaming, and streaming.",
+          "price": 450000,
+          "type": 9
+        },
+        {
+          "id": 4,
+          "name": "Smartphone (128GB, Super AMOLED Display)",
+          "description": "Fast processor, stunning display, and excellent camera.",
+          "price": 190000,
+          "type": 9
+        }
+      ]
+    }
+  ],
+
+  "retailers": [
+    {
+      "id": 1,
+      "image": "/retailers/retailer1.jpg",
+      "avatar": "/avatars/avatar.jpg",
+      "name": "Abisola Surprise",
+      "password": "123",
+      "description": "Buy gifts and things you need...",
+      "category": 6,
+      "types": [8],
+      "opening_time": "06:00:00",
+      "closing_time": "21:00:00",
+      "goods": [
+        {
+          "id": 1,
+          "name": "Premium Notebook (200 Pages)",
+          "description": "High-quality ruled notebook perfect for work or school.",
+          "price": 2500,
+          "type": 8
+        },
+        {
+          "id": 2,
+          "name": "Ballpoint Pen Set (12 pcs)",
+          "description": "Smooth-writing pens with long-lasting ink.",
+          "price": 1500,
+          "type": 8
+        },
+        {
+          "id": 3,
+          "name": "Desk Organizer",
+          "description": "Keep your stationery neat with this sleek desk organizer.",
+          "price": 4000,
+          "type": 8
+        },
+        {
+          "id": 4,
+          "name": "Sticky Notes Pack (5 Colors)",
+          "description": "Bright, easy-to-use sticky notes for reminders and notes.",
+          "price": 1200,
+          "type": 8
+        }
+      ]
+    },
+    {
+      "id": 2,
+      "image": "retailers/retailer2.jpg",
+      "avatar": "/avatars/avatar2.jpg",
+      "name": "Seke Perf",
+      "password": "123",
+      "description": "Longlasting perfumes at affordable rates...",
+      "category": 6,
+      "types": [8],
+      "opening_time": "06:00:00",
+      "closing_time": "21:00:00",
+      "goods": [
+        {
+          "id": 1,
+          "name": "Royal Oud Essence",
+          "description": "A rich, woodsy scent with a touch of spice and musk.",
+          "price": 25000,
+          "type": 8
+        },
+        {
+          "id": 2,
+          "name": "Blooming Floral Mist",
+          "description": "Fresh, long-lasting fragrance with hints of jasmine and rose.",
+          "price": 12000,
+          "type": 8
+        },
+        {
+          "id": 3,
+          "name": "Citrus Breeze Cologne",
+          "description": "Light, refreshing citrus notes blended with subtle vanilla undertones.",
+          "price": 15000,
+          "type": 8
+        },
+        {
+          "id": 4,
+          "name": "Midnight Musk Perfume",
+          "description": "A deep, sensual scent with traces of amber and patchouli.",
+          "price": 18000,
+          "type": 8
+        }
+      ]
+    }
+  ],
+
+  "types": [
+    {
+      "id": 1,
+      "name": "Rice Dishes"
+    },
+    {
+      "id": 2,
+      "name": "Protein"
+    },
+    {
+      "id": 3,
+      "name": "Soups"
+    },
+    {
+      "id": 4,
+      "name": "Pasta"
+    },
+    {
+      "id": 5,
+      "name": "Cocktails"
+    },
+    {
+      "id": 6,
+      "name": "Snacks"
+    },
+    {
+      "id": 7,
+      "name": "Drinks"
+    },
+    {
+      "id": 8,
+      "name": "Stationeries"
+    },
+    {
+      "id": 9,
+      "name": "Electronics"
+    }
+  ],
+  "category": [
+    {
+      "id": 1,
+      "category_name": "Quick Meals"
+    },
+    {
+      "id": 2,
+      "category_name": "Swallow and More"
+    },
+    {
+      "id": 3,
+      "category_name": "Pastries"
+    },
+    {
+      "id": 4,
+      "category_name": "Snacks and Grills"
+    },
+    {
+      "id": 5,
+      "category_name": "Electronics"
+    },
+    {
+      "id": 6,
+      "category_name": "Stationeries"
+    }
+  ],
+  "favourites": [
+    {
+      "userId": 1,
+      "referenceId": 1,
+      "type": "restaurant"
+    }
+  ]
+}
