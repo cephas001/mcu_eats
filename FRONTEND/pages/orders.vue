@@ -96,13 +96,9 @@
     </div>
 
     <div>
-      <h1>Abula Junction</h1>
-
-      <div>
-        <span>1x</span>
-        <p>Smokey jollof rice and stewed fried chicken and plantain</p>
-        <p>&#8358;7,350.00</p>
-      </div>
+      <span>1x</span>
+      <p>Smokey jollof rice and stewed fried chicken and plantain</p>
+      <p>&#8358;7,350.00</p>
     </div>
 
     <div>
