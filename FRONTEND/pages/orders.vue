@@ -20,53 +20,88 @@
   </section>
 
   <section>
-    <div>
-      <UIcon name="i-material-symbols-close" />
-      <h1>Orders</h1>
-      <p>2 vendors, 2 items</p>
+    <div
+      class="flex justify-between items-center p-5 border-b border-gray-200 bg-white shadow-md"
+    >
+      <UIcon
+        name="i-material-symbols-close"
+        class="text-red-600 cursor-pointer w-10 h-10 p-2 rounded"
+      />
 
-      <button>Delete all</button>
+      <div class="flex flex-col items-center">
+        <h1 class="text-2xl font-bold">Orders</h1>
+        <p class="text-gray-400">2 vendors, 2 items</p>
+      </div>
+
+      <button class="text-gray-400">Delete all</button>
     </div>
 
     <div>
-      <div>
-        <div>Delivery</div>
-        <div>Pick-up</div>
+      <div
+        class="flex items-center justify-center bg-white p-5 border-b border-gray-200"
+      >
+        <div class="flex items-center space-x-4">
+          <button class="text-xl font-bold px-4 py-2 rounded-md">
+            Delivery
+          </button>
+
+          <button class="px-4 py-2 rounded-md font-medium">Pick-up</button>
+        </div>
       </div>
 
-      <div>
-        <UIcon name="i-material-symbols-location-on-outline" />
-        <p>Atuwase, Room 5</p>
-        <UIcon name="i-material-symbols-keyboard-arrow-down" />
+      <div
+        class="flex items-center justify-between p-5 border-b border-gray-200 bg-white"
+      >
+        <div class="flex items-center space-x-2">
+          <UIcon
+            name="i-material-symbols-location-on-outline"
+            class="text-gray-600 text-xl w-5 h-5"
+          />
+          <p class="font-bold text-black">Atuwase, Room 5</p>
+        </div>
+        <UIcon
+          name="i-material-symbols-keyboard-arrow-down"
+          class="text-red-500 w-10 h-10 p-2 rounded-full transition cursor-pointer"
+        />
       </div>
 
+      <div
+        class="flex items-center justify-between p-5 border-b border-gray-200 bg-white"
+      >
+        <div class="flex items-center space-x-2">
+          <UIcon
+            name="i-material-symbols-call"
+            class="text-gray-600 text-xl w-5 h-5"
+          />
+          <p class="font-bold text-black">08112985079</p>
+        </div>
+        <UIcon
+          name="i-material-symbols-edit-sharp"
+          class="text-gray-600 text-xl w-5 h-5"
+        />
+      </div>
+    </div>
+
+    <div class="flex items-center justify-center p-5 b">
+      <p class="text-gray-600">Swipe items to edit or delete</p>
+    </div>
+    <div>
+      <h1>Stomach Option</h1>
+
       <div>
-        <UIcon name="i-material-symbols-call" />
-        <p>08112985079</p>
-        <UIcon name="i-material-symbols-edit-sharp" />
+        <span>1x</span>
+        <p>10 Kilo Grilled Giant</p>
+        <p>&#8358;15,000.00</p>
       </div>
     </div>
 
     <div>
-      <p>Swipe items to edit or delete</p>
-      <div>
-        <h1>Stomach Option</h1>
-
-        <div>
-          <span>1x</span>
-          <p>10 Kilo Grilled Giant</p>
-          <p>&#8358;15,000.00</p>
-        </div>
-      </div>
+      <h1>Abula Junction</h1>
 
       <div>
-        <h1>Abula Junction</h1>
-
-        <div>
-          <span>1x</span>
-          <p>Smokey jollof rice and stewed fried chicken and plantain</p>
-          <p>&#8358;7,350.00</p>
-        </div>
+        <span>1x</span>
+        <p>Smokey jollof rice and stewed fried chicken and plantain</p>
+        <p>&#8358;7,350.00</p>
       </div>
     </div>
 
