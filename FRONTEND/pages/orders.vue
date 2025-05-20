@@ -19,9 +19,9 @@
     </div>
   </section>
 
-  <section>
+  <section class="bg-gray-100">
     <div
-      class="flex justify-between items-center p-5 border-b border-gray-200 bg-white shadow-md"
+      class="flex justify-between items-center p-5 border-b-10 border-gray-200 bg-white sticky top-0"
     >
       <UIcon
         name="i-material-symbols-close"
@@ -37,15 +37,30 @@
     </div>
 
     <div>
+
       <div
         class="flex items-center justify-center bg-white p-5 border-b border-gray-200"
       >
         <div class="flex items-center space-x-4">
-          <button class="text-xl font-bold px-4 py-2 rounded-md">
+          <button 
+            :class="[
+             'font-bold px-6 py-2 rounded-full transition-all duration-300 ease-in-out transform',
+              selectedOption === 'delivery' ? 'bg-white text-black' : 'bg-gray-100 text-black'
+              ]"
+              @click="selectedOption = 'delivery'"
+              >
             Delivery
           </button>
 
-          <button class="px-4 py-2 rounded-md font-medium">Pick-up</button>
+          <button 
+            :class="[
+             'font-bold px-6 py-2 rounded-full transition-all duration-300 ease-in-out transform',
+              selectedOption === 'pickup' ? 'bg-white text-black' : 'bg-gray-100 text-black'
+              ]"
+              @click="selectedOption = 'pickup'"
+              >
+            Pick-up
+          </button>
         </div>
       </div>
 
@@ -59,10 +74,12 @@
           />
           <p class="font-bold text-black">Atuwase, Room 5</p>
         </div>
-        <UIcon
-          name="i-material-symbols-keyboard-arrow-down"
-          class="text-red-500 w-10 h-10 p-2 rounded-full transition cursor-pointer"
-        />
+        <div class="background flex items-center justify center w-10 h-10 p-2 rounded-full bg-red-100 cursor-pointer">
+          <UIcon
+            name="i-material-symbols-keyboard-arrow-down"
+            class="text-red-500 w-8 h-8 cursor-pointer"
+          />
+        </div>
       </div>
 
       <div
@@ -82,49 +99,87 @@
       </div>
     </div>
 
-    <div class="flex items-center justify-center p-5 b">
+    <div class="flex items-center justify-center p-5">
       <p class="text-gray-600">Swipe items to edit or delete</p>
     </div>
-    <div>
-      <h1>Stomach Option</h1>
 
-      <div>
-        <span>1x</span>
-        <p>10 Kilo Grilled Giant</p>
+
+    <div>
+        <div class="p-5 border-b border-gray-200 bg-white">
+          <h3 class="font-bold text-black">Stomach Option</h3>
+        </div>
+    
+
+      <div class="flex items-center justify-between p-5 border-b border-gray-200 bg-white">
+        <span class="text-red-600 cursor-pointer w-10 h-10 p-2">1x</span>
+        <p class="font-bold">10 Kilo Grilled Giant</p>
         <p>&#8358;15,000.00</p>
       </div>
     </div>
 
-    <div>
-      <span>1x</span>
-      <p>Smokey jollof rice and stewed fried chicken and plantain</p>
-      <p>&#8358;7,350.00</p>
+     <div class="flex items-center justify-between p-5 border-b border-gray-200 bg-white">
+        <span class="text-red-600 cursor-pointer w-10 h-10 p-2">1x</span>
+        <p class="font-bold">10 Kilo Grilled Giant</p>
+        <p>&#8358;15,000.00</p>
+      </div>
+
+   
+    <div class="flex items-center justify-between p-4 border-t-16 border-b-16 border-gray-200 bg-white">
+      <p class="text-gray-400 font-light">Add referral or discount code</p>
+      <UIcon name="i-material-symbols-chevron-right-rounded" class="text-gray-600 text-xl w-5 h-5" />
+    </div>
+   
+
+    <div class="p-5 border-b-20 border-gray-200 bg-white">
+      <div class="space-y-4">
+        <div class="flex items-center justify-between">
+          <h1 class="text-gray-400 text-xl font-light">Subtotal</h1>
+          <span class="text-gray-400 font-light">&#8358;30,000</span>
+        </div>
+  
+        <div class="flex items-center justify-between">
+          <div class="flex items-center space-x-2">
+            <h1 class="text-gray-400 text-xl font-light">Delivery fee</h1><UIcon name="i-material-symbols-help" class="w-5 h-5 text-gray-400"/>
+          </div>
+          <span class="text-gray-400 font-light">&#8358;500</span>
+        </div>
+  
+        <div class="flex items-center justify-between">
+          <h1 class="text-gray-400 text-xl font-light">Discount</h1>
+          <span class="text-gray-400 font-light">&#8358;0</span>
+        </div>
+  
+        <div class="flex items-center justify-between">
+          <div class="flex items-center space-x-2">
+             <h1 class="text-gray-400 text-xl font-light">Service fee</h1><UIcon name="i-material-symbols-help" class="w-5 h-5 text-gray-400 font-light" />
+            </div>
+            <span class="text-gray-400 font-light">&#8358;900</span>
+        </div>
+      </div>
     </div>
 
-    <div>
-      <p>
-        Add referral or discount code
-        <UIcon name="i-material-symbols-chevron-right-rounded" />
-      </p>
+    <div class="container sticky bottom-0 p-6 border-gray-200 bg-white space-y-2">
+      <div class="flex items-center justify-between">
+        <p class="font-light text-xl">Order total</p>
+        <span class="text-gray-400 font-light">&#8358;31,400</span>
+      </div>
+      <div class="btn-container flex items-center">
+          <button class="bg-gradient-to-r from-green-600 to-green-400 text-white py-3 w-full rounded-full cursor-pointer">Confirm Order</button>
+      </div>
     </div>
 
-    <div>
-      <h1>Subtotal <span>&#8358;22,350</span></h1>
-      <p>
-        Delivery fee <UIcon name="i-material-symbols-help" /><span
-          >&#8358;500</span
-        >
-      </p>
-      <p>
-        Service fee <UIcon name="i-material-symbols-help" />
-        <span>&#8358;900</span>
-      </p>
-    </div>
-
-    <div>
-      <p>Order total</p>
-    </div>
-
-    <button>Confirm order</button>
   </section>
 </template>
+
+<script setup>
+import { ref } from 'vue';
+
+// Default selected option
+const selectedOption = ref('delivery');
+
+//Function to handle option selection
+const handleOptionSelect = (option) => {
+  selectedOption.value = option;
+}
+
+</script>
