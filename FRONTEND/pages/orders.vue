@@ -1,6 +1,6 @@
 <template>
   <section
-    class="p-10 flex flex-col justify-center items-center text-center"
+    class="h-[70vh] p-10 flex flex-col justify-center items-center text-center"
     v-if="false"
   >
     <div class="mb-5">
@@ -19,167 +19,192 @@
     </div>
   </section>
 
-  <section class="bg-gray-100">
+  <section v-if="true">
     <div
-      class="flex justify-between items-center p-5 border-b-10 border-gray-200 bg-white sticky top-0"
+      class="flex items-center justify-around px-7 py-3 z-1000 bg-white sticky top-0 text-md"
     >
-      <UIcon
-        name="i-material-symbols-close"
-        class="text-red-600 cursor-pointer w-10 h-10 p-2 rounded"
-      />
-
-      <div class="flex flex-col items-center">
-        <h1 class="text-2xl font-bold">Orders</h1>
-        <p class="text-gray-400">2 vendors, 2 items</p>
+      <div class="flex flex-col items-center font-manrope">
+        <h1 class="font-semibold">Orders</h1>
+        <p class="text-gray-800 text-sm">2 vendors, 2 items</p>
       </div>
 
-      <button class="text-gray-400">Delete all</button>
+      <div>
+        <button class="text-red-500 text-sm">Clear</button>
+      </div>
     </div>
 
     <div>
-
       <div
-        class="flex items-center justify-center bg-white p-5 border-b border-gray-200"
+        class="flex items-center justify-center p-5 border-b-2 border-t-5 border-t-gray-200 border-b-gray-200 tracking-tight"
       >
-        <div class="flex items-center space-x-4">
-          <button 
+        <div class="flex items-center bg-gray-200 w-full rounded-full">
+          <button
+            class="w-[50%] bg-transparent text-gray-900 border-1"
             :class="[
-             'font-bold px-6 py-2 rounded-full transition-all duration-300 ease-in-out transform',
-              selectedOption === 'delivery' ? 'bg-white text-black' : 'bg-gray-100 text-black'
-              ]"
-              @click="selectedOption = 'delivery'"
-              >
+              'px-6 py-2',
+              selectedOption == 'delivery'
+                ? 'bg-white rounded-full text-black shadow-md border-black/20'
+                : 'border-transparent',
+            ]"
+            @click="selectedOption = 'delivery'"
+          >
             Delivery
           </button>
 
-          <button 
+          <button
+            class="w-[50%] bg-transparent text-gray-800 border-1"
             :class="[
-             'font-bold px-6 py-2 rounded-full transition-all duration-300 ease-in-out transform',
-              selectedOption === 'pickup' ? 'bg-white text-black' : 'bg-gray-100 text-black'
-              ]"
-              @click="selectedOption = 'pickup'"
-              >
+              'px-6 py-2',
+              selectedOption == 'pickup'
+                ? 'bg-white rounded-full text-black shadow-md border-black/20'
+                : 'border-transparent',
+            ]"
+            @click="selectedOption = 'pickup'"
+          >
             Pick-up
           </button>
         </div>
       </div>
 
       <div
-        class="flex items-center justify-between p-5 border-b border-gray-200 bg-white"
+        class="flex items-center justify-between py-3 px-6 border-b border-gray-200 bg-white font-manrope text-md"
       >
-        <div class="flex items-center space-x-2">
+        <div class="flex items-center">
           <UIcon
             name="i-material-symbols-location-on-outline"
-            class="text-gray-600 text-xl w-5 h-5"
+            class="text-gray-800 text-xl mr-4"
           />
-          <p class="font-bold text-black">Atuwase, Room 5</p>
+          <p class="text-black text-sm">Atuwase, Room 5</p>
         </div>
-        <div class="background flex items-center justify center w-10 h-10 p-2 rounded-full bg-red-100 cursor-pointer">
+
+        <div
+          class="flex items-center p-1 rounded-full bg-primary_light cursor-pointer"
+        >
           <UIcon
             name="i-material-symbols-keyboard-arrow-down"
-            class="text-red-500 w-8 h-8 cursor-pointer"
+            class="text-primary text-xl"
           />
         </div>
       </div>
 
       <div
-        class="flex items-center justify-between p-5 border-b border-gray-200 bg-white"
+        class="flex items-center justify-between py-3 px-6 border-b border-gray-200 bg-white font-manrope"
       >
-        <div class="flex items-center space-x-2">
+        <div class="flex items-center">
           <UIcon
             name="i-material-symbols-call"
-            class="text-gray-600 text-xl w-5 h-5"
+            class="text-gray-800 text-xl mr-4"
           />
-          <p class="font-bold text-black">08112985079</p>
+          <p class="text-black tracking-wider text-sm">08112985079</p>
         </div>
         <UIcon
           name="i-material-symbols-edit-sharp"
-          class="text-gray-600 text-xl w-5 h-5"
+          class="text-gray-600 text-xl"
         />
       </div>
     </div>
 
-    <div class="flex items-center justify-center p-5">
-      <p class="text-gray-600">Swipe items to edit or delete</p>
+    <div
+      class="bg-gray-100 text-center text-gray-600 p-4 text-sm tracking-wide"
+    >
+      <p>Swipe items to edit or delete</p>
     </div>
 
-
-    <div>
-        <div class="p-5 border-b border-gray-200 bg-white">
+    <div class="bg-gray-200">
+      <div class="font-manrope mb-1">
+        <div class="px-6 py-4 border-b border-gray-200 bg-white">
           <h3 class="font-bold text-black">Stomach Option</h3>
         </div>
-    
 
-      <div class="flex items-center justify-between p-5 border-b border-gray-200 bg-white">
-        <span class="text-red-600 cursor-pointer w-10 h-10 p-2">1x</span>
-        <p class="font-bold">10 Kilo Grilled Giant</p>
-        <p>&#8358;15,000.00</p>
-      </div>
-    </div>
-
-     <div class="flex items-center justify-between p-5 border-b border-gray-200 bg-white">
-        <span class="text-red-600 cursor-pointer w-10 h-10 p-2">1x</span>
-        <p class="font-bold">10 Kilo Grilled Giant</p>
-        <p>&#8358;15,000.00</p>
-      </div>
-
-   
-    <div class="flex items-center justify-between p-4 border-t-16 border-b-16 border-gray-200 bg-white">
-      <p class="text-gray-400 font-light">Add referral or discount code</p>
-      <UIcon name="i-material-symbols-chevron-right-rounded" class="text-gray-600 text-xl w-5 h-5" />
-    </div>
-   
-
-    <div class="p-5 border-b-20 border-gray-200 bg-white">
-      <div class="space-y-4">
-        <div class="flex items-center justify-between">
-          <h1 class="text-gray-400 text-xl font-light">Subtotal</h1>
-          <span class="text-gray-400 font-light">&#8358;30,000</span>
-        </div>
-  
-        <div class="flex items-center justify-between">
-          <div class="flex items-center space-x-2">
-            <h1 class="text-gray-400 text-xl font-light">Delivery fee</h1><UIcon name="i-material-symbols-help" class="w-5 h-5 text-gray-400"/>
+        <div
+          class="flex items-center justify-between px-6 py-4 border-b border-gray-200 bg-white"
+        >
+          <div class="flex items-center">
+            <span class="text-primary font-semibold text-sm mr-8">1x</span>
+            <p class="font-semibold">Jollof Rice</p>
           </div>
-          <span class="text-gray-400 font-light">&#8358;500</span>
+          <p>&#8358;200</p>
         </div>
-  
-        <div class="flex items-center justify-between">
-          <h1 class="text-gray-400 text-xl font-light">Discount</h1>
-          <span class="text-gray-400 font-light">&#8358;0</span>
+      </div>
+
+      <div class="font-manrope">
+        <div class="px-6 py-4 border-b border-gray-200 bg-white">
+          <h3 class="font-bold text-black">Ateez Foods</h3>
         </div>
-  
-        <div class="flex items-center justify-between">
-          <div class="flex items-center space-x-2">
-             <h1 class="text-gray-400 text-xl font-light">Service fee</h1><UIcon name="i-material-symbols-help" class="w-5 h-5 text-gray-400 font-light" />
-            </div>
-            <span class="text-gray-400 font-light">&#8358;900</span>
+
+        <div
+          class="flex items-center justify-between px-6 py-4 border-b border-gray-200 bg-white"
+        >
+          <div class="flex items-center">
+            <span class="text-primary font-semibold text-sm mr-8">1x</span>
+            <p class="font-semibold">Jollof Rice</p>
+          </div>
+          <p>&#8358;200</p>
         </div>
       </div>
     </div>
 
-    <div class="container sticky bottom-0 p-6 border-gray-200 bg-white space-y-2">
+    <div
+      class="flex items-center justify-between py-4 px-6 border-y-1 border-gray-200 bg-white"
+    >
+      <p class="font-light text-sm">Add referral or discount code</p>
+      <UIcon
+        name="i-material-symbols-chevron-right-rounded"
+        class="text-gray-600 text-xl"
+      />
+    </div>
+
+    <div
+      class="py-5 px-6 border-t-5 border-gray-200 bg-white font-manrope tracking-wide text-gray-500 space-y-2 text-sm"
+    >
       <div class="flex items-center justify-between">
-        <p class="font-light text-xl">Order total</p>
-        <span class="text-gray-400 font-light">&#8358;31,400</span>
+        <h1>Subtotal</h1>
+        <span>&#8358;30,000</span>
       </div>
-      <div class="btn-container flex items-center">
-          <button class="bg-gradient-to-r from-green-600 to-green-400 text-white py-3 w-full rounded-full cursor-pointer">Confirm Order</button>
+
+      <div class="flex items-center justify-between">
+        <div class="flex items-center">
+          <h1 class="mr-1">Delivery fee</h1>
+          <UIcon name="i-material-symbols-help" class="text-xl" />
+        </div>
+        <span>&#8358;500</span>
+      </div>
+
+      <div class="flex items-center justify-between">
+        <h1>Discount</h1>
+        <span>&#8358;0</span>
+      </div>
+
+      <div class="flex items-center justify-between">
+        <div class="flex items-center">
+          <h1 class="mr-1">Service fee</h1>
+          <UIcon name="i-material-symbols-help" class="text-xl" />
+        </div>
+        <span>&#8358;900</span>
       </div>
     </div>
 
+    <div
+      class="container sticky bottom-0 px-6 py-3 bg-white flex flex-col gap-2 border-t-1 border-t-gray-200 font-manrope"
+    >
+      <div class="flex items-center justify-between">
+        <p>Order total</p>
+        <span class="tracking-wide">&#8358;31,400</span>
+      </div>
+      <div>
+        <button
+          class="bg-gradient-to-r from-green-600 to-green-400 text-white py-2 w-full rounded-md cursor-pointer mb-5"
+        >
+          Confirm Order
+        </button>
+      </div>
+    </div>
   </section>
 </template>
 
 <script setup>
-import { ref } from 'vue';
+import { ref } from "vue";
 
 // Default selected option
-const selectedOption = ref('delivery');
-
-//Function to handle option selection
-const handleOptionSelect = (option) => {
-  selectedOption.value = option;
-}
-
+const selectedOption = ref("delivery");
 </script>

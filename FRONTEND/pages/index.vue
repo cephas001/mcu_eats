@@ -40,7 +40,7 @@
           :class="
             restaurant.favourite ? 'animate-[var(--animate-pingOnce)]' : ''
           "
-          @click.self="restaurant.favourite = !restaurant.favourite"
+          @click.self="favouriteRestaurant(restaurant.id)"
         />
         <div
           class="bg-black/50 absolute inset-0 flex flex-col items-center justify-center gap-5 text-white text-lg"
@@ -76,7 +76,7 @@
   </section>
 
   <section
-    class="bg-transparent h-[78vh] overflow-hidden flex flex-col items-center justify-center"
+    class="bg-transparent h-[80vh] overflow-hidden flex flex-col items-center justify-center"
     v-if="restaurants.length == 0"
   >
     <img src="/loading2.png" class="animate-pulse" />
@@ -89,9 +89,20 @@ const restaurants = ref([]);
 
 const fetchRestaurants = async () => {
   restaurants.value = await $fetch("api/restaurants");
+  console.log(restaurants.value);
+};
+
+const favouriteRestaurant = async (restaurantId) => {
+  return;
+
+  const response = await $fetch("api/usersRestaurantFavourites", {
+    method: "PUT",
+    body: { userId: "1", restaurantId },
+  });
 };
 
 const openRestaurant = (id, open) => {
+  return;
   if (open) {
     navigateTo(`/restaurants/${id}`);
   }
