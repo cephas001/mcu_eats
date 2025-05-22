@@ -109,6 +109,7 @@ const items = ref<DropdownMenuItem[][]>([
       color: "error",
       icon: "i-lucide-log-out",
       kbds: ["shift", "meta", "q"],
+      to: "/login",
     },
   ],
 ]);
