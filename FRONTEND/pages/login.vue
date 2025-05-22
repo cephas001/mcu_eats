@@ -1,12 +1,6 @@
 <template>
   <section class="py-5 px-6">
-    <UIcon
-      name="i-material-symbols-cancel"
-      class="bg-primary absolute right-4 text-4xl"
-      @click="navigateTo('/')"
-    />
-
-    <div class="text-center mt-15 mb-8">
+    <div class="text-center mt-10 mb-8">
       <h1 class="font-bold text-2xl mb-3">Welcome</h1>
       <p class="text-md font-manrope tracking-tight">
         Continue with one of the following options
@@ -124,22 +118,22 @@
 
     <div class="mt-6 text-center">
       <p class="text-gray-600 mb-2">or with</p>
-      <div
-        class="flex border-1 border-gray-200 p-4 rounded-full items-center justify-center gap-2 mb-3 font-semibold"
+      <button
+        class="flex border-1 border-gray-200 p-4 rounded-full w-full items-center justify-center gap-2 mb-3 font-semibold focus:bg-gray-100"
       >
         <img
           src="@/assets/images/google.73c708cb.svg"
           alt="Google Icon"
         />Google
-      </div>
-      <div
-        class="flex border-1 border-gray-200 p-4 rounded-full items-center justify-center gap-2 mb-3 font-semibold"
+      </button>
+      <button
+        class="flex border-1 border-gray-200 p-4 rounded-full w-full items-center justify-center gap-2 mb-3 font-semibold focus:bg-gray-100"
       >
         <img
           src="@/assets/images/facebook.e4480188.svg"
           alt="Facebook Icon"
         />Facebook
-      </div>
+      </button>
     </div>
 
     <div class="mt-6">

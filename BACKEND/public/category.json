@@ -1,0 +1,28 @@
+{
+  "category": [
+    {
+      "id": "1",
+      "name": "Quick Meals"
+    },
+    {
+      "id": "2",
+      "name": "Swallow and More"
+    },
+    {
+      "id": "3",
+      "name": "Pastries"
+    },
+    {
+      "id": "4",
+      "name": "Snacks and Grills"
+    },
+    {
+      "id": "5",
+      "name": "Electronics"
+    },
+    {
+      "id": "6",
+      "name": "Stationeries"
+    }
+  ]
+}
