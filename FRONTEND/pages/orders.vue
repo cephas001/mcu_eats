@@ -185,7 +185,7 @@
     </div>
 
     <div
-      class="container sticky bottom-0 px-6 py-3 bg-white flex flex-col gap-2 border-t-1 border-t-gray-200 font-manrope"
+      class="sticky bottom-0 px-6 py-3 bg-white flex flex-col gap-2 border-t-1 border-t-gray-200 font-manrope"
     >
       <div class="flex items-center justify-between">
         <p>Order total</p>
@@ -193,7 +193,7 @@
       </div>
       <div>
         <button
-          class="bg-gradient-to-r from-green-600 to-green-400 text-white py-2 w-full rounded-md cursor-pointer mb-5"
+          class="bg-gradient-to-r from-green-600 to-green-400 text-white py-2 w-full rounded-md cursor-pointer mb-2"
         >
           Confirm Order
         </button>

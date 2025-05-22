@@ -1,6 +1,7 @@
 <template>
-    <UApp>
-        <Navigation />
-        <slot />
-    </UApp>
+  <UApp>
+    <Navigation />
+    <slot />
+    <Footer />
+  </UApp>
 </template>
