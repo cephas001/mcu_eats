@@ -6,7 +6,7 @@
       {{ vendor.category }}
     </div>
     <Media
-      :src="vendor.image"
+      src="/restaurant/food1.jpg"
       class="rounded-t-md"
       @click.self="openVendor(vendor.id, vendor.open)"
     />
@@ -56,8 +56,8 @@ const props = defineProps({
   },
 });
 
-const openVendor = () => {
-  console.log("opened");
+const openVendor = (id, open) => {
+  console.log(id);
 };
 
 const favouriteVendor = () => {

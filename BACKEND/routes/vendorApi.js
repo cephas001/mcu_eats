@@ -18,9 +18,15 @@ const Vendors = require("../schemas/vendorSchema");
 // const upload = multer({ storage });
 
 router.get("/vendors", async (req, res) => {
-  const vendors = await Vendors.find({});
+  try {
+    const restaurants = await Vendors.find({ type: "restaurant" });
+    const retailers = await Vendors.find({ type: "retailer" });
+    const shops = await Vendors.find({ type: "shop" });
 
-  return res.json({ message: "Configured successfully" });
+    return res.json({ restaurants, retailers, shops });
+  } catch (error) {
+    console.log(error);
+  }
 });
 
 module.exports = router;
