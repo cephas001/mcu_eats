@@ -103,6 +103,7 @@ const items = ref<DropdownMenuItem[][]>([
       label: "Support",
       icon: "i-material-symbols-question-mark-rounded",
       color: "info",
+      to: "/support",
     },
     {
       label: "Logout",
