@@ -8,7 +8,7 @@
     <Media
       src="/restaurant/food1.jpg"
       class="rounded-t-md"
-      @click.self="openVendor(vendor.id, vendor.open)"
+      @click.self="openVendor(vendor._id, vendor.type, vendor.open)"
     />
     <!-- icon to favorite would be to the top right -->
     <UIcon
@@ -23,13 +23,16 @@
     >
       <p class="font-semibold">Closed</p>
 
-      <p>Opens at 7:00am</p>
+      <p>
+        Opens at {{ vendor.opening_time.hour
+        }}{{ vendor.opening_time.hour > 11 ? "pm" : "am" }}
+      </p>
     </div>
   </div>
 
   <div
     class="py-3 pl-5 flex justify-left items-center"
-    @click="openVendor(vendor.id)"
+    @click="openVendor(vendor._id, vendor.type, vendor.open)"
   >
     <div>
       <!-- avatar -->
@@ -56,11 +59,19 @@ const props = defineProps({
   },
 });
 
-const openVendor = (id, open) => {
-  console.log(id);
+const favouriteRestaurant = async (restaurantId) => {
+  return;
+
+  const response = await $fetch("api/usersRestaurantFavourites", {
+    method: "PUT",
+    body: { userId: "1", restaurantId },
+  });
 };
 
-const favouriteVendor = () => {
-  console.log("favourited");
+const openVendor = (id, type, open) => {
+  console.log(id, type, open);
+  if (open) {
+    navigateTo(`/restaurants/${id}?type=${type}`);
+  }
 };
 </script>

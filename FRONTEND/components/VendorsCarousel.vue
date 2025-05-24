@@ -15,5 +15,4 @@ const props = defineProps({
     type: Array,
   },
 });
-console.log(props.vendorList);
 </script>

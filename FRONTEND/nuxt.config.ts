@@ -17,7 +17,7 @@ export default defineNuxtConfig({
     plugins: [tailwindcss()],
   },
 
-  modules: ["@vueuse/nuxt", "@nuxt/ui", "@nuxt/image"],
+  modules: ["@vueuse/nuxt", "@nuxt/ui", "@nuxt/image", "@pinia/nuxt"],
 
   ui: {
     fonts: false,
@@ -31,5 +31,11 @@ export default defineNuxtConfig({
 
   image: {
     dir: "assets/images",
+  },
+
+  runtimeConfig: {
+    public: {
+      apiBaseUrl: process.env.API_BASE_URL,
+    },
   },
 });

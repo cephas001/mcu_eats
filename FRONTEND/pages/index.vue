@@ -61,60 +61,28 @@
     </div>
   </section>
 
-  <section
-    class="bg-transparent h-[80vh] overflow-hidden flex flex-col items-center justify-center"
-    v-if="fetchingData"
-  >
-    <img src="/loading2.png" class="animate-pulse" />
-  </section>
+  <LoadingIconLarge :loading="fetchingData" />
 </template>
 
 <script setup>
 import { onMounted } from "vue";
+import { useVendorStore } from "@/stores/vendorStore";
+import { storeToRefs } from "pinia";
+import LoadingIconLarge from "../components/LoadingIconLarge.vue";
 
-const restaurants = ref([]);
-const shops = ref([]);
-const retailers = ref([]);
+const vendorStore = useVendorStore();
+const { restaurants, retailers, shops } = storeToRefs(vendorStore);
 
 const fetchingData = ref(true);
 
-const fetchVendors = async () => {
-  try {
-    const response = await $fetch(
-      "https://super-journey-5p95pj5grgwf7xvq-5000.app.github.dev/vendors"
-    );
-    const {
-      restaurants: fetchedRestaurants,
-      retailers: fetchedRetailers,
-      shops: fetchedShops,
-    } = response;
-    restaurants.value = fetchedRestaurants;
-    retailers.value = fetchedRetailers;
-    shops.value = fetchedShops;
-
-    fetchingData.value = false;
-  } catch (error) {
-    console.log(error);
-  }
-};
-
-const favouriteRestaurant = async (restaurantId) => {
-  return;
-
-  const response = await $fetch("api/usersRestaurantFavourites", {
-    method: "PUT",
-    body: { userId: "1", restaurantId },
-  });
-};
-
-const openRestaurant = (id, open) => {
-  return;
-  if (open) {
-    navigateTo(`/restaurants/${id}`);
-  }
-};
-
 onMounted(async () => {
-  await fetchVendors();
+  fetchingData.value = true;
+  try {
+    await vendorStore.fetchVendors();
+  } catch (error) {
+    console.error("Error fetching vendors:", error);
+  } finally {
+    fetchingData.value = false;
+  }
 });
 </script>

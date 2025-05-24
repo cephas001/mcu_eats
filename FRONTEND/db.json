@@ -139,7 +139,16 @@
       "category": "Snacks and Grills",
       "types": ["6"],
       "opening_time": "06:00:00",
-      "closing_time": "21:00:00"
+      "closing_time": "21:00:00",
+      "menu": [
+        {
+          "id": "1",
+          "name": "Hot Bread",
+          "description": "White or brown, we've got you covered",
+          "price": 3650,
+          "type": "Snacks"
+        }
+      ]
     },
     {
       "id": "6",

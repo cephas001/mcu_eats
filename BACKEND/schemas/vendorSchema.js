@@ -30,6 +30,9 @@ const VendorSchema = new mongoose.Schema(
       type: String,
       required: true,
     },
+    taking_orders: {
+      type: Boolean,
+    },
     opening_time: {
       hour: Number,
       minute: Number,

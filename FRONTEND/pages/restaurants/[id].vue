@@ -1,5 +1,5 @@
 <template>
-  <section>
+  <section v-if="!fetchingData">
     <div class="relative">
       <div
         class="absolute top-[15px] left-5 bg-primary p-1 flex items-center rounded-full z-150"
@@ -10,14 +10,14 @@
           @click="navigateTo('/')"
         />
       </div>
-      <div><Media :src="restaurant.image" /></div>
+      <div><Media src="/restaurant/food1.jpg" /></div>
       <UIcon
         :name="`i-material-symbols-favorite${
-          restaurant.favourite ? '' : '-outline'
+          vendor.favourite ? '' : '-outline'
         }`"
         class="text-white absolute top-5 right-15 font-bold text-3xl"
-        :class="restaurant.favourite ? 'animate-[var(--animate-pingOnce)]' : ''"
-        @click="restaurant.favourite = !restaurant.favourite"
+        :class="vendor.favourite ? 'animate-[var(--animate-pingOnce)]' : ''"
+        @click="vendor.favourite = !vendor.favourite"
       />
       <UIcon
         name="i-material-symbols-share"
@@ -27,10 +27,10 @@
     <div class="p-5 pb-3 relative">
       <div class="absolute right-10 top-[-35px]">
         <!-- avatar -->
-        <img src="@/assets/images/avatar.jpg" class="w-[70px] rounded-full" />
+        <img src="@/assets/images/avatars/avatar.jpg" class="w-[70px] rounded-full" />
       </div>
-      <h1 class="tracking-wide font-semibold mb-1">{{ restaurant.name }}</h1>
-      <p class="text-gray-500 text-sm mb-1">{{ restaurant.description }}</p>
+      <h1 class="tracking-wide font-semibold mb-1">{{ vendor.name }}</h1>
+      <p class="text-gray-500 text-sm mb-1">{{ vendor.description }}</p>
       <p
         class="text-sm flex items-center gap-2 text-gray-500 font-manrope font-semibold"
       >
@@ -53,10 +53,10 @@
     </div>
   </section>
 
-  <section class="px-5 py-3 border-y-1 border-y-gray-300">
+  <section v-if="!fetchingData" class="px-5 py-3 border-y-1 border-y-gray-300">
     <div class="flex gap-4 overflow-x-scroll hide-scrollbar">
       <h1
-        v-for="(type, index) in types"
+        v-for="(type, index) in vendor.types"
         :key="index"
         class="text-gray-900 text-sm whitespace-nowrap py-1 px-3 rounded-full cursor-pointer"
         :class="[type.selected ? 'bg-primary_light' : '']"
@@ -67,272 +67,155 @@
     </div>
   </section>
 
-  <h1 class="px-5 py-5 text-sm font-manrope bg-gray-100 tracking-wider">
-    {{ selectedType.name }}
+  <h1 v-if="!fetchingData" class="px-5 py-5 text-sm font-manrope bg-gray-100 tracking-wider">
+    {{ selectedType.name}}
   </h1>
-  <section class="px-5 pt-3 pb-18 relative">
-    <div class="py-5 border-b-1 border-gray-100" v-for="food in filteredFoodItems" :key="food">
-      <h1 class="mb-4" >{{ food.name }}</h1>
+  <section v-if="!fetchingData" class="px-5 pb-15 relative">
+    <div class="py-5 border-b-1 border-gray-100" v-for="product in filteredProducts" :key="product._id">
+      <h1 class="mb-4" >{{ product.name }}</h1>
         <p class="text-gray-600 text-sm">
-          {{ food.description }}
+          {{ product.description }}
         </p>
-        <p class="text-sm font-bold tracking-wider font-manrope">&#8358;{{ food.price.toLocaleString() }}</p>
+        <p class="text-sm font-bold tracking-wider font-manrope">&#8358;{{ product.price.toLocaleString() }}</p>
         <div class="flex w-fit rounded-md gap-1 pt-3 text-xl">
           <div class="bg-primary_light rounded-full p-1 flex items-center">
-            <Icon name="i-material-symbols-add-2-rounded" @click="increase(food)"/>
+            <Icon name="i-material-symbols-add-2-rounded" @click="increase(product)"/>
           </div>
           <div class="bg-primary_light rounded-full p-1 flex items-center">
-            <Icon name="i-lucide-minus" @click="decrease(food)" />
+            <Icon name="i-lucide-minus" @click="decrease(product)" />
           </div>
-          <input type="text" disabled class="w-[50px] ml-3 font-manrope" :class="[food.count < 1 ? 'hidden' : 'visible']" v-model="food.count"></input>
+          <input type="text" disabled class="w-[50px] ml-3 font-manrope" :class="[product.count < 1 ? 'hidden' : 'visible']" v-model="product.count"></input>
         </div>
     </div>
-    <div class="">
-
-    </div>
-    <div class="fixed font-manrope bottom-3 left-5 right-5 bg-primary p-2 mb-5 rounded-md text-white" v-if="viewOrdersBtn">
+    <div class="absolute font-manrope bottom-0 left-5 right-5 bg-primary p-2 rounded-md text-white" v-if="viewOrdersBtn">
       <button class="w-full relative">View Orders <span class="absolute right-2">&#8358;{{ totalPrice.toLocaleString() }}</span></button>
     </div>
   </section>
+
+  <LoadingIconLarge :loading="fetchingData" />
 </template>
 
 <script setup>
-import { computed, watch } from "vue";
+import { computed, onMounted, watch } from "vue";
+import { useVendorStore } from "@/stores/vendorStore";
+import { storeToRefs } from "pinia";
 
 const route = useRoute();
-const restaurants = ref([
-  {
-    id: 1,
-    image: "/food1.jpg",
-    favourite: false,
-    name: "Stomach Option",
-    description: "A flavour packed experience...",
-    category: "Quick Meals",
-    open: true,
-  },
-  {
-    id: 2,
-    image: "/food4.jpg",
-    favourite: false,
-    name: "Zoe Aroma Kitchens",
-    description: "A flavour packed experience...",
-    category: "Quick Meals",
-    open: true,
-  },
-  {
-    id: 3,
-    image: "/food3.jpg",
-    favourite: false,
-    name: "Abula Joint",
-    description: "Hot amala and more...",
-    category: "Swallow and More",
-    open: false,
-  },
-  {
-    id: 4,
-    image: "/food4.jpg",
-    favourite: false,
-    name: "Ateez Foods",
-    description: "Tasty foods. Affordable rates...",
-    category: "Quick Meals",
-    open: true,
-  },
-  {
-    id: 5,
-    image: "/food5.jpg",
-    favourite: false,
-    name: "MCU Bakery",
-    description: "A flavour packed experience...",
-    category: "Pastries",
-    open: false,
-  },
-  {
-    id: 6,
-    image: "/food5.jpg",
-    favourite: false,
-    name: "Bros John's",
-    description: "A flavour packed experience...",
-    category: "Snacks and Grills",
-    open: true,
-  },
-]);
+const vendorStore = useVendorStore();
+const { vendor } = storeToRefs(vendorStore);
+const watchedVendor = computed(() => vendor.value);
+const selectedType = ref({});
+
 const viewOrdersBtn = ref(false);
 const totalPrice = ref(0);
 
 const id = route.params.id;
+const type = route.query.type;
 
-const restaurant = restaurants.value[id - 1];
+const orders = ref([]);
 
-const filteredFoodItems = computed(() => {
-  return foodItems.value.filter((food) => {
-    if(selectedType.value.name == food.type) {
+const filteredProducts = computed(() => {
+  return vendor.value.products.filter((product) => {
+    if(product.type == selectedType.value.name) {
       return true
+    } else {
+      return false;
     }
-    return false;
   })
 });
 
-// const filterFoodTypes = computed(() => {
-//   const newArr = foodItems.value.filter((food) => {
-//     types.value.forEach(type => {
-//     console.log(type.name, food.type == type.name,  food.type)
-//       if(food.type == type.name) return true;
-//       return false;
-//     });    
-//   })
-
-//   console.log(newArr);
-//   return [];
-// });
-
-const types = ref([
-  {
-    id: 1,
-    name: "Rice Dishes",
-    selected: true,
-  },
-  {
-    id: Math.random(),
-    name: "Protein",
-    selected: false
-  },
-  {
-    id: 2,
-    name: "Soups",
-    selected: false,
-  },
-
-  {
-    id: 3,
-    name: "Pasta",
-    selected: false,
-  },
-
-  {
-    id: 4,
-    name: "Cocktails",
-    selected: false,
-  },
-  {
-    id: 5,
-    name: "Snacks",
-    selected: false,
-  },
-  {
-    id: 6,
-    name: "Drinks",
-    selected: false,
-  },
-]);
-
 const select = (id) => {
-  types.value.map((type) => {
+  vendor.value.types.map((type) => {
     if (id !== type.id) {
-      return (type.selected = false);
+      return type.selected = false;
     }
-    return (type.selected = true);
+    selectedType.value = type;
+    return type.selected = true
   });
+  
 };
 
-const selectedType = ref(types.value[0]);
+const increase = (product) => {
+  product.count++;
+  totalPrice.value = totalPrice.value + product.price;
 
-const increase = (food) => {
-  food.count++;
-  totalPrice.value = totalPrice.value + food.price;
+  var orderToAdd = {};
+
+  // Revise and find a way to store in local storage
+  if(orders.value.length > 0) {
+    orders.value.forEach(order => {
+      // Because of this, no two products must have the same name
+      if(order.product == product.name) {
+        orderToAdd = { ...order, quantity: product.count++}
+      } else {
+        orderToAdd = {
+          orderId: Date.now().toString(36) + Math.random().toString(36).substring(2),
+          vendor: vendor.value.name,
+          product: product.name, 
+          quantity: product.count, 
+          totalPrice: product.count * product.price
+        }
+
+        orders.value.push(orderToAdd);
+      }
+    })
+  } else {
+    orderToAdd = {
+      orderId: Date.now().toString(36) + Math.random().toString(36).substring(2),
+      vendor: vendor.value.name,
+      product: product.name, 
+      quantity: product.count, 
+      totalPrice: product.count * product.price
+    }
+    orders.value.push(orderToAdd);
+  }
+  console.log(orders.value)
 }
 
-const decrease = (food) => {
-  if(food.count == 0) {
+const decrease = (product) => {
+  if(product.count == 0) {
     return;
   }
-  food.count--;
-  totalPrice.value = totalPrice.value - food.price;
+  product.count--;
+  totalPrice.value = totalPrice.value - product.price;
 }
-watch(
-  types.value,
-  (newTypes) => {
-    selectedType.value = newTypes.filter((item) => {
-      if (item.selected) return true;
-    })[0];
-  },
-  { deep: true }
-);
 
-const foodItems = ref([
-  {
-    id: 1,
-    name: "Smokey Jollof Rice",
-    description: "Delicious party style smokey jollof rice",
-    price: 3900,
-    type: "Rice Dishes",
-    restaurant: "Stomach Option",
-    count: 0
-  },
-  {
-    id: 2,
-    name: "Original Fried Rice",
-    description: "Classic, original & rich naija fried rice",
-    price: 3650,
-    type: "Rice Dishes",
-    restaurant: "Stomach Option",
-    count: 0
-  },
-  {
-    id: 3,
-    name: "Village Rice",
-    description: "Native style rice with bits of beef, fish & kpomo",
-    price: 4000,
-    type: "Rice Dishes",
-    restaurant: "Stomach Option",
-    count: 0
-  },
-  {
-    id: 4,
-    name: "Stewed Fried Chicken",
-    description: "Fried chicken in stew.",
-    price: 3950,
-    type: "Protein",
-    restaurant: "Stomach Option",
-    count: 0
-  },
-  {
-    id: 5,
-    name: "Stewed Fried Beef",
-    description: "Fried beef in stew",
-    price: 3400,
-    type: "Protein",
-    restaurant: "Stomach Option",
-    count: 0
-  },
-  {
-    id: 5,
-    name: "Peppered Turkey",
-    description: "Peppered Turkey",
-    price: 7500,
-    type: "Protein",
-    restaurant: "Stomach Option",
-    count: 0
-  },
-  {
-    id: 6,
-    name: "Peppered Gizzard",
-    description: "Peppered gizzard piecies",
-    price: 1750,
-    type: "Protein",
-    restaurant: "Stomach Option",
-    count: 0
-  },
-]);
+const fetchingData = ref(true);
 
-watch(foodItems.value, (newFoodItems) => {
-  var updatedFood = newFoodItems.filter((food) => {
-    if(food.count > 0) return true; 
-  })
-  
-  if(updatedFood.length > 0) {
+watch(watchedVendor, (newValue, oldValue) => {
+  if(newValue.products.find((product) => product.count > 0)) {
     viewOrdersBtn.value = true;
   } else {
     viewOrdersBtn.value = false;
+  }
+}, {deep: true})
+
+onMounted(async () => {
+  fetchingData.value = true;
+  try {
+    await vendorStore.fetchVendorById(id);
+    if(vendor) {
+      vendor.value.types = [];
+      vendor.value.products.forEach((product, index) => {
+        product["count"] = 0;
+
+        const objectToAdd = {
+          id: Date.now().toString(36) + Math.random().toString(36).substring(2),
+          name: product.type,
+          selected: index === 0
+        };
+
+        // Check if the type already exists before adding
+        if (!vendor.value.types.some((type) => type.name === product.type)) {
+          vendor.value.types.push(objectToAdd);
+        }
+      });
+      selectedType.value = vendor.value.types[0];
+    }
+  } catch (error) {
+    console.error("Error fetching vendor:", error);
+  } finally {
+    fetchingData.value = false;
   }
 })
 </script>
