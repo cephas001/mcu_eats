@@ -1,0 +1,8 @@
+# Node dependencies
+
+BACKEND/node_modules
+FRONTEND/node_modules
+
+# Config folder
+
+BACKEND/config/
