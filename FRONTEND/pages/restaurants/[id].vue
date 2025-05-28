@@ -99,6 +99,7 @@
 import { computed, onMounted, watch } from "vue";
 import { useVendorStore } from "@/stores/vendorStore";
 import { storeToRefs } from "pinia";
+import { updateLocalStorageOrders } from "@/utils/updateLocalStorageOrders";
 
 const route = useRoute();
 const vendorStore = useVendorStore();
@@ -107,6 +108,7 @@ const watchedVendor = computed(() => vendor.value);
 const selectedType = ref({});
 
 const viewOrdersBtn = ref(false);
+
 const totalPrice = ref(0);
 
 const id = route.params.id;
@@ -136,40 +138,10 @@ const select = (id) => {
 };
 
 const increase = (product) => {
+  console.log(product)
   product.count++;
   totalPrice.value = totalPrice.value + product.price;
-
-  var orderToAdd = {};
-
-  // Revise and find a way to store in local storage
-  if(orders.value.length > 0) {
-    orders.value.forEach(order => {
-      // Because of this, no two products must have the same name
-      if(order.product == product.name) {
-        orderToAdd = { ...order, quantity: product.count++}
-      } else {
-        orderToAdd = {
-          orderId: Date.now().toString(36) + Math.random().toString(36).substring(2),
-          vendor: vendor.value.name,
-          product: product.name, 
-          quantity: product.count, 
-          totalPrice: product.count * product.price
-        }
-
-        orders.value.push(orderToAdd);
-      }
-    })
-  } else {
-    orderToAdd = {
-      orderId: Date.now().toString(36) + Math.random().toString(36).substring(2),
-      vendor: vendor.value.name,
-      product: product.name, 
-      quantity: product.count, 
-      totalPrice: product.count * product.price
-    }
-    orders.value.push(orderToAdd);
-  }
-  console.log(orders.value)
+  updateLocalStorageOrders(product, {name: vendor.value.name, _id: vendor.value._id},"increase")
 }
 
 const decrease = (product) => {
@@ -178,6 +150,7 @@ const decrease = (product) => {
   }
   product.count--;
   totalPrice.value = totalPrice.value - product.price;
+  updateLocalStorageOrders(product, {name: vendor.value.name, _id: vendor.value._id}, "decrease")
 }
 
 const fetchingData = ref(true);
@@ -185,12 +158,18 @@ const fetchingData = ref(true);
 watch(watchedVendor, (newValue, oldValue) => {
   if(newValue.products.find((product) => product.count > 0)) {
     viewOrdersBtn.value = true;
-  } else {
-    viewOrdersBtn.value = false;
   }
 }, {deep: true})
 
 onMounted(async () => {
+  const ordersPreSaved = localStorage.getItem("orders");
+  if(ordersPreSaved) {
+    viewOrdersBtn.value = true;
+    const ordersPreSavedValue = JSON.parse(ordersPreSaved);
+    ordersPreSavedValue.forEach(order => {
+      totalPrice.value = totalPrice.value + (order.price * order.quantity);
+    })
+  }
   fetchingData.value = true;
   try {
     await vendorStore.fetchVendorById(id);

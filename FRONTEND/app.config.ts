@@ -7,7 +7,7 @@ export default defineAppConfig({
       variants: {
         active: {
           true: {
-            dot: "bg-primary_light",
+            dot: "bg-gray-400",
           },
         },
       },

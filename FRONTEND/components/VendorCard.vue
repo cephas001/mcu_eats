@@ -36,10 +36,7 @@
   >
     <div>
       <!-- avatar -->
-      <img
-        src="@/assets/images/avatars/avatar.jpg"
-        class="w-[40px] rounded-full"
-      />
+       <Media src="/avatars/avatar.jpg" class="w-[40px] rounded-full" />
     </div>
     <div class="ml-2 w-[70%]">
       <h1 class="font-semibold tracking-wide">{{ vendor.name }}</h1>

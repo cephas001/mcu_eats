@@ -19,14 +19,10 @@
 
     <VendorsCarousel :vendorList="restaurants" />
 
-    <div
-      class="h-50 shadow-md border-1 border-gray-100 flex items-center justify-center rounded-md p-2 text-center"
-      v-if="restaurants.length == 0"
-    >
-      <h1 class="font-manrope font-semibold">
-        There are currently no restaurants to display
-      </h1>
-    </div>
+    <NoVendorsCard
+      :vendorsLength="restaurants.length"
+      vendorType="restaurants"
+    />
   </section>
 
   <section class="px-5 pt-5 pb-2" v-if="!fetchingData">
@@ -34,14 +30,7 @@
 
     <VendorsCarousel :vendorList="shops" />
 
-    <div
-      class="h-50 shadow-md flex items-center justify-center rounded-md border-1 border-gray-100 p-2 text-center"
-      v-if="shops.length == 0"
-    >
-      <h1 class="font-manrope font-semibold">
-        There are currently no shops to display
-      </h1>
-    </div>
+    <NoVendorsCard :vendorsLength="shops.length" vendorType="shops" />
   </section>
 
   <section class="px-5 pt-5 pb-2" v-if="!fetchingData">
@@ -51,14 +40,7 @@
 
     <VendorsCarousel :vendorList="retailers" />
 
-    <div
-      class="h-50 shadow-md flex items-center border-1 border-gray-100 justify-center rounded-md p-2 text-center"
-      v-if="retailers.length == 0"
-    >
-      <h1 class="font-manrope font-semibold">
-        There are currently no retailers to display
-      </h1>
-    </div>
+    <NoVendorsCard :vendorsLength="retailers.length" vendorType="retailers" />
   </section>
 
   <LoadingIconLarge :loading="fetchingData" />
@@ -68,7 +50,6 @@
 import { onMounted } from "vue";
 import { useVendorStore } from "@/stores/vendorStore";
 import { storeToRefs } from "pinia";
-import LoadingIconLarge from "../components/LoadingIconLarge.vue";
 
 const vendorStore = useVendorStore();
 const { restaurants, retailers, shops } = storeToRefs(vendorStore);
