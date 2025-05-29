@@ -111,35 +111,17 @@
     </div>
 
     <div class="bg-gray-200">
-      <div class="font-manrope mb-1">
+      <div v-for="orderArray in finalOrders" :key="orderArray.vendorName">
         <div class="px-6 py-4 border-b border-gray-200 bg-white">
-          <h3 class="font-bold text-black">Stomach Option</h3>
+          <h3 class="font-bold text-black">{{ orderArray.vendorName }}</h3>
         </div>
 
-        <div
-          class="flex items-center justify-between px-6 py-4 border-b border-gray-200 bg-white"
-        >
-          <div class="flex items-center">
-            <span class="text-primary font-semibold text-sm mr-8">1x</span>
-            <p class="font-semibold">Jollof Rice</p>
-          </div>
-          <p>&#8358;200</p>
-        </div>
-      </div>
-
-      <div class="font-manrope">
-        <div class="px-6 py-4 border-b border-gray-200 bg-white">
-          <h3 class="font-bold text-black">Ateez Foods</h3>
-        </div>
-
-        <div
-          class="flex items-center justify-between px-6 py-4 border-b border-gray-200 bg-white"
-        >
-          <div class="flex items-center">
-            <span class="text-primary font-semibold text-sm mr-8">1x</span>
-            <p class="font-semibold">Jollof Rice</p>
-          </div>
-          <p>&#8358;200</p>
+        <div v-for="order in orderArray.orders">
+          <OrderVendorCard
+            productName="Rice"
+            :quantity="order.quantity"
+            :price="order.price"
+          />
         </div>
       </div>
     </div>
@@ -203,8 +185,24 @@
 </template>
 
 <script setup>
-import { ref } from "vue";
+import { onMounted, ref } from "vue";
 
 // Default selected option
 const selectedOption = ref("delivery");
+const finalOrders = ref([]);
+
+onMounted(() => {
+  const orders = JSON.parse(localStorage.getItem("orders"));
+
+  const groupedOrders = orders.reduce((acc, order) => {
+    if (!acc[order.vendorId]) {
+      acc[order.vendorId] = { vendorName: order.vendorName, orders: [] };
+    }
+    acc[order.vendorId].orders.push(order);
+    return acc;
+  }, {});
+
+  finalOrders.value = Object.values(groupedOrders);
+  console.log(finalOrders.value);
+});
 </script>

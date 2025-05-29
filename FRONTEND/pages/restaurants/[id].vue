@@ -79,10 +79,10 @@
         <p class="text-sm font-bold tracking-wider font-manrope">&#8358;{{ product.price.toLocaleString() }}</p>
         <div class="flex w-fit rounded-md gap-1 pt-3 text-xl">
           <div class="bg-primary_light rounded-full p-1 flex items-center">
-            <Icon name="i-material-symbols-add-2-rounded" @click="increase(product)"/>
+            <Icon name="i-material-symbols-add-2-rounded" @click="update(product, 'increase')"/>
           </div>
           <div class="bg-primary_light rounded-full p-1 flex items-center">
-            <Icon name="i-lucide-minus" @click="decrease(product)" />
+            <Icon name="i-lucide-minus" @click="update(product, 'decrease')" />
           </div>
           <input type="text" disabled class="w-[50px] ml-3 font-manrope" :class="[product.count < 1 ? 'hidden' : 'visible']" v-model="product.count"></input>
         </div>
@@ -96,10 +96,11 @@
 </template>
 
 <script setup>
-import { computed, onMounted, watch } from "vue";
+import { computed, onMounted, watch, ref, watchEffect } from "vue";
 import { useVendorStore } from "@/stores/vendorStore";
 import { storeToRefs } from "pinia";
 import { updateLocalStorageOrders } from "@/utils/updateLocalStorageOrders";
+const fetchingData = ref(true);
 
 const route = useRoute();
 const vendorStore = useVendorStore();
@@ -112,9 +113,6 @@ const viewOrdersBtn = ref(false);
 const totalPrice = ref(0);
 
 const id = route.params.id;
-const type = route.query.type;
-
-const orders = ref([]);
 
 const filteredProducts = computed(() => {
   return vendor.value.products.filter((product) => {
@@ -137,46 +135,66 @@ const select = (id) => {
   
 };
 
-const increase = (product) => {
-  console.log(product)
-  product.count++;
-  totalPrice.value = totalPrice.value + product.price;
-  updateLocalStorageOrders(product, {name: vendor.value.name, _id: vendor.value._id},"increase")
-}
-
-const decrease = (product) => {
-  if(product.count == 0) {
-    return;
+const update = (product, operation) => {
+  if(operation == "increase") {
+    product.count++;
+    totalPrice.value = totalPrice.value + product.price;
+  } else {
+    if(product.count == 0) {
+      return;
+    }
+    product.count--;
+    totalPrice.value = totalPrice.value - product.price;
   }
-  product.count--;
-  totalPrice.value = totalPrice.value - product.price;
-  updateLocalStorageOrders(product, {name: vendor.value.name, _id: vendor.value._id}, "decrease")
-}
+  updateLocalStorageOrders(
+    "orders", 
+    {
+      vendorId: vendor.value._id,
+      vendorName: vendor.value.name,
+      quantity: product.count,
+      price: product.price,
+      _id: product._id,
+    },
+    "quantity", 
+    product.count)
+};
 
-const fetchingData = ref(true);
-
-watch(watchedVendor, (newValue, oldValue) => {
+watch(watchedVendor, (newValue) => {
   if(newValue.products.find((product) => product.count > 0)) {
     viewOrdersBtn.value = true;
   }
 }, {deep: true})
 
+
 onMounted(async () => {
+  // Checks if an order is already stored in localstorage and shows the view orders button
   const ordersPreSaved = localStorage.getItem("orders");
+  const ordersPreSavedValue = JSON.parse(ordersPreSaved);
+
   if(ordersPreSaved) {
     viewOrdersBtn.value = true;
-    const ordersPreSavedValue = JSON.parse(ordersPreSaved);
     ordersPreSavedValue.forEach(order => {
       totalPrice.value = totalPrice.value + (order.price * order.quantity);
     })
   }
-  fetchingData.value = true;
+  
   try {
     await vendorStore.fetchVendorById(id);
     if(vendor) {
       vendor.value.types = [];
       vendor.value.products.forEach((product, index) => {
-        product["count"] = 0;
+        // Checks if an order is alredy in localstorage and uses the presaved order quantity for the product count
+        if(ordersPreSaved) {
+          ordersPreSavedValue.forEach(order => {
+            if(order._id == product._id) {
+              product["count"] = order.quantity;
+            } else {
+              product["count"] = 0;
+            }
+          });
+        } else {
+          product["count"] = 0;
+        }         
 
         const objectToAdd = {
           id: Date.now().toString(36) + Math.random().toString(36).substring(2),
@@ -184,11 +202,13 @@ onMounted(async () => {
           selected: index === 0
         };
 
-        // Check if the type already exists before adding
+        // Check if the vendor product type already exists before adding
         if (!vendor.value.types.some((type) => type.name === product.type)) {
           vendor.value.types.push(objectToAdd);
         }
       });
+
+      // Sets the selected value to the first vendor type 
       selectedType.value = vendor.value.types[0];
     }
   } catch (error) {

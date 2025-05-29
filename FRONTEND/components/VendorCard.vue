@@ -36,7 +36,7 @@
   >
     <div>
       <!-- avatar -->
-       <Media src="/avatars/avatar.jpg" class="w-[40px] rounded-full" />
+      <Media src="/avatars/avatar.jpg" class="w-[40px] rounded-full" />
     </div>
     <div class="ml-2 w-[70%]">
       <h1 class="font-semibold tracking-wide">{{ vendor.name }}</h1>
@@ -68,7 +68,7 @@ const favouriteRestaurant = async (restaurantId) => {
 const openVendor = (id, type, open) => {
   console.log(id, type, open);
   if (open) {
-    navigateTo(`/restaurants/${id}?type=${type}`);
+    navigateTo(`/restaurants/${id}`);
   }
 };
 </script>
