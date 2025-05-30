@@ -113,12 +113,14 @@
     <div class="bg-gray-200">
       <div v-for="orderArray in finalOrders" :key="orderArray.vendorName">
         <div class="px-6 py-4 border-b border-gray-200 bg-white">
-          <h3 class="font-bold text-black">{{ orderArray.vendorName }}</h3>
+          <h3 class="font-bold text-black text-sm">
+            {{ orderArray.vendorName }}
+          </h3>
         </div>
 
         <div v-for="order in orderArray.orders">
-          <OrderVendorCard
-            productName="Rice"
+          <OrderProductCard
+            :productName="order.name"
             :quantity="order.quantity"
             :price="order.price"
           />
@@ -171,11 +173,13 @@
     >
       <div class="flex items-center justify-between">
         <p>Order total</p>
-        <span class="tracking-wide">&#8358;31,400</span>
+        <span class="tracking-wide"
+          >&#8358;{{ totalPrice.toLocaleString() }}</span
+        >
       </div>
       <div>
         <button
-          class="bg-gradient-to-r from-green-600 to-green-400 text-white py-2 w-full rounded-md cursor-pointer mb-2"
+          class="bg-gradient-to-r from-primary to-primary_light text-black uppercase py-2 w-full rounded-md cursor-pointer mb-2 tracking-wide"
         >
           Confirm Order
         </button>
@@ -186,23 +190,37 @@
 
 <script setup>
 import { onMounted, ref } from "vue";
+import { useOrderStore } from "@/stores/orderStore";
 
 // Default selected option
 const selectedOption = ref("delivery");
 const finalOrders = ref([]);
+const orderStore = useOrderStore();
+const { totalPrice } = storeToRefs(orderStore);
 
 onMounted(() => {
   const orders = JSON.parse(localStorage.getItem("orders"));
 
   const groupedOrders = orders.reduce((acc, order) => {
-    if (!acc[order.vendorId]) {
-      acc[order.vendorId] = { vendorName: order.vendorName, orders: [] };
+    if (order.quantity > 0) {
+      // Exclude orders where quantity is 0
+      if (!acc[order.vendorId]) {
+        acc[order.vendorId] = { vendorName: order.vendorName, orders: [] };
+      }
+      acc[order.vendorId].orders.push(order);
     }
-    acc[order.vendorId].orders.push(order);
     return acc;
   }, {});
+  // const groupedOrders = orders.reduce((acc, order) => {
+  //   if (!acc[order.vendorId]) {
+  //     acc[order.vendorId] = { vendorName: order.vendorName, orders: [] };
+  //   }
+  //   acc[order.vendorId].orders.push(order);
+  //   return acc;
+  // }, {});
 
-  finalOrders.value = Object.values(groupedOrders);
-  console.log(finalOrders.value);
+  finalOrders.value = Object.values(groupedOrders).filter(
+    (vendor) => vendor.orders.length > 0
+  );
 });
 </script>

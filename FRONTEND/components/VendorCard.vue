@@ -66,7 +66,6 @@ const favouriteRestaurant = async (restaurantId) => {
 };
 
 const openVendor = (id, type, open) => {
-  console.log(id, type, open);
   if (open) {
     navigateTo(`/restaurants/${id}`);
   }

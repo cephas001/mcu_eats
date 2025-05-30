@@ -27,7 +27,10 @@
     <div class="p-5 pb-3 relative">
       <div class="absolute right-10 top-[-35px]">
         <!-- avatar -->
-        <img src="@/assets/images/avatars/avatar.jpg" class="w-[70px] rounded-full" />
+        <img
+          src="@/assets/images/avatars/avatar.jpg"
+          class="w-[70px] rounded-full"
+        />
       </div>
       <h1 class="tracking-wide font-semibold mb-1">{{ vendor.name }}</h1>
       <p class="text-gray-500 text-sm mb-1">{{ vendor.description }}</p>
@@ -54,42 +57,25 @@
   </section>
 
   <section v-if="!fetchingData" class="px-5 py-3 border-y-1 border-y-gray-300">
-    <div class="flex gap-4 overflow-x-scroll hide-scrollbar">
-      <h1
-        v-for="(type, index) in vendor.types"
-        :key="index"
-        class="text-gray-900 text-sm whitespace-nowrap py-1 px-3 rounded-full cursor-pointer"
-        :class="[type.selected ? 'bg-primary_light' : '']"
-        @click="select(type.id)"
-      >
-        {{ type.name }}
-      </h1>
-    </div>
+    <TypesSelector :types="vendor.types" />
   </section>
 
-  <h1 v-if="!fetchingData" class="px-5 py-5 text-sm font-manrope bg-gray-100 tracking-wider">
-    {{ selectedType.name}}
+  <h1
+    v-if="!fetchingData"
+    class="px-5 py-5 text-sm font-manrope bg-gray-100 tracking-wider"
+  >
+    {{ selectedType.name }}
   </h1>
   <section v-if="!fetchingData" class="px-5 pb-15 relative">
-    <div class="py-5 border-b-1 border-gray-100" v-for="product in filteredProducts" :key="product._id">
-      <h1 class="mb-4" >{{ product.name }}</h1>
-        <p class="text-gray-600 text-sm">
-          {{ product.description }}
-        </p>
-        <p class="text-sm font-bold tracking-wider font-manrope">&#8358;{{ product.price.toLocaleString() }}</p>
-        <div class="flex w-fit rounded-md gap-1 pt-3 text-xl">
-          <div class="bg-primary_light rounded-full p-1 flex items-center">
-            <Icon name="i-material-symbols-add-2-rounded" @click="update(product, 'increase')"/>
-          </div>
-          <div class="bg-primary_light rounded-full p-1 flex items-center">
-            <Icon name="i-lucide-minus" @click="update(product, 'decrease')" />
-          </div>
-          <input type="text" disabled class="w-[50px] ml-3 font-manrope" :class="[product.count < 1 ? 'hidden' : 'visible']" v-model="product.count"></input>
-        </div>
+    <div
+      class="py-5 border-b-1 border-gray-100"
+      v-for="product in filteredProducts"
+      :key="product._id"
+    >
+      <Product :product :vendorId="vendor._id" :vendorName="vendor.name" />
     </div>
-    <div class="absolute font-manrope bottom-0 left-5 right-5 bg-primary p-2 rounded-md text-white" v-if="viewOrdersBtn">
-      <button class="w-full relative">View Orders <span class="absolute right-2">&#8358;{{ totalPrice.toLocaleString() }}</span></button>
-    </div>
+
+    <ViewOrdersButton />
   </section>
 
   <LoadingIconLarge :loading="fetchingData" />
@@ -98,95 +84,61 @@
 <script setup>
 import { computed, onMounted, watch, ref, watchEffect } from "vue";
 import { useVendorStore } from "@/stores/vendorStore";
+import { useOrderStore } from "@/stores/orderStore";
 import { storeToRefs } from "pinia";
-import { updateLocalStorageOrders } from "@/utils/updateLocalStorageOrders";
+
 const fetchingData = ref(true);
 
 const route = useRoute();
 const vendorStore = useVendorStore();
+const orderStore = useOrderStore();
+const { totalPrice, viewOrdersBtn, selectedType } = storeToRefs(orderStore);
 const { vendor } = storeToRefs(vendorStore);
 const watchedVendor = computed(() => vendor.value);
-const selectedType = ref({});
-
-const viewOrdersBtn = ref(false);
-
-const totalPrice = ref(0);
 
 const id = route.params.id;
 
 const filteredProducts = computed(() => {
   return vendor.value.products.filter((product) => {
-    if(product.type == selectedType.value.name) {
-      return true
+    if (product.type == selectedType.value.name) {
+      return true;
     } else {
       return false;
     }
-  })
+  });
 });
 
-const select = (id) => {
-  vendor.value.types.map((type) => {
-    if (id !== type.id) {
-      return type.selected = false;
+watch(
+  watchedVendor,
+  (newValue) => {
+    if (newValue.products.find((product) => product.count > 0)) {
+      viewOrdersBtn.value = true;
     }
-    selectedType.value = type;
-    return type.selected = true
-  });
-  
-};
-
-const update = (product, operation) => {
-  if(operation == "increase") {
-    product.count++;
-    totalPrice.value = totalPrice.value + product.price;
-  } else {
-    if(product.count == 0) {
-      return;
-    }
-    product.count--;
-    totalPrice.value = totalPrice.value - product.price;
-  }
-  updateLocalStorageOrders(
-    "orders", 
-    {
-      vendorId: vendor.value._id,
-      vendorName: vendor.value.name,
-      quantity: product.count,
-      price: product.price,
-      _id: product._id,
-    },
-    "quantity", 
-    product.count)
-};
-
-watch(watchedVendor, (newValue) => {
-  if(newValue.products.find((product) => product.count > 0)) {
-    viewOrdersBtn.value = true;
-  }
-}, {deep: true})
-
+  },
+  { deep: true }
+);
 
 onMounted(async () => {
   // Checks if an order is already stored in localstorage and shows the view orders button
   const ordersPreSaved = localStorage.getItem("orders");
   const ordersPreSavedValue = JSON.parse(ordersPreSaved);
 
-  if(ordersPreSaved) {
+  if (ordersPreSaved) {
     viewOrdersBtn.value = true;
-    ordersPreSavedValue.forEach(order => {
-      totalPrice.value = totalPrice.value + (order.price * order.quantity);
-    })
+    ordersPreSavedValue.forEach((order) => {
+      totalPrice.value = totalPrice.value + order.price * order.quantity;
+    });
   }
-  
+
   try {
     await vendorStore.fetchVendorById(id);
-    if(vendor) {
+    if (vendor) {
       vendor.value.types = [];
       vendor.value.products.forEach((product, index) => {
         // Checks if an order is alredy in localstorage and uses the presaved order quantity for the product count
-        if(ordersPreSaved) {
-          ordersPreSavedValue.forEach(order => {
-            if(order._id == product._id) {
+        if (ordersPreSaved) {
+          ordersPreSavedValue.forEach((order) => {
+            if (order._id == product._id) {
               product["count"] = order.quantity;
             } else {
               product["count"] = 0;
@@ -194,12 +146,12 @@ onMounted(async () => {
           });
         } else {
           product["count"] = 0;
-        }         
+        }
 
         const objectToAdd = {
           id: Date.now().toString(36) + Math.random().toString(36).substring(2),
           name: product.type,
-          selected: index === 0
+          selected: index === 0,
         };
 
         // Check if the vendor product type already exists before adding
@@ -208,7 +160,7 @@ onMounted(async () => {
         }
       });
 
-      // Sets the selected value to the first vendor type 
+      // Sets the selected value to the first vendor type
       selectedType.value = vendor.value.types[0];
     }
   } catch (error) {
@@ -216,5 +168,5 @@ onMounted(async () => {
   } finally {
     fetchingData.value = false;
   }
-})
+});
 </script>
