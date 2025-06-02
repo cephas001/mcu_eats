@@ -31,12 +31,26 @@
   </div>
 </template>
 
-<script setup lang="ts">
-import type { DropdownMenuItem } from "@nuxt/ui";
+<script setup>
 import { navigateTo } from "nuxt/app";
-import { ref } from "vue";
+import { onMounted, ref } from "vue";
+const getNoOfOrders = () => {
+  var noOfOrders = 0;
+  if (process.client) {
+    const orders = JSON.parse(localStorage.getItem("orders"));
+    if (orders && orders.length > 0) {
+      orders.forEach((order) => {
+        // Determines the amount of items in cart
+        noOfOrders += order.quantity;
+      });
+      return noOfOrders;
+    } else {
+      return 0;
+    }
+  }
+};
 
-const items = ref<DropdownMenuItem[][]>([
+const items = ref([
   [
     {
       label: "Paul Peter",
@@ -60,7 +74,7 @@ const items = ref<DropdownMenuItem[][]>([
       color: "info",
     },
     {
-      label: "View Orders (0)",
+      label: `View Orders (${getNoOfOrders()})`,
       icon: "i-material-symbols-garden-cart-outline-sharp",
       to: "/orders",
       color: "info",

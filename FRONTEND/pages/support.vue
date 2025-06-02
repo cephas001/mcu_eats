@@ -22,34 +22,37 @@
   </section>
 
   <section class="mt-4 px-7">
-    <!-- Email -->
-    <SupportMeans
-      iconName="i-material-symbols-light-mail-outline"
-      text="Email Us"
-      supportAction="email"
-    />
-
-    <!-- WhatsApp -->
-    <SupportMeans
-      iconName="i-formkit-whatsapp"
-      text="Chat on WhatsApp"
-      supportAction="whatsappChat"
-    />
-
-    <!-- Call -->
-    <SupportMeans
-      iconName="i-material-symbols-call"
-      text="Call Us"
-      supportAction="call"
-    />
-
-    <!-- Order Problem -->
-    <SupportMeans
-      iconName="i-material-symbols-contact-support-outline"
-      text="Help with an order"
-      supportAction="orderHelp"
-    />
+    <div v-for="(supportEl, index) in supportArray" :key="index">
+      <SupportMeans
+        :iconName="supportEl.iconName"
+        :text="supportEl.text"
+        :supportAction="supportEl.supportAction"
+      />
+    </div>
   </section>
 </template>
 
-<script setup></script>
+<script setup>
+const supportArray = ref([
+  {
+    iconName: "i-material-symbols-light-mail-outline",
+    text: "Email Us",
+    supportAction: "email",
+  },
+  {
+    iconName: "i-formkit-whatsapp",
+    text: "Chat on WhatsApp",
+    supportAction: "whatsappChat",
+  },
+  {
+    iconName: "i-material-symbols-call",
+    text: "Call Us",
+    supportAction: "call",
+  },
+  {
+    iconName: "i-material-symbols-contact-support-outline",
+    text: "Help with an order",
+    supportAction: "orderHelp",
+  },
+]);
+</script>

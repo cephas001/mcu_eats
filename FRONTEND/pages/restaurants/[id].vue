@@ -82,22 +82,25 @@
 </template>
 
 <script setup>
-import { computed, onMounted, watch, ref, watchEffect } from "vue";
+import { computed, onMounted, watch, ref } from "vue";
 import { useVendorStore } from "@/stores/vendorStore";
 import { useOrderStore } from "@/stores/orderStore";
 import { storeToRefs } from "pinia";
 
+// To toggle loading icon
 const fetchingData = ref(true);
 
 const route = useRoute();
+const id = route.params.id;
+
 const vendorStore = useVendorStore();
-const orderStore = useOrderStore();
-const { totalPrice, viewOrdersBtn, selectedType } = storeToRefs(orderStore);
 const { vendor } = storeToRefs(vendorStore);
 const watchedVendor = computed(() => vendor.value);
 
-const id = route.params.id;
+const orderStore = useOrderStore();
+const { totalPrice, viewOrdersBtn, selectedType } = storeToRefs(orderStore);
 
+// To filter products based on selected type
 const filteredProducts = computed(() => {
   return vendor.value.products.filter((product) => {
     if (product.type == selectedType.value.name) {
@@ -108,6 +111,7 @@ const filteredProducts = computed(() => {
   });
 });
 
+// To display vieworders button if at least one product is added to cart and remove if no product is added to cart
 watch(
   watchedVendor,
   (newValue) => {
@@ -119,12 +123,15 @@ watch(
 );
 
 onMounted(async () => {
-  // Checks if an order is already stored in localstorage and shows the view orders button
   const ordersPreSaved = localStorage.getItem("orders");
   const ordersPreSavedValue = JSON.parse(ordersPreSaved);
 
   if (ordersPreSaved) {
+    // Checks if an order is already stored in localstorage and shows the view orders button
     viewOrdersBtn.value = true;
+
+    // Clears the price in view orders button then recomputes using the price of all orders in localstorage
+    totalPrice.value = 0;
     ordersPreSavedValue.forEach((order) => {
       totalPrice.value = totalPrice.value + order.price * order.quantity;
     });
@@ -133,34 +140,38 @@ onMounted(async () => {
   try {
     await vendorStore.fetchVendorById(id);
     if (vendor) {
+      // Initializes Vendor the types of products a vendor offers to an empty array
       vendor.value.types = [];
+
       vendor.value.products.forEach((product, index) => {
         // Checks if an order is alredy in localstorage and uses the presaved order quantity for the product count
         if (ordersPreSaved) {
           ordersPreSavedValue.forEach((order) => {
-            if (order._id == product._id) {
+            if (order._id === product._id) {
               product["count"] = order.quantity;
             } else {
               product["count"] = 0;
             }
           });
         } else {
+          console.log("here2");
           product["count"] = 0;
         }
 
+        // New product type object
         const objectToAdd = {
           id: Date.now().toString(36) + Math.random().toString(36).substring(2),
           name: product.type,
           selected: index === 0,
         };
 
-        // Check if the vendor product type already exists before adding
+        // Check if a vendor product type already exists before adding to the array of vendor product types
         if (!vendor.value.types.some((type) => type.name === product.type)) {
           vendor.value.types.push(objectToAdd);
         }
       });
 
-      // Sets the selected value to the first vendor type
+      // Sets the default selected value to the first vendor type
       selectedType.value = vendor.value.types[0];
     }
   } catch (error) {

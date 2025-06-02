@@ -51,10 +51,10 @@ import { onMounted } from "vue";
 import { useVendorStore } from "@/stores/vendorStore";
 import { storeToRefs } from "pinia";
 
+const fetchingData = ref(true);
+
 const vendorStore = useVendorStore();
 const { restaurants, retailers, shops } = storeToRefs(vendorStore);
-
-const fetchingData = ref(true);
 
 onMounted(async () => {
   fetchingData.value = true;

@@ -1,7 +1,6 @@
 // Takes the variable name of object to be stored in array
-// Takes the object
-// Checks if the object is present in localstorage and makes updates according to the variableToChange defined
-// Takes the New Value
+// Takes the object to be stored
+// Checks if the variable name is already present in localstorage and makes updates to the object according to the variableToChange defined
 
 export const updateInLocalStorage = (
   itemName,
@@ -17,7 +16,6 @@ export const updateInLocalStorage = (
       const itemsToSave = [...itemPreSavedValue, item];
       localStorage.setItem(`${itemName}`, JSON.stringify(itemsToSave));
     } else {
-      console.log("here");
       for (var i = 0; i < itemPreSavedValue.length; i++) {
         if (itemPreSavedValue[i]._id == item._id) {
           itemPreSavedValue[i][variableToChange] = newValue;

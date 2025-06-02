@@ -73,7 +73,6 @@ router.get("/vendors", async (req, res) => {
 router.get("/vendors/:id", async (req, res) => {
   try {
     const vendor = await Vendors.findOne({ _id: req.params.id });
-    console.log(req.params.id);
     if (vendor) {
       res.json({ vendor });
     } else {

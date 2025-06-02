@@ -8,19 +8,6 @@
     </div>
 
     <div class="mb-5 flex flex-col gap-3">
-      <!-- <div class="w-[40%]">
-        <label for="code" class="font-manrope font-semibold">Prefix</label>
-        <UInput
-          aria-disabled="true"
-          aria-placeholder="+234"
-          name="code"
-          placeholder="+234"
-          disabled
-          variant="outline"
-          :ui="{ base: 'bg-transparent text-black p-4' }"
-          class="mt-1"
-        />
-      </div> -->
       <div>
         <label for="number" class="font-manrope font-semibold"
           >Matric Number</label

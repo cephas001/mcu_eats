@@ -1,6 +1,6 @@
 <template>
   <div
-    class="bg-black mt-10 border-4 border-black text-white flex flex-col gap-5 pt-15 px-6 pb-15"
+    class="bg-black mt-5 border-4 border-black text-white flex flex-col gap-5 pt-15 px-6 pb-15"
   >
     <div class="w-fit">
       <img
