@@ -8,6 +8,7 @@
           <UIcon
             name="i-material-symbols-light-close"
             class="text-red-500 w-8 h-8 mr-4 mt-2"
+             @click="navigateTo('/')"
           />
         </div>
         <div class="flex justify-center font-manrope">
@@ -50,8 +51,9 @@
           <div class="btn-container mt-5">
             <button
               class="px-6 py-3 rounded-full cursor-pointer text-white bg-primary text-lg"
+              @click="navigateTo('/')"
             >
-              Find Food
+              Find Food or Snacks
             </button>
           </div>
         </div>
@@ -61,6 +63,9 @@
 </template>
 
 <script setup>
+import { navigateTo } from 'nuxt/app';
+
 const tabs = ["Vendors", "Menu Items"];
 const activeTab = ref("Menu Items");
+
 </script>

@@ -28,7 +28,7 @@
       <h1 class="font-bold underline">Top categories: McU</h1>
       <p>Swallow</p>
       <p>Snacks and Grills</p>
-      <p>Sationeries</p>
+      <p>Stationaries</p>
     </div>
     <p class="text-center w-full mt-1">
       &copy; 2025 McU Eats. All rights reserved.

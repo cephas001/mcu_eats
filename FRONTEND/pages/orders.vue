@@ -31,7 +31,9 @@
       </div>
 
       <div>
-        <button class="text-red-500 text-sm">Clear</button>
+        <button class="text-red-500 text-sm"
+        @click="clearOrders"
+        >Clear</button>
       </div>
     </div>
 
@@ -191,7 +193,7 @@
 </template>
 
 <script setup>
-import { onMounted, ref } from "vue";
+import { onMounted, ref, watch } from "vue";
 import { useOrderStore } from "@/stores/orderStore";
 
 // Default selected option
@@ -246,9 +248,28 @@ onMounted(() => {
       return acc;
     }, {});
 
+
+
+    
     finalOrders.value = Object.values(groupedOrders).filter(
       (vendor) => vendor.orders.length > 0
     );
   }
 });
+
+
+
+
+
+// Clearing orders
+const clearOrders = () => {
+  localStorage.removeItem('orders');
+  ordersPresentInLocalStorage.value = false
+  finalOrders.value = [];
+  items.value = 0;
+  subTotal.value = 0;
+  totalOrderAmount.value = 0;
+  totalPrice.value = 0;
+
+}
 </script>
