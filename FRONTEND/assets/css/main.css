@@ -83,3 +83,7 @@ body {
     position: relative;
     color: black;
 }
+
+input:-webkit-autofill {
+    @apply bg-transparent text-gray-900;
+}
