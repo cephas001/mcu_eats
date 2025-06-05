@@ -11,7 +11,7 @@
     <div class="flex items-center">
       <UDropdownMenu
         arrow
-        :items="items"
+        :items="navigationItems"
         size="lg"
         :ui="{
           content: 'bg-black',
@@ -25,6 +25,7 @@
           variant="ghost"
           size="xl"
           class="cursor-pointer bg-primary/15 text-primary_light"
+          @click="fetchDetails"
         />
       </UDropdownMenu>
     </div>
@@ -32,8 +33,15 @@
 </template>
 
 <script setup>
-import { navigateTo } from "nuxt/app";
-import { onMounted, ref } from "vue";
+import { navigateTo, useCookie } from "nuxt/app";
+import { onMounted, ref, watch } from "vue";
+import { useUserStore } from "@/stores/userStore";
+
+const userStore = useUserStore();
+const { user, loggedIn } = storeToRefs(userStore);
+
+const navigationItems = ref([]);
+
 const getNoOfOrders = () => {
   var noOfOrders = 0;
   if (process.client) {
@@ -50,84 +58,99 @@ const getNoOfOrders = () => {
   }
 };
 
-
-
-const items = ref([
-  [
-    {
-      label: "Paul Peter",
-      avatar: {
-        src: "https://github.com/benjamincanac.png",
-      },
-      to: "/profile",
-    },
-    {
-      label: "Atuwase Room 5",
-      icon: "i-material-symbols-pin-drop",
-      type: "label",
-      color: "info",
-    },
-  ],
-  [
-    {
-      label: "Home",
-      icon: "i-material-symbols-house-rounded",
-      to: "/",
-      color: "info",
-    },
-    {
-      label: `View Orders (${getNoOfOrders()})`,
-      icon: "i-material-symbols-garden-cart-outline-sharp",
-      to: "/orders",
-      color: "info",
-    },
-    {
-      label: "Favourites",
-      icon: "i-material-symbols-favorite",
-      color: "info",
-      to: "/favourites",
-    },
-  ],
-  [
-    {
-      label: "Switch Role",
-      icon: "i-lucide-user",
-      children: [
-        [
-          {
-            label: "Consumer",
-            icon: "i-lucide-user",
-            disabled: true,
-            color: "info",
+const fetchDetails = async () => {
+  try {
+    const token = useCookie("auth_token");
+    await userStore.fetchUserDetails();
+    navigationItems.value = [
+      [
+        {
+          label: `${[
+            loggedIn.value
+              ? user.value.firstName + " " + user.value.lastName
+              : "Guest",
+          ]}`,
+          avatar: {
+            src: `${user.value.picture ? user.value.picture : "/avatar.jpg"}`,
           },
-          {
-            label: "Delivery",
-            icon: "i-material-symbols-delivery-truck-speed",
-            color: "info",
-          },
-        ],
+          to: "/profile",
+        },
+        {
+          label: `${loggedIn.value ? "Atuwase Room 5" : "SET LOCATION"}`,
+          icon: "i-material-symbols-pin-drop",
+          type: "label",
+          color: "info",
+        },
       ],
-    },
-    {
-      label: "Change location",
-      icon: "i-material-symbols-edit-location-sharp",
-      color: "info",
-    },
-  ],
-  [
-    {
-      label: "Support",
-      icon: "i-material-symbols-question-mark-rounded",
-      color: "info",
-      to: "/support",
-    },
-    {
-      label: "Logout",
-      color: "error",
-      icon: "i-lucide-log-out",
-      kbds: ["shift", "meta", "q"],
-      to: "/login",
-    },
-  ],
-]);
+      [
+        {
+          label: "Home",
+          icon: "i-material-symbols-house-rounded",
+          to: "/",
+          color: "info",
+        },
+        {
+          label: `View Orders (0)`,
+          icon: "i-material-symbols-garden-cart-outline-sharp",
+          to: "/orders",
+          color: "info",
+        },
+        {
+          label: "Favourites",
+          icon: "i-material-symbols-favorite",
+          color: "info",
+          to: "/favourites",
+        },
+      ],
+      [
+        {
+          label: "Switch Role",
+          icon: "i-lucide-user",
+          children: [
+            [
+              {
+                label: "Consumer",
+                icon: "i-lucide-user",
+                disabled: Boolean(
+                  `${user.value.role == "Consumer" ? true : false}`
+                ),
+                color: "info",
+              },
+              {
+                label: "Delivery",
+                icon: "i-material-symbols-delivery-truck-speed",
+                disabled: Boolean(
+                  `${user.value.role == "Delivery" ? true : false}`
+                ),
+                color: "info",
+              },
+            ],
+          ],
+        },
+        {
+          label: "Change location",
+          icon: "i-material-symbols-edit-location-sharp",
+          color: "info",
+        },
+      ],
+      [
+        {
+          label: "Support",
+          icon: "i-material-symbols-question-mark-rounded",
+          color: "info",
+          to: "/support",
+        },
+        {
+          label: `${loggedIn.value ? "Logout" : "Login"}`,
+          color: `${loggedIn.value ? "error" : "primary"}`,
+          icon: `${loggedIn.value ? "i-lucide-log-out" : "i-lucide-log-in"}`,
+          kbds: ["shift", "meta", "q"],
+          to: `${loggedIn.value ? "/logout" : "/login"}`,
+        },
+      ],
+    ];
+  } catch (error) {
+    console.error("Error fetching user:", error);
+  }
+};
 </script>
