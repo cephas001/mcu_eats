@@ -3,7 +3,7 @@
     class="bg-transparent h-[80vh] overflow-hidden flex flex-col items-center justify-center"
     v-if="loading"
   >
-    <img :src="imageSrc" class="animate-pulse" />
+    <img :src="imageSrc" :class />
   </section>
 </template>
 
@@ -16,6 +16,10 @@ const props = defineProps({
   imageSrc: {
     type: String,
     default: "/loading2.png",
+  },
+  class: {
+    type: String,
+    default: "animate-pulse",
   },
 });
 </script>

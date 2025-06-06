@@ -33,8 +33,8 @@
 </template>
 
 <script setup>
-import { navigateTo, useCookie } from "nuxt/app";
-import { onMounted, ref, watch } from "vue";
+import { navigateTo } from "nuxt/app";
+import { ref } from "vue";
 import { useUserStore } from "@/stores/userStore";
 
 const userStore = useUserStore();
@@ -60,7 +60,6 @@ const getNoOfOrders = () => {
 
 const fetchDetails = async () => {
   try {
-    const token = useCookie("auth_token");
     await userStore.fetchUserDetails();
     navigationItems.value = [
       [
@@ -73,10 +72,18 @@ const fetchDetails = async () => {
           avatar: {
             src: `${user.value.picture ? user.value.picture : "/avatar.jpg"}`,
           },
-          to: "/profile",
+          to: `${user.value.firstName ? "/profile" : "/"}`,
         },
         {
-          label: `${loggedIn.value ? "Atuwase Room 5" : "SET LOCATION"}`,
+          label: `${
+            loggedIn.value
+              ? `${
+                  user.value.hostel +
+                  ". Room " +
+                  user.value.roomNumber.toString()
+                }`
+              : "SET LOCATION"
+          }`,
           icon: "i-material-symbols-pin-drop",
           type: "label",
           color: "info",

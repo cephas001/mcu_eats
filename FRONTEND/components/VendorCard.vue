@@ -35,11 +35,7 @@
     @click="openVendor(vendor._id, vendor.type, vendor.open)"
   >
     <div>
-      <!-- avatar -->
-      <img
-        src="@/assets/images/avatars/avatar.jpg"
-        class="w-[40px] rounded-full"
-      />
+      <UAvatar src="@/assets/images/avatars/avatar.jpg" />
     </div>
     <div class="ml-2 w-[70%]">
       <h1 class="font-semibold tracking-wide">{{ vendor.name }}</h1>

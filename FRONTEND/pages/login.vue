@@ -1,5 +1,5 @@
 <template>
-  <section class="py-5 px-6">
+  <section class="py-5 px-6" v-if="!tryingToSignIn">
     <div class="text-center mt-10 mb-5">
       <h1 class="font-bold text-2xl mb-3">Welcome</h1>
       <p class="text-md font-manrope tracking-tight">
@@ -9,14 +9,14 @@
 
     <ErrorMessageFormDisplay
       :errorMessage="signUpLogInErrors"
-      classList="text-center"
+      classList="text-center mb-4"
     />
-    <!-- Signup and Login Form -->
+    <!-- Signup -->
     <UForm
       class="mb-5 flex flex-col gap-3"
       :class="[signUpLogInErrors != '' ? 'mt-4' : '']"
       :state="formState"
-      v-if="!showAdditionalForm"
+      v-if="!showAdditionalForm && signupPage"
     >
       <CustomFormField
         labelText="Email"
@@ -34,7 +34,6 @@
         name="firstName"
         type="text"
         :state="formState"
-        v-if="signupPage"
         :error
         @update="formState.first = $event"
         @clearError="clearError"
@@ -45,7 +44,6 @@
         name="lastName"
         type="text"
         :state="formState"
-        v-if="signupPage"
         :error
         @update="formState.last = $event"
         @clearError="clearError"
@@ -67,15 +65,49 @@
         type="password"
         :state="formState"
         :error
-        v-if="signupPage"
         @update="formState.confirmPassword = $event"
         @clearError="clearError"
       />
       <button
         class="text-white rounded-md p-3 w-full text-center text-md bg-primary"
-        @click="toggleForms"
+        @click="toggleNextForm"
       >
-        {{ signupPage ? "Sign Up" : "Log In" }}
+        Sign Up
+      </button>
+    </UForm>
+
+    <!-- Login Form -->
+    <UForm
+      class="mb-5 flex flex-col gap-3"
+      :class="[signUpLogInErrors != '' ? 'mt-4' : '']"
+      :state="formState"
+      v-if="!showAdditionalForm && !signupPage"
+    >
+      <CustomFormField
+        labelText="Email"
+        placeholder="Email"
+        name="email"
+        type="email"
+        :state="formState"
+        :error
+        @update="formState.email = $event"
+        @clearError="clearError"
+      />
+      <CustomFormField
+        labelText="Password"
+        placeholder="Password"
+        name="password"
+        type="password"
+        :state="formState"
+        :error
+        @update="formState.password = $event"
+        @clearError="clearError"
+      />
+      <button
+        class="text-white rounded-md p-3 w-full text-center text-md bg-primary"
+        @click="handleFormSubmit"
+      >
+        Log In
       </button>
     </UForm>
 
@@ -112,7 +144,7 @@
         :error
         @update="additionalFormState.collegeValue = $event"
         @clearError="clearError"
-        v-if="showLecturerField"
+        v-if="showLecturerFields"
       />
       <!-- OFFICE NUMBER FIELD -->
       <CustomFormField
@@ -124,7 +156,7 @@
         :error
         @update="additionalFormState.officeNumber = $event"
         @clearError="clearError"
-        v-if="showLecturerField"
+        v-if="showLecturerFields"
       />
       <!-- HOSTEL SELECT FIELD -->
       <CustomFormField
@@ -136,7 +168,7 @@
         :error
         @update="additionalFormState.hostelValue = $event"
         @clearError="clearError"
-        v-if="!showLecturerField"
+        v-if="!showLecturerFields"
       />
       <!-- ROOM NUMBER FIELD -->
       <CustomFormField
@@ -148,7 +180,7 @@
         :error
         @update="additionalFormState.roomNumber = $event"
         @clearError="clearError"
-        v-if="!showLecturerField"
+        v-if="!showLecturerFields"
       />
       <!-- ROLE SELECT FIELD -->
       <CustomFormField
@@ -160,7 +192,7 @@
         :error
         @update="additionalFormState.roleValue = $event"
         @clearError="clearError"
-        v-if="!showLecturerField"
+        v-if="!showLecturerFields"
       />
       <button
         type="sumbit"
@@ -171,16 +203,16 @@
         Finish
       </button>
       <p class="text-center">
-        For {{ showLecturerField ? "students" : "lecturers" }}, please click
+        For {{ showLecturerFields ? "students" : "lecturers" }}, please click
         <span
           class="text-primary"
-          @click="showLecturerField = !showLecturerField"
+          @click="showLecturerFields = !showLecturerFields"
           >here.</span
         >
       </p>
       <p class="text-center">
-        Click <span class="text-primary" @click="toggleForms">here</span> to go
-        back.
+        Click <span class="text-primary" @click="toggleNextForm">here</span> to
+        go back.
       </p>
     </UForm>
 
@@ -192,7 +224,7 @@
       </p>
     </div>
 
-    <div class="mt-6 text-center">
+    <div class="mt-6 text-center" v-if="!showAdditionalForm">
       <p class="text-gray-600 mb-2">or with</p>
       <button
         class="flex border-1 border-gray-200 p-4 rounded-full w-full items-center justify-center gap-2 mb-3 font-semibold focus:bg-gray-100"
@@ -238,303 +270,87 @@
       </p>
     </div>
   </section>
+  <LoadingIconLarge
+    :loading="tryingToSignIn"
+    imageSrc="/Pulse@1x-1.0s-200px-200px.svg"
+    class="animate-none"
+  />
 </template>
 
 <script setup>
-import {
-  createUserWithEmailAndPassword,
-  GoogleAuthProvider,
-  FacebookAuthProvider,
-  signInWithPopup,
-  signInWithEmailAndPassword,
-} from "firebase/auth";
-import { reactive, watch } from "vue";
-import {
-  checkFormEmail,
-  checkFormFirstName,
-  checkFormLastName,
-  checkFormPassword,
-  checkConfirmPassword,
-  checkRoomNumber,
-} from "../utils/formValidation";
-import { postNewUserToDB } from "../utils/postNewUserToDB";
-import { useUserStore } from "@/stores/userStore";
+import { checkFormEmail, checkFormPassword } from "../utils/formValidation";
+import { useCookie } from "nuxt/app";
+import { useLogInStore } from "@/stores/logInStore";
+import { storeToRefs } from "pinia";
+import { useFirebaseAuthMethods } from "@/composables/firebaseAuthMethods";
 
-// To reset the User state
-const userStore = useUserStore();
+const { socialSignIn, manualSignUp, manualLogIn } = useFirebaseAuthMethods();
 
-// Check Utils
-const { $storeToken } = useNuxtApp();
-const { $firebaseAuth } = useNuxtApp();
+const logInStore = useLogInStore();
 
-const googleProvider = new GoogleAuthProvider();
-const facebookProvider = new FacebookAuthProvider();
+const {
+  formState,
+  additionalFormState,
+  checkDetails,
+  toggleNextForm,
+  toggleAction,
+  displayError,
+  clearError,
+} = useLogInStore();
 
-// Holds the data emitted from the Form Field component Signup and Login Form
-const formState = reactive({
-  email: undefined,
-  password: undefined,
-  firstName: undefined,
-  lastName: undefined,
-  password: undefined,
-  confirmPassword: undefined,
-});
-
-// Holds the data emitted from the Form Field component in Additional Details Form
-const additionalFormState = reactive({
-  hostelList: ["Atuwase Hall", "Glenn Borris", "Jehovah Shammah"],
-  genderList: ["Male", "Female"],
-  roleList: ["Delivery Person", "Consumer"],
-  collegeList: ["COLNAS", "COLCOM"],
-  college: "COLNAS",
-  gender: "Male",
-  role: "Consumer",
-  hostel: "Atuwase Hall",
-  roomNumber: undefined,
-  officeNumber: undefined,
-});
-const showAdditionalForm = ref(false);
-const showLecturerField = ref(false);
-
-// Gets passed dowm to Form Field component and displays the errors if any
-const error = ref({
-  errorMessage: "",
-  inputName: "",
-  errorList: [],
-});
-const clearError = () => {
-  error.value.errorMessage = "";
-  error.value.inputName = "";
-  error.value.errorList = [];
-};
+const {
+  showAdditionalForm,
+  showLecturerFields,
+  signUpLogInErrors,
+  error,
+  signupPage,
+  tryingToSignIn,
+} = storeToRefs(logInStore);
 
 const { y } = useScroll(window);
-const signupPage = ref(true);
 
-const signUpLogInErrors = ref("");
-
-// Checks the form values before attempting to signup a user
-const checkDetails = () => {
-  // Clears previous error message before displaying new ones
-  clearError();
-
-  // Checks the email
-  if (checkFormEmail(formState.email) !== "") {
-    error.value = {
-      errorMessage: checkFormEmail(formState.email),
-      inputName: "email",
-    };
-    showAdditionalForm.value = false;
-  } else if (checkFormFirstName(formState.firstName) !== "") {
-    error.value = {
-      errorMessage: checkFormFirstName(formState.firstName),
-      inputName: "firstName",
-    };
-    showAdditionalForm.value = false;
-  } else if (checkFormLastName(formState.lastName) !== "") {
-    error.value = {
-      errorMessage: checkFormLastName(formState.lastName),
-      inputName: "lastName",
-    };
-    showAdditionalForm.value = false;
-  } else if (checkFormPassword(formState.password) !== "") {
-    if (checkFormPassword(formState.password) == "stronger") {
-      error.value = {
-        errorMessage: "Please enter a stronger password",
-        inputName: "password",
-        errorList: [
-          "Password must be eight characters or more.",
-          "Password must have a minimum of:",
-          "One uppercase character",
-          "One lowercase character",
-          "One digit and one special character.",
-        ],
-      };
-    } else {
-      error.value = {
-        errorMessage: checkFormPassword(formState.password),
-        inputName: "password",
-      };
-    }
-    showAdditionalForm.value = false;
-  } else if (
-    checkConfirmPassword(formState.password, formState.confirmPassword) !== ""
-  ) {
-    error.value = {
-      errorMessage: checkConfirmPassword(
-        formState.password,
-        formState.confirmPassword
-      ),
-      inputName: "confirmPassword",
-    };
-    showAdditionalForm.value = false;
-  } else if (checkRoomNumber(additionalFormState.roomNumber) !== "") {
-    error.value = {
-      errorMessage: checkRoomNumber(additionalFormState.roomNumber),
-      inputName: "roomNumber",
-    };
-  } else {
-    return true;
-  }
-};
-
-// Toggle Forms
-const toggleForms = () => {
-  if (signupPage.value) {
-    showAdditionalForm.value = !showAdditionalForm.value;
-  } else {
-    handleFormSubmit();
-  }
-};
-
-// Toggle Sign Up or Log In page
-const toggleAction = () => {
-  y.value = 0;
-  clearError();
-  signUpLogInErrors.value = "";
-  signupPage.value = !signupPage.value;
-};
-
-const handleFormSubmit = () => {
-  if (signupPage.value) {
-    if (!checkDetails()) {
+const handleFormSubmit = async () => {
+  if (signupPage.value && showAdditionalForm.value) {
+    if (!checkDetails(showLecturerFields.value)) {
       return;
     } else {
-      signUp(formState.email, formState.password);
+      const response = await manualSignUp();
+      if (response == "redirect") {
+        await navigateTo("/");
+      }
     }
   } else {
     if (checkFormEmail(formState.email) !== "") {
-      error.value = {
-        errorMessage: checkFormEmail(formState.email),
-        inputName: "email",
-      };
+      displayError(checkFormEmail(formState.email), "email");
     } else if (formState.password == "" || formState.password == undefined) {
-      error.value = {
-        errorMessage: checkFormPassword(formState.password),
-        inputName: "password",
-      };
+      displayError(checkFormPassword(formState.password), "password");
     } else {
-      login(formState.email, formState.password);
-    }
-  }
-};
-
-// Manual Sign Up
-const signUp = async (email, password) => {
-  try {
-    const userCredential = await createUserWithEmailAndPassword(
-      $firebaseAuth,
-      email,
-      password
-    );
-    const user = userCredential.user;
-
-    await postNewUserToDB(
-      user,
-      formState,
-      additionalFormState,
-      showLecturerField.value
-    );
-    await navigateTo("/");
-  } catch (error) {
-    if (error.code == "auth/email-already-in-use") {
-      y.value = 0;
-      signUpLogInErrors.value = "Email already in use. Please log in instead.";
-    }
-    console.log(error);
-  }
-};
-
-// Manual Log In
-const login = async (email, password) => {
-  try {
-    const userCredential = await signInWithEmailAndPassword(
-      $firebaseAuth,
-      email,
-      password
-    );
-
-    $storeToken(userCredential.user.accessToken);
-    await navigateTo("/");
-  } catch (error) {
-    if (error.code == "auth/invalid-credential") {
-      signUpLogInErrors.value = "Invalid email or password";
+      const response = await manualLogIn();
+      if (response == "redirect") {
+        await navigateTo("/");
+      }
     }
   }
 };
 
 // Google Sign In
 const googleSignIn = async () => {
-  try {
-    const result = await signInWithPopup($firebaseAuth, googleProvider);
-    const user = result.user;
-
-    const config = useRuntimeConfig();
-
-    const response = await $fetch(
-      `${config.public.apiBaseUrl}/users/${user.uid}`
-    );
-
-    if (!response.found) {
-      try {
-        await postNewUserToDB(
-          user,
-          formState,
-          additionalFormState,
-          showLecturerField.value
-        );
-        await navigateTo("/");
-      } catch (error) {
-        console.log(error);
-      }
-    } else {
-      $storeToken(user.accessToken);
-      await navigateTo("/");
-    }
-  } catch (error) {
-    console.log(error);
-    signUpLogInErrors.value = "An error occurred. Please try again";
+  const response = await socialSignIn("google");
+  if (response == "redirect") {
+    await navigateTo("/");
   }
 };
 
 // Facebook Sign In
 const facebookSignIn = async () => {
-  try {
-    const result = await signInWithPopup($firebaseAuth, facebookProvider);
-    const user = result.user;
-
-    const config = useRuntimeConfig();
-    const response = await $fetch(
-      `${config.public.apiBaseUrl}/users/${user.uid}`
-    );
-
-    if (!response.found) {
-      try {
-        await postNewUserToDB(
-          user,
-          formState,
-          additionalFormState,
-          showLecturerField.value
-        );
-        await navigateTo("/");
-      } catch (error) {
-        console.log(error);
-      }
-    } else {
-      $storeToken(user.accessToken);
-      await navigateTo("/");
-    }
-  } catch (error) {
-    console.log(error);
-    signUpLogInErrors.value = "An error occurred. Please try again";
+  const response = await socialSignIn("facebook");
+  if (response == "redirect") {
+    await navigateTo("/");
   }
 };
 
 onMounted(() => {
-  const token = useCookie("auth_token");
-
-  if (token.value || token.value != "" || token.value == "") {
-    token.value = null;
-  }
+  const authToken = useCookie("auth_token");
+  authToken.value = null;
 });
 </script>

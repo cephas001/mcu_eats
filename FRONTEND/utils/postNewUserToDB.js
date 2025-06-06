@@ -2,8 +2,8 @@ import { useNuxtApp } from "#app";
 
 export const postNewUserToDB = async (
   user,
-  formState,
-  additionalFormState,
+  firstDetails,
+  additionalDetails,
   lecturer
 ) => {
   const nuxtApp = useNuxtApp();
@@ -12,13 +12,21 @@ export const postNewUserToDB = async (
   // Getting primary user details
   const userToAdd = {
     id: user.uid,
-    gender: `${additionalFormState.gender}`,
+    gender: `${additionalDetails.gender}`,
     email: user.email,
     emailVerified: user.emailVerified,
     favourites: [],
-    firstName: `${formState.firstName.trim()}`,
-    lastName: `${formState.lastName.trim()}`,
-    role: `${lecturer ? "Consumer" : additionalFormState.role}`,
+    firstName: `${
+      firstDetails.firstName && firstDetails.firstName != ""
+        ? firstDetails.firstName.trim()
+        : user.displayName.split(" ")[0]
+    }`,
+    lastName: `${
+      firstDetails.lastName && firstDetails.lastName != ""
+        ? firstDetails.lastName.trim()
+        : user.displayName.split(" ")[0]
+    }`,
+    role: `${lecturer ? "Consumer" : additionalDetails.role}`,
   };
 
   var finalUserObject = {};
@@ -26,14 +34,14 @@ export const postNewUserToDB = async (
   if (lecturer) {
     const lecturerUser = {
       type: "lecturer",
-      college: `${additionalFormState.college}`,
-      officeNumber: additionalFormState.officeNumber,
+      college: `${additionalDetails.college}`,
+      officeNumber: additionalDetails.officeNumber,
     };
     finalUserObject = { ...userToAdd, ...lecturerUser };
   } else {
     const studentUser = {
-      roomNumber: additionalFormState.roomNumber,
-      hostel: `${additionalFormState.hostel}`,
+      roomNumber: additionalDetails.roomNumber,
+      hostel: `${additionalDetails.hostel}`,
       type: "Student",
     };
     finalUserObject = { ...userToAdd, ...studentUser };
@@ -49,7 +57,6 @@ export const postNewUserToDB = async (
     nuxtApp.$storeToken(user.accessToken);
     return { added: true, message: "Added successfully" };
   } else {
-    signUpLogInErrors.value = response.message;
     return { added: false, message: response.message };
   }
 };

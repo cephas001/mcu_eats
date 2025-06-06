@@ -13,7 +13,7 @@
       v-model="state[`${name}`]"
       validate-on="change"
       @input="updateValue"
-      @change="clearError"
+      @change="clearAnyError"
     >
       <template
         #trailing
@@ -52,6 +52,9 @@
 
 <script setup>
 import { defineProps, defineEmits, computed } from "vue";
+import { useLogInStore } from "@/stores/logInStore";
+
+const { clearError } = useLogInStore();
 
 const showPassword = ref(false);
 
@@ -101,9 +104,10 @@ const updateValue = (event) => {
     props.type == "select"
       ? props.state[`${props.name}`]
       : event.target.value.trim();
+  clearError();
   emit("update", value);
 };
-const clearError = (event) => {
+const clearAnyError = (event) => {
   emit("clearError", true);
 };
 </script>

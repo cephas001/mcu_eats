@@ -10,8 +10,4 @@ export default defineNuxtPlugin((nuxtApp) => {
 
     authToken.value = token;
   });
-
-  nuxtApp.provide("getAuthToken", () => {
-    return useCookie("auth_token").value;
-  });
 });

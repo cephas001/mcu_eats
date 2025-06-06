@@ -1,15 +1,13 @@
 <template>
-  <section class="px-6 font-manrope">
-    <header class="mt-5 py-3 mb-3 text-center text-lg">
-      <h1 class="font-bold text-gray-800 uppercase tracking-wide">
-        My details
-      </h1>
+  <section class="px-8 font-manrope pb-5" v-if="!loadingUser">
+    <header class="mt-5 py-3 text-center text-lg">
+      <h1 class="font-bold text-gray-800 uppercase tracking-wide">Details</h1>
     </header>
 
     <!-- Name -->
     <ProfilePart
       text="Name"
-      subtext="Peter Okodugha"
+      :subtext="user.firstName + ' ' + user.lastName"
       :edit="true"
       iconName="i-material-symbols-light-person-outline"
     />
@@ -17,36 +15,40 @@
     <ProfilePart
       text="Phone Number"
       :edit="true"
-      subtext="08112985079"
+      :subtext="user.phoneNumber ? user.phoneNumber : 'SET PHONE NUMBER'"
       iconName="i-material-symbols-call"
     />
-    <!-- Username -->
-    <ProfilePart
-      text="Username"
-      :edit="true"
-      subtext="peter10056"
-      iconName="i-material-symbols-light-alternate-email"
-    />
-
     <!-- Email -->
     <ProfilePart
-      text="Email"
+      :text="user.verifiedEmail ? 'Email (verified)' : 'Email (unverified)'"
       :edit="true"
-      subtext="okodughapeter85@gmail"
+      :subtext="user.email"
       iconName="i-material-symbols-light-mail-outline"
     />
     <!-- Gender -->
     <ProfilePart
-      text="Male"
-      subtext="Male"
+      text="Gender"
+      :subtext="user.gender"
       iconName="i-material-symbols-supervisor-account-outline"
     />
-    <!-- Birthday -->
-    <ProfilePart
-      text="Birthday"
-      subtext="March 22"
-      iconName="i-material-symbols-light-cake"
-      :edit="true"
-    />
   </section>
+  <LoadingIconLarge :loading="loadingUser" />
 </template>
+
+<script setup>
+import { useUserStore } from "@/stores/userStore";
+const userStore = useUserStore();
+const { user } = storeToRefs(userStore);
+
+const loadingUser = ref(true);
+
+onMounted(async () => {
+  try {
+    await userStore.fetchUserDetails();
+  } catch (error) {
+    console.log(error);
+  } finally {
+    loadingUser.value = false;
+  }
+});
+</script>

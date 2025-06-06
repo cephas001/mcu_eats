@@ -63,9 +63,22 @@ export const checkConfirmPassword = (password, confirmPassword) => {
 // Validates room number
 export const checkRoomNumber = (roomNumber) => {
   const roomNumberRegex = /^\d+$/;
+  console.log(typeof roomNumber);
   if (roomNumber == "" || roomNumber == undefined) {
     return "Please enter a room number";
   } else if (!roomNumberRegex.test(roomNumber)) {
+    return "Please enter a valid room number";
+  } else {
+    return "";
+  }
+};
+
+// Validates office number
+export const checkOfficeNumber = (officeNumber) => {
+  const officeNumberRegex = /^\d+$/;
+  if (officeNumber == "" || officeNumber == undefined) {
+    return "Please enter a room number";
+  } else if (!officeNumberRegex.test(officeNumber)) {
     return "Please enter a valid room number";
   } else {
     return "";
