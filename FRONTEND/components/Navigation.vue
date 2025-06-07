@@ -70,7 +70,9 @@ const fetchDetails = async () => {
               : "Guest",
           ]}`,
           avatar: {
-            src: `${user.value.picture ? user.value.picture : "/avatar.jpg"}`,
+            src: `${
+              user.value.picture ? user.value.picture : "avatars/avatar2.jpg"
+            }`,
           },
           to: `${user.value.firstName ? "/profile" : "/"}`,
         },

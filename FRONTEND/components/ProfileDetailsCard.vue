@@ -1,12 +1,14 @@
 <template>
   <div
-    class="flex items-center justify-between py-2 border-b border-gray-200 bg-white mt-3"
+    class="flex items-center justify-between bg-white py-4 px-6 border-b-1 border-b-gray-300"
   >
     <div class="flex items-center">
-      <UIcon :name="iconName" class="text-primary text-xl mr-4 self-center" />
+      <UIcon :name="iconName" class="text-2xl text-primary mr-4 self-center" />
       <div class="flex flex-col justify-center">
-        <span class="text-sm text-gray-600 font-bold">{{ text }}</span>
-        <p class="text-black">{{ subtext }}</p>
+        <span class="text-sm text-gray-800 font-manrope tracking-wider">{{
+          text
+        }}</span>
+        <p class="text-black text-sm tracking-wide">{{ subtext }}</p>
       </div>
     </div>
 

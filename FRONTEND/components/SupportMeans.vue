@@ -1,19 +1,19 @@
 <template>
   <div
-    class="flex items-center justify-between py-2 border-b border-gray-200 bg-white mt-3"
+    class="flex items-center justify-between py-2 border-b border-gray-200 bg-white mt-3 px-7"
     @click="performAction"
   >
     <div class="flex items-center">
       <UIcon :name="iconName" class="text-primary text-2xl mr-4" />
       <div>
-        <span class="text-black font-bold"> {{ text }}</span>
+        <span class="text-black"> {{ text }}</span>
       </div>
     </div>
 
     <div class="flex items-center p-1 cursor-pointer">
       <UIcon
-        name="i-material-symbols-arrow-right"
-        class="text-black text-xl w-7 h-7"
+        name="i-material-symbols-light-chevron-right"
+        class="text-2xl self-center font-bold ml-auto"
       />
     </div>
   </div>

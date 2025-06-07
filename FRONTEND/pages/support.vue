@@ -1,12 +1,14 @@
 <template>
-  <section class="px-6">
-    <header class="px-4 text-center py-3 mb-2 mt-9">
-      <h1
-        class="font-manrope uppercase text-lg tracking-wide font-semibold text-gray-800"
-      >
-        Contact support
-      </h1>
-    </header>
+  <section class="px-6 pt-8 pb-4">
+    <div class="flex items-center">
+      <UIcon
+        name="i-material-symbols-arrow-back"
+        size="30"
+        class="text-primary cursor-pointer"
+        @click.prevent="navigateTo('/feedback')"
+      />
+      <h1 class="text-center w-[100%] uppercase">Contact Support</h1>
+    </div>
   </section>
 
   <section class="px-6">
@@ -21,7 +23,7 @@
     </div>
   </section>
 
-  <section class="mt-4 px-7">
+  <section class="mt-4 pb-10">
     <div v-for="(supportEl, index) in supportArray" :key="index">
       <SupportMeans
         :iconName="supportEl.iconName"
