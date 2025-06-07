@@ -4,7 +4,8 @@ export const postNewUserToDB = async (
   user,
   firstDetails,
   additionalDetails,
-  lecturer
+  lecturer,
+  token
 ) => {
   const nuxtApp = useNuxtApp();
   const config = useRuntimeConfig();
@@ -14,17 +15,17 @@ export const postNewUserToDB = async (
     id: user.uid,
     gender: `${additionalDetails.gender}`,
     email: user.email,
-    emailVerified: user.emailVerified,
+    emailVerified: user.email_verified,
     favourites: [],
     firstName: `${
       firstDetails.firstName && firstDetails.firstName != ""
         ? firstDetails.firstName.trim()
-        : user.displayName.split(" ")[0]
+        : user.name.split(" ")[0]
     }`,
     lastName: `${
       firstDetails.lastName && firstDetails.lastName != ""
         ? firstDetails.lastName.trim()
-        : user.displayName.split(" ")[0]
+        : user.name.split(" ")[1]
     }`,
     role: `${lecturer ? "Consumer" : additionalDetails.role}`,
   };
@@ -54,7 +55,11 @@ export const postNewUserToDB = async (
   });
 
   if (response.added) {
-    nuxtApp.$storeToken(user.accessToken);
+    if (user.accessToken) {
+      nuxtApp.$storeToken(user.accessToken);
+    } else {
+      nuxtApp.$storeToken(token);
+    }
     return { added: true, message: "Added successfully" };
   } else {
     return { added: false, message: response.message };

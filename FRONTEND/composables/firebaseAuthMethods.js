@@ -1,4 +1,4 @@
-import { useNuxtApp } from "#app";
+import { useCookie, useNuxtApp } from "#app";
 import {
   createUserWithEmailAndPassword,
   GoogleAuthProvider,
@@ -13,13 +13,14 @@ import { storeToRefs } from "pinia";
 export function useFirebaseAuthMethods() {
   const logInStore = useLogInStore();
 
-  const { formState, additionalFormState } = useLogInStore();
+  const { formState, additionalFormState, toggleNextForm } = useLogInStore();
 
   const {
     showAdditionalForm,
     showLecturerFields,
     signUpLogInErrors,
     tryingToSignIn,
+    hideOptionToGoBack,
   } = storeToRefs(logInStore);
 
   // Google Sign In
@@ -39,10 +40,10 @@ export function useFirebaseAuthMethods() {
     // Tries to use that provider to sign up/sign in the user
     try {
       tryingToSignIn.value = true;
+      hideOptionToGoBack.value = true;
       const config = useRuntimeConfig();
       const result = await signInWithPopup($firebaseAuth, provider);
       const user = result.user;
-
       // After user is signed in or signed up, tries to check if the user is already saved in mongodb database
       const response = await $fetch(
         `${config.public.apiBaseUrl}/users/${user.uid}`
@@ -50,23 +51,9 @@ export function useFirebaseAuthMethods() {
 
       if (!response.found) {
         // If user is not yet saved
-
-        showAdditionalForm.value = true;
-
-        const response = await postNewUserToDB(
-          user,
-          formState,
-          additionalFormState,
-          showLecturerFields.value
-        );
-
-        if (response.added) {
-          $storeToken(user.accessToken);
-          tryingToSignIn.value = false;
-          return "redirect";
-        } else {
-          return "Error Occurred";
-        }
+        $storeToken(user.accessToken);
+        toggleNextForm();
+        tryingToSignIn.value = false;
       } else {
         // If user is already saved just store token and return "redirect"
         $storeToken(user.accessToken);

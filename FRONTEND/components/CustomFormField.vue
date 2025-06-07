@@ -13,7 +13,7 @@
       v-model="state[`${name}`]"
       validate-on="change"
       @input="updateValue"
-      @change="clearAnyError"
+      @change="clearError"
     >
       <template
         #trailing
@@ -55,6 +55,9 @@ import { defineProps, defineEmits, computed } from "vue";
 import { useLogInStore } from "@/stores/logInStore";
 
 const { clearError } = useLogInStore();
+const logInStore = useLogInStore();
+
+const { error } = storeToRefs(logInStore);
 
 const showPassword = ref(false);
 
@@ -76,9 +79,6 @@ const props = defineProps({
   state: {
     type: Object,
   },
-  error: {
-    type: Object,
-  },
   items: {
     type: Array,
     required: false,
@@ -86,6 +86,7 @@ const props = defineProps({
 });
 
 const computedType = computed(() => {
+  // Toggles showing the password for password fields and renders other types
   if (props.type == "password") {
     if (showPassword.value) {
       return "text";
@@ -97,8 +98,9 @@ const computedType = computed(() => {
   }
 });
 
-const emit = defineEmits(["update", "clearError"]);
+const emit = defineEmits(["update"]);
 
+// Clears an error on input entry and updates the value of the formfield in state
 const updateValue = (event) => {
   const value =
     props.type == "select"
@@ -106,8 +108,5 @@ const updateValue = (event) => {
       : event.target.value.trim();
   clearError();
   emit("update", value);
-};
-const clearAnyError = (event) => {
-  emit("clearError", true);
 };
 </script>

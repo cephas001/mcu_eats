@@ -24,9 +24,7 @@
         name="email"
         type="email"
         :state="formState"
-        :error
         @update="formState.email = $event"
-        @clearError="clearError"
       />
       <CustomFormField
         labelText="First Name"
@@ -34,9 +32,7 @@
         name="firstName"
         type="text"
         :state="formState"
-        :error
         @update="formState.first = $event"
-        @clearError="clearError"
       />
       <CustomFormField
         labelText="Last Name"
@@ -44,9 +40,7 @@
         name="lastName"
         type="text"
         :state="formState"
-        :error
         @update="formState.last = $event"
-        @clearError="clearError"
       />
       <CustomFormField
         labelText="Password"
@@ -54,9 +48,7 @@
         name="password"
         type="password"
         :state="formState"
-        :error
         @update="formState.password = $event"
-        @clearError="clearError"
       />
       <CustomFormField
         labelText="Confirm Password"
@@ -64,13 +56,12 @@
         name="confirmPassword"
         type="password"
         :state="formState"
-        :error
         @update="formState.confirmPassword = $event"
-        @clearError="clearError"
       />
       <button
         class="text-white rounded-md p-3 w-full text-center text-md bg-primary"
         @click="toggleNextForm"
+        :class="[disableButton && !signupPage ? 'bg-gray-400' : 'bg-primary']"
       >
         Sign Up
       </button>
@@ -89,9 +80,7 @@
         name="email"
         type="email"
         :state="formState"
-        :error
         @update="formState.email = $event"
-        @clearError="clearError"
       />
       <CustomFormField
         labelText="Password"
@@ -99,9 +88,7 @@
         name="password"
         type="password"
         :state="formState"
-        :error
         @update="formState.password = $event"
-        @clearError="clearError"
       />
       <button
         class="text-white rounded-md p-3 w-full text-center text-md bg-primary"
@@ -130,9 +117,7 @@
         type="select"
         :state="additionalFormState"
         :items="additionalFormState.genderList"
-        :error
         @update="additionalFormState.genderValue = $event"
-        @clearError="clearError"
       />
       <!-- COLLEGE SELECT FIELD -->
       <CustomFormField
@@ -141,9 +126,7 @@
         type="select"
         :state="additionalFormState"
         :items="additionalFormState.collegeList"
-        :error
         @update="additionalFormState.collegeValue = $event"
-        @clearError="clearError"
         v-if="showLecturerFields"
       />
       <!-- OFFICE NUMBER FIELD -->
@@ -153,9 +136,7 @@
         name="officeNumber"
         type="number"
         :state="additionalFormState"
-        :error
         @update="additionalFormState.officeNumber = $event"
-        @clearError="clearError"
         v-if="showLecturerFields"
       />
       <!-- HOSTEL SELECT FIELD -->
@@ -165,9 +146,7 @@
         type="select"
         :state="additionalFormState"
         :items="additionalFormState.hostelList"
-        :error
         @update="additionalFormState.hostelValue = $event"
-        @clearError="clearError"
         v-if="!showLecturerFields"
       />
       <!-- ROOM NUMBER FIELD -->
@@ -177,9 +156,7 @@
         name="roomNumber"
         type="number"
         :state="additionalFormState"
-        :error
         @update="additionalFormState.roomNumber = $event"
-        @clearError="clearError"
         v-if="!showLecturerFields"
       />
       <!-- ROLE SELECT FIELD -->
@@ -189,15 +166,13 @@
         type="select"
         :state="additionalFormState"
         :items="additionalFormState.roleList"
-        :error
         @update="additionalFormState.roleValue = $event"
-        @clearError="clearError"
         v-if="!showLecturerFields"
       />
       <button
         type="sumbit"
         class="text-white rounded-md p-3 w-full text-center text-md"
-        :class="[false ? 'bg-gray-400' : 'bg-primary']"
+        :class="[disableButton ? 'bg-gray-400' : 'bg-primary']"
         @click="handleFormSubmit"
       >
         Finish
@@ -210,7 +185,7 @@
           >here.</span
         >
       </p>
-      <p class="text-center">
+      <p class="text-center" v-if="!hideOptionToGoBack">
         Click <span class="text-primary" @click="toggleNextForm">here</span> to
         go back.
       </p>
@@ -278,24 +253,36 @@
 </template>
 
 <script setup>
-import { checkFormEmail, checkFormPassword } from "../utils/formValidation";
 import { useCookie } from "nuxt/app";
 import { useLogInStore } from "@/stores/logInStore";
 import { storeToRefs } from "pinia";
 import { useFirebaseAuthMethods } from "@/composables/firebaseAuthMethods";
+import { useFormValidationMethods } from "@/composables/formValidation";
+import { postNewUserToDB } from "~/utils/postNewUserToDB";
+import { useUserStore } from "@/stores/userStore";
+
+const userStore = useUserStore();
+const { user } = storeToRefs(userStore);
 
 const { socialSignIn, manualSignUp, manualLogIn } = useFirebaseAuthMethods();
+
+const {
+  checkFormEmail,
+  checkFormFirstName,
+  checkFormLastName,
+  checkFormPassword,
+  checkConfirmPassword,
+  checkRoomNumber,
+  checkOfficeNumber,
+} = useFormValidationMethods();
 
 const logInStore = useLogInStore();
 
 const {
   formState,
   additionalFormState,
-  checkDetails,
   toggleNextForm,
-  toggleAction,
-  displayError,
-  clearError,
+  toggleAction
 } = useLogInStore();
 
 const {
@@ -305,25 +292,89 @@ const {
   error,
   signupPage,
   tryingToSignIn,
+  hideOptionToGoBack,
 } = storeToRefs(logInStore);
 
-const { y } = useScroll(window);
+const disableButton = ref(false);
+watch(error, (newValue, oldValue) => {
+  if (newValue.errorMessage) {
+    disableButton.value = true;
+  } else {
+    disableButton.value = false;
+  }
+});
 
 const handleFormSubmit = async () => {
   if (signupPage.value && showAdditionalForm.value) {
-    if (!checkDetails(showLecturerFields.value)) {
-      return;
+    // SIGNING UP
+
+    // Checking if token already exists. Hence, user already authenticated through Google/Facebook and just needs to be added to our DB
+    const token = useCookie("auth_token");
+
+    if (token.value && token.value != "") {
+      // If token exists
+
+      // So users don't see the Google and Facebook icon when they are about to complete their signup
+      hideOptionToGoBack.value = true;
+
+      if (showLecturerFields.value) {
+        checkOfficeNumber();
+      } else {
+        checkRoomNumber();
+      }
+
+      if (error.value.errorMessage != "") {
+        // If form field validation fails
+        return;
+      } else {
+        await userStore.fetchUserDetails(true);
+        const response = await postNewUserToDB(
+          user.value,
+          formState,
+          additionalFormState,
+          showLecturerFields.value,
+          token.value
+        );
+        if (response.added) {
+          tryingToSignIn.value = false;
+          await navigateTo("/");
+        } else {
+          signUpLogInErrors.value = response.message;
+        }
+      }
     } else {
-      const response = await manualSignUp();
-      if (response == "redirect") {
-        await navigateTo("/");
+      // SIGNING UP
+
+      // If token doesn't exists, then the user is trying to sign up manually
+      if (showLecturerFields.value) {
+        checkOfficeNumber();
+      } else {
+        checkRoomNumber();
+      }
+      checkConfirmPassword();
+      checkFormPassword();
+      checkFormLastName();
+      checkFormFirstName();
+      checkFormEmail();
+
+      if (error.value.errorMessage !== "") {
+        // If form field validation fails
+        return;
+      } else {
+        const response = await manualSignUp();
+        if (response == "redirect") {
+          await navigateTo("/");
+        }
       }
     }
   } else {
-    if (checkFormEmail(formState.email) !== "") {
-      displayError(checkFormEmail(formState.email), "email");
-    } else if (formState.password == "" || formState.password == undefined) {
-      displayError(checkFormPassword(formState.password), "password");
+    // Logging In
+    checkFormEmail();
+    checkFormPassword();
+
+    if (error.value.errorMessage !== "") {
+      // If form field validation fails
+      return;
     } else {
       const response = await manualLogIn();
       if (response == "redirect") {

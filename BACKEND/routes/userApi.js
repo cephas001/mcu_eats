@@ -55,4 +55,8 @@ router.get("/loggedInUser", verifyToken, async (req, res) => {
   }
 });
 
+router.get("/loggedInUserFirebaseDetails", verifyToken, async (req, res) => {
+  res.json({ found: true, user: req.user });
+});
+
 module.exports = router;

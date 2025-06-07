@@ -1,13 +1,4 @@
 import { defineStore } from "pinia";
-import {
-  checkFormEmail,
-  checkRoomNumber,
-  checkOfficeNumber,
-  checkFormPassword,
-  checkFormLastName,
-  checkFormFirstName,
-  checkConfirmPassword,
-} from "~/utils/formValidation";
 
 export const useLogInStore = defineStore("logIn", () => {
   // Toggles a loader for trying to signin/login
@@ -56,7 +47,7 @@ export const useLogInStore = defineStore("logIn", () => {
       ...(errorList && { errorList: errorList }),
     };
     // In a case where a user proceeds to the additional form without inputting correct details in the previous form, this would return them back to the previous form to correct their details
-    if (inputName !== "roomNumber") {
+    if (inputName !== "roomNumber" && inputName !== "officeNumber") {
       showAdditionalForm.value = false;
     }
   };
@@ -75,84 +66,9 @@ export const useLogInStore = defineStore("logIn", () => {
   // Displays any errors associated with signup or login
   const signUpLogInErrors = ref("");
 
-  // Validate the form values before attempting to signup a user
-  const checkDetails = (lecturer) => {
-    // Clears previous error message before displaying new ones
-    clearError();
-
-    // Checks the email
-    if (checkFormEmail(formState.email) !== "") {
-      displayError(checkFormEmail(formState.email), "email");
-      return;
-    }
-
-    // Checks the firstname
-    if (checkFormFirstName(formState.firstName) !== "") {
-      displayError(checkFormFirstName(formState.firstName), "firstName");
-      return;
-    }
-
-    // Checks the lastname
-    if (checkFormLastName(formState.lastName) !== "") {
-      displayError(checkFormLastName(formState.lastName), "lastName");
-      return;
-    }
-
-    // Checks the password
-    if (checkFormPassword(formState.password) !== "") {
-      // Checks if error is that a stronger password is required
-      if (checkFormPassword(formState.password) == "stronger") {
-        displayError("Please enter a stronger password", "password", [
-          "Password must be eight characters or more.",
-          "Password must have a minimum of:",
-          "One uppercase character",
-          "One lowercase character",
-          "One digit and one special character.",
-        ]);
-      } else {
-        // Any other password relate errors
-        displayError(checkFormPassword(formState.password), "password");
-      }
-      return;
-    }
-
-    // Checks the confirm password
-    if (
-      checkConfirmPassword(formState.password, formState.confirmPassword) !== ""
-    ) {
-      displayError(
-        checkConfirmPassword(formState.password, formState.confirmPassword),
-        "confirmPassword"
-      );
-      return;
-    }
-
-    // Checks the room number
-    if (checkRoomNumber(additionalFormState.roomNumber) !== "" && !lecturer) {
-      displayError(
-        checkRoomNumber(additionalFormState.roomNumber),
-        "roomNumber"
-      );
-      return;
-    }
-
-    // Checks the office number
-    if (
-      checkOfficeNumber(additionalFormState.officeNumber) !== "" &&
-      lecturer
-    ) {
-      displayError(
-        checkOfficeNumber(additionalFormState.OfficeNumber),
-        "roomNumber"
-      );
-      return;
-    }
-
-    return true;
-  };
-
   // Toggle additional form for users who sign up manually
   const toggleNextForm = () => {
+    signupPage.value = true;
     showAdditionalForm.value = !showAdditionalForm.value;
     clearError();
   };
@@ -167,6 +83,9 @@ export const useLogInStore = defineStore("logIn", () => {
     }
   };
 
+  // Hides the 'click here to go back' if user gets redirected from Google or Facebook authentication and also if the users gets to the additional form during manual sign up
+  const hideOptionToGoBack = ref(false);
+
   return {
     formState,
     additionalFormState,
@@ -176,9 +95,9 @@ export const useLogInStore = defineStore("logIn", () => {
     signupPage,
     signUpLogInErrors,
     tryingToSignIn,
+    hideOptionToGoBack,
     displayError,
     clearError,
-    checkDetails,
     toggleNextForm,
     toggleAction,
   };
