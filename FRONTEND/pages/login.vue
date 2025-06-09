@@ -278,12 +278,8 @@ const {
 
 const logInStore = useLogInStore();
 
-const {
-  formState,
-  additionalFormState,
-  toggleNextForm,
-  toggleAction
-} = useLogInStore();
+const { formState, additionalFormState, toggleNextForm, toggleAction } =
+  useLogInStore();
 
 const {
   showAdditionalForm,
@@ -399,9 +395,4 @@ const facebookSignIn = async () => {
     await navigateTo("/");
   }
 };
-
-onMounted(() => {
-  const authToken = useCookie("auth_token");
-  authToken.value = null;
-});
 </script>

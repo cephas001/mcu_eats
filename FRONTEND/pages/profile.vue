@@ -1,8 +1,10 @@
 <template>
   <section v-if="!loadingUser" class="px-6 pt-20 pb-25">
     <div class="w-full text-right">
-      <h1>Peter Okodugha</h1>
-      <p>@peter100056</p>
+      <h1>{{ user.firstName + " " + user.lastName }}</h1>
+      <p class="text-sm font-semibold">
+        {{ user.username ? "@" + user.username : "no username" }}
+      </p>
     </div>
 
     <div class="mt-10">
@@ -20,6 +22,7 @@
           My details
           <span
             class="bg-primary text-white px-4 py-1 rounded-full text-[10px] tracking-wide"
+            v-if="!user.verifiedEmail"
             >Verify email</span
           >
         </h1>
@@ -121,13 +124,17 @@ const { user } = storeToRefs(userStore);
 
 const loadingUser = ref(false);
 
-// onMounted(async () => {
-//   try {
-//     await userStore.fetchUserDetails();
-//   } catch (error) {
-//     console.log(error);
-//   } finally {
-//     loadingUser.value = false;
-//   }
-// });
+onMounted(async () => {
+  try {
+    if (user.value == {}) {
+      await userStore.fetchUserDetails();
+    } else {
+      loadingUser.value = false;
+    }
+  } catch (error) {
+    console.log(error);
+  } finally {
+    loadingUser.value = false;
+  }
+});
 </script>

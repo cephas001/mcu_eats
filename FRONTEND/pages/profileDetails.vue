@@ -19,6 +19,12 @@
       :edit="true"
       iconName="i-material-symbols-light-person-outline"
     />
+    <!-- Username -->
+    <ProfileDetailsCard
+      text="Username"
+      :subtext="user.username ? '@' + user.username : 'NOT SET'"
+      iconName="i-material-symbols-light-person-outline"
+    />
     <!-- Phone Number -->
     <ProfileDetailsCard
       text="Phone Number"
@@ -56,7 +62,11 @@ const loadingUser = ref(true);
 
 onMounted(async () => {
   try {
-    await userStore.fetchUserDetails();
+    if (user.value == {}) {
+      await userStore.fetchUserDetails();
+    } else {
+      loadingUser.value = false;
+    }
   } catch (error) {
     console.log(error);
   } finally {

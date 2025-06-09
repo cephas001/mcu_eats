@@ -1,17 +1,26 @@
 import { defineStore } from "pinia";
 import { $fetch } from "ofetch";
+import { useCookie } from "nuxt/app";
 
 export const useUserStore = defineStore("user", () => {
   const user = ref({});
   const loggedIn = ref({});
 
+  const open = ref(false);
+
+  const setUser = (newUser) => {
+    user.value = newUser;
+  };
+
   const fetchUserDetails = async (firebaseDetails) => {
     try {
       const token = useCookie("auth_token");
       const config = useRuntimeConfig();
+
       if (!token.value || token.value == "") {
         loggedIn.value = false;
         user.value = {};
+        return "no token";
       } else {
         var response;
         if (!firebaseDetails) {
@@ -59,9 +68,78 @@ export const useUserStore = defineStore("user", () => {
     }
   };
 
+  const favouriteOrNot = (id) => {
+    if (!user.value._id) {
+      return false;
+    }
+    const vendor = user.value.favouriteVendors.find((vendor) => {
+      return vendor.vendor === id;
+    });
+    if (vendor) {
+      return true;
+    } else {
+      return false;
+    }
+  };
+
+  const favouriteVendor = async (vendorId) => {
+    try {
+      const config = useRuntimeConfig();
+      const token = useCookie("auth_token");
+      if (!user.value._id) {
+        await fetchUserDetails();
+        if (!user.value._id) {
+          return;
+        }
+      }
+      var backendResponse = ref(null);
+      if (favouriteOrNot(vendorId)) {
+        backendResponse.value = await $fetch(
+          `${config.public.apiBaseUrl}/users/favourites/${user.value._id}`,
+          {
+            method: "PUT",
+            body: {
+              removeFavouriteVendor: true,
+              vendorId: vendorId,
+            },
+            headers: {
+              Authorization: `Bearer ${token.value}`,
+            },
+          }
+        );
+      } else {
+        backendResponse.value = await $fetch(
+          `${config.public.apiBaseUrl}/users/favourites/${user.value._id}`,
+          {
+            method: "PUT",
+            body: {
+              favouriteVendors: [
+                ...user.value.favouriteVendors,
+                { vendor: vendorId },
+              ],
+            },
+            headers: {
+              Authorization: `Bearer ${token.value}`,
+            },
+          }
+        );
+      }
+
+      if (backendResponse.value.user) {
+        user.value = backendResponse.value.user;
+      }
+    } catch (error) {
+      console.log(error);
+    }
+  };
+
   return {
     fetchUserDetails,
+    setUser,
+    favouriteVendor,
+    favouriteOrNot,
     loggedIn,
     user,
+    open,
   };
 });

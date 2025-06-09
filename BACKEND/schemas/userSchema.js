@@ -1,15 +1,37 @@
 const connection = require("../dbConnection");
 const mongoose = require("mongoose");
 
-const FavouritesSchema = new mongoose.Schema({
+const FavouriteVendorsSchema = new mongoose.Schema({
+  vendor: {
+    type: mongoose.Schema.Types.ObjectId,
+    ref: "Vendor",
+  },
+});
+
+const FavouriteProductsSchema = new mongoose.Schema({
+  vendor: {
+    type: mongoose.Schema.Types.ObjectId,
+    ref: "Vendor",
+  },
+  productId: {
+    type: mongoose.Schema.Types.ObjectId,
+  },
+});
+
+const AddressesSchema = new mongoose.Schema({
   _id: {
     type: mongoose.Schema.Types.ObjectId,
     default: () => new mongoose.Types.ObjectId(),
   },
-  name: String,
-  description: String,
-  price: Number,
-  type: String,
+  address: String,
+});
+
+const NotesSchema = new mongoose.Schema({
+  _id: {
+    type: mongoose.Schema.Types.ObjectId,
+    default: () => new mongoose.Types.ObjectId(),
+  },
+  note: String,
 });
 
 const UserSchema = new mongoose.Schema(
@@ -25,6 +47,9 @@ const UserSchema = new mongoose.Schema(
     lastName: {
       type: String,
       required: true,
+    },
+    username: {
+      type: String,
     },
     type: {
       type: String,
@@ -56,7 +81,10 @@ const UserSchema = new mongoose.Schema(
     roomNumber: {
       type: Number,
     },
-    favourites: [FavouritesSchema],
+    favouriteVendors: [FavouriteVendorsSchema],
+    favouriteProducts: [FavouriteProductsSchema],
+    addresses: [AddressesSchema],
+    notes: [NotesSchema],
   },
   { timestamps: true }
 );

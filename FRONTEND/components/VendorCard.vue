@@ -12,10 +12,14 @@
     />
     <!-- icon to favorite would be to the top right -->
     <UIcon
-      :name="`i-material-symbols-favorite${vendor.favourite ? '' : '-outline'}`"
+      :name="`i-material-symbols-favorite${
+        favouriteOrNot(vendor._id) ? '' : '-outline'
+      }`"
       class="text-black absolute z-100 top-3 right-3 font-bold text-3xl"
-      :class="vendor.favourite ? 'animate-[var(--animate-pingOnce)]' : ''"
-      @click.self="favouriteVendor(vendor.id)"
+      :class="
+        favouriteOrNot(vendor._id) ? 'animate-[var(--animate-pingOnce)]' : ''
+      "
+      @click.self="favouriteVendorComponent(vendor._id)"
     />
     <div
       class="bg-black/50 absolute inset-0 flex flex-col items-center justify-center gap-5 text-white text-lg"
@@ -30,10 +34,7 @@
     </div>
   </div>
 
-  <div
-    class="py-3 pl-5 flex justify-left items-center"
-    @click="openVendor(vendor._id, vendor.type, vendor.open)"
-  >
+  <div class="py-3 pl-5 flex justify-left items-center" @click="openVendor()">
     <div>
       <UAvatar src="/avatars/avatar.jpg" />
     </div>
@@ -46,27 +47,47 @@
       </p>
     </div>
   </div>
+
+  <UModal v-model:open="open" class="bg-white pb-4" title="Action Required">
+    <template #content>
+      <div class="text-center px-5 py-10">
+        <h1 class="mt-2 tracking-wide text-lg">Login to complete action</h1>
+        <div class="mt-3">
+          <NuxtLink
+            to="/login"
+            class="bg-black text-white text-sm tracking-wider p-2 rounded-md"
+            >Proceed</NuxtLink
+          >
+        </div>
+      </div>
+    </template>
+  </UModal>
 </template>
 
 <script setup>
+import { useUserStore } from "@/stores/userStore";
+const userStore = useUserStore();
+const { favouriteOrNot, favouriteVendor } = userStore;
+const open = ref(false);
+
+const favouriteVendorComponent = (id) => {
+  const token = useCookie("auth_token");
+  if (!token.value || token.value == "") {
+    open.value = true;
+    return;
+  }
+  favouriteVendor(id);
+};
+
 const props = defineProps({
   vendor: {
     type: Object,
   },
 });
 
-const favouriteRestaurant = async (restaurantId) => {
-  return;
-
-  const response = await $fetch("api/usersRestaurantFavourites", {
-    method: "PUT",
-    body: { userId: "1", restaurantId },
-  });
-};
-
-const openVendor = (id, type, open) => {
-  if (open) {
-    navigateTo(`/restaurants/${id}`);
+const openVendor = () => {
+  if (props.vendor.open) {
+    navigateTo(`/vendors/${props.vendor._id}`);
   }
 };
 </script>

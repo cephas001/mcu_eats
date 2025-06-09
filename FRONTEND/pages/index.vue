@@ -49,7 +49,10 @@
 <script setup>
 import { onMounted } from "vue";
 import { useVendorStore } from "@/stores/vendorStore";
+import { useUserStore } from "@/stores/userStore";
 import { storeToRefs } from "pinia";
+const userStore = useUserStore();
+const { user } = storeToRefs(userStore);
 
 const fetchingData = ref(true);
 
@@ -60,6 +63,12 @@ onMounted(async () => {
   fetchingData.value = true;
   try {
     await vendorStore.fetchVendors();
+    if (!user.value._id) {
+      const response = await userStore.fetchUserDetails();
+      if (response == "no token") {
+        userStore.setUser({});
+      }
+    }
   } catch (error) {
     console.error("Error fetching vendors:", error);
   } finally {

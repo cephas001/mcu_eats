@@ -39,12 +39,12 @@
             name="i-material-symbols-light-favorite"
             class="text-gray-400 w-25 h-25"
           />
-          <p class="text-center whitespace-nowrap">
+          <p class="text-center whitespace-nowrap text-sm">
             You have no favourites yet
           </p>
           <div class="mt-5">
             <button
-              class="px-6 py-2 cursor-pointer text-white bg-primary rounded-md text-md"
+              class="px-6 py-2 cursor-pointer text-white bg-primary rounded-md text-sm"
               @click="navigateTo('/')"
             >
               Explore Products

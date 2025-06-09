@@ -13,11 +13,13 @@
       <div><Media src="/restaurant/food1.jpg" /></div>
       <UIcon
         :name="`i-material-symbols-favorite${
-          vendor.favourite ? '' : '-outline'
+          favouriteOrNot(vendor._id) ? '' : '-outline'
         }`"
         class="text-white absolute top-5 right-15 font-bold text-3xl"
-        :class="vendor.favourite ? 'animate-[var(--animate-pingOnce)]' : ''"
-        @click="vendor.favourite = !vendor.favourite"
+        :class="
+          favouriteOrNot(vendor._id) ? 'animate-[var(--animate-pingOnce)]' : ''
+        "
+        @click="favouriteVendorComponent(vendor._id)"
       />
       <UIcon
         name="i-material-symbols-share"
@@ -79,6 +81,21 @@
   </section>
 
   <LoadingIconLarge :loading="fetchingData" />
+
+  <UModal v-model:open="open" class="bg-white pb-4" title="Action Required">
+    <template #content>
+      <div class="text-center px-5 py-10">
+        <h1 class="mt-2 tracking-wide text-lg">Login to complete action</h1>
+        <div class="mt-3">
+          <NuxtLink
+            to="/login"
+            class="bg-black text-white text-sm tracking-wider p-2 rounded-md"
+            >Proceed</NuxtLink
+          >
+        </div>
+      </div>
+    </template>
+  </UModal>
 </template>
 
 <script setup>
@@ -86,6 +103,20 @@ import { computed, onMounted, watch, ref } from "vue";
 import { useVendorStore } from "@/stores/vendorStore";
 import { useOrderStore } from "@/stores/orderStore";
 import { storeToRefs } from "pinia";
+import { useUserStore } from "@/stores/userStore";
+const userStore = useUserStore();
+const { user } = storeToRefs(userStore);
+const { favouriteOrNot, favouriteVendor } = userStore;
+const open = ref(false);
+
+const favouriteVendorComponent = (id) => {
+  const token = useCookie("auth_token");
+  if (!token.value || token.value == "") {
+    open.value = true;
+    return;
+  }
+  favouriteVendor(id);
+};
 
 // To toggle loading icon
 const fetchingData = ref(true);
@@ -173,6 +204,41 @@ onMounted(async () => {
 
       // Sets the default selected value to the first vendor type
       selectedType.value = vendor.value.types[0];
+
+      // Checks if a user exists before attempting to check if a user has favourited certain products
+      if (!user.value._id) {
+        const response = await userStore.fetchUserDetails();
+        if (response == "no token") {
+          userStore.setUser({});
+        }
+        return;
+      }
+
+      if (user.value.favouriteProducts.length == 0) {
+        vendor.value.products = vendor.value.products.map((product) => {
+          return { ...product, favourited: false };
+        });
+      } else {
+        const filteredProducts = user.value.favouriteProducts.filter(
+          (product) => {
+            if (product.vendor == vendor.value._id) {
+              return true;
+            } else {
+              return false;
+            }
+          }
+        );
+        vendor.value.products = vendor.value.products.map((product) => {
+          const productFound = filteredProducts.find((favouriteProduct) => {
+            return favouriteProduct.productId === product._id;
+          });
+          if (productFound) {
+            return { ...product, favourited: true };
+          } else {
+            return { ...product, favourited: false };
+          }
+        });
+      }
     }
   } catch (error) {
     console.error("Error fetching vendor:", error);

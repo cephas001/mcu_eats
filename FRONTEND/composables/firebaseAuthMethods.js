@@ -46,7 +46,12 @@ export function useFirebaseAuthMethods() {
       const user = result.user;
       // After user is signed in or signed up, tries to check if the user is already saved in mongodb database
       const response = await $fetch(
-        `${config.public.apiBaseUrl}/users/${user.uid}`
+        `${config.public.apiBaseUrl}/users/${user.uid}`,
+        {
+          headers: {
+            Authorization: `Bearer ${user.accessToken}`,
+          },
+        }
       );
 
       if (!response.found) {

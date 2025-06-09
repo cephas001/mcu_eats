@@ -30,33 +30,36 @@ router.get("/vendors", async (req, res) => {
     const restaurants = rawRestaurants.map((restaurant) => {
       return {
         ...restaurant,
-        open: compareTime(
-          restaurant.closing_time.hour,
-          restaurant.closing_time.minute,
-          restaurant.taking_orders
-        ),
+        // open: compareTime(
+        //   restaurant.closing_time.hour,
+        //   restaurant.closing_time.minute,
+        //   restaurant.taking_orders
+        // ),
+        open: true,
       };
     });
 
     const retailers = rawRetailers.map((retailer) => {
       return {
         ...retailer,
-        open: compareTime(
-          retailer.closing_time.hour,
-          retailer.closing_time.minute,
-          retailer.taking_orders
-        ),
+        // open: compareTime(
+        //   retailer.closing_time.hour,
+        //   retailer.closing_time.minute,
+        //   retailer.taking_orders
+        // ),
+        open: true,
       };
     });
 
     const shops = rawShops.map((shop) => {
       return {
         ...shop,
-        open: compareTime(
-          shop.closing_time.hour,
-          shop.closing_time.minute,
-          shop.taking_orders
-        ),
+        // open: compareTime(
+        //   shop.closing_time.hour,
+        //   shop.closing_time.minute,
+        //   shop.taking_orders
+        // ),
+        open: true,
       };
     });
 
