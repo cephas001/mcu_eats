@@ -184,17 +184,40 @@
       <div>
         <button
           class="bg-gradient-to-r from-green-500 to-green-600 text-white uppercase py-2 w-full rounded-md cursor-pointer tracking-wide text-sm"
+          @click="checkAndConfirm"
         >
           Confirm Order
         </button>
       </div>
     </div>
   </section>
+  <UModal
+    v-model:open="openModal"
+    class="bg-white pb-4"
+    title="Action Required"
+  >
+    <template #content>
+      <div class="text-center px-5 py-10">
+        <h1 class="mt-3 tracking-wide text-md">Login to complete action</h1>
+        <div class="mt-3">
+          <NuxtLink
+            to="/login"
+            class="bg-black text-white text-sm tracking-wider p-2 rounded-md"
+            >Proceed</NuxtLink
+          >
+        </div>
+      </div>
+    </template>
+  </UModal>
 </template>
 
 <script setup>
 import { onMounted, ref } from "vue";
 import { useCartStore } from "@/stores/cartStore";
+import { useUserStore } from "@/stores/userStore";
+
+const userStore = useUserStore();
+const { user } = storeToRefs(userStore);
 
 const cartStore = useCartStore();
 const { cart, totalCartPrice } = storeToRefs(cartStore);
@@ -210,6 +233,14 @@ const deliveryFee = ref(500);
 const discount = ref(0);
 const serviceFee = ref(200);
 const totalOrderAmount = ref(0);
+
+const openModal = ref(false);
+
+const checkAndConfirm = () => {
+  if (!user?.value) {
+    openModal.value = true;
+  }
+};
 
 onMounted(() => {
   if (cart && cart?.value.length > 0) {

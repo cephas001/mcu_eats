@@ -6,9 +6,7 @@ export const useUserStore = defineStore(
   "user",
   () => {
     const user = ref(null);
-    const loggedIn = ref({});
-
-    const open = ref(false);
+    const loggedIn = ref(null);
 
     const setUser = (newUser) => {
       user.value = newUser;
@@ -21,7 +19,7 @@ export const useUserStore = defineStore(
 
         if (!token.value || token.value == "") {
           loggedIn.value = false;
-          user.value = {};
+          user.value = null;
           return "no token";
         } else {
           var response;
@@ -48,25 +46,24 @@ export const useUserStore = defineStore(
           if (response.error == "Invalid or expired token") {
             token.value = null;
             loggedIn.value = false;
-            user.value = {};
+            user.value = null;
             return;
           }
 
           if (response.error == "Unauthorized: No token provided") {
             loggedIn.value = false;
-            user.value = {};
+            user.value = null;
             return;
           }
 
           if (!response.user) {
             token.value = null;
             loggedIn.value = false;
-            user.value = {};
+            user.value = null;
             return;
           } else {
             loggedIn.value = true;
             user.value = response.user;
-            console.log(response.user);
           }
         }
       } catch (error) {
@@ -75,16 +72,17 @@ export const useUserStore = defineStore(
     };
 
     const favouriteOrNot = (id) => {
-      if (!user.value._id) {
+      if (!user.value) {
         return false;
-      }
-      const vendor = user.value.favouriteVendors.find((vendorObject) => {
-        return vendorObject.vendor._id === id;
-      });
-      if (vendor) {
-        return true;
       } else {
-        return false;
+        const vendor = user.value.favouriteVendors.find((vendorObject) => {
+          return vendorObject.vendor._id === id;
+        });
+        if (vendor) {
+          return true;
+        } else {
+          return false;
+        }
       }
     };
 
@@ -146,7 +144,6 @@ export const useUserStore = defineStore(
       favouriteOrNot,
       loggedIn,
       user,
-      open,
     };
   },
   {

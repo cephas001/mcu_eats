@@ -106,6 +106,9 @@ const props = defineProps({
   vendorClosingTime: {
     type: Object,
   },
+  vendorOpeningTime: {
+    type: Object,
+  },
   vendorTakingOrders: {
     type: Boolean,
   },
@@ -184,7 +187,7 @@ const checkAndNavigate = () => {
     );
     if (open) {
       setVendor(null);
-      navigateTo(`/vendors/${props.vendorId}`);
+      navigateTo(`/vendors/${props.vendorId}?type=${props.product.type}`);
     } else {
       openModal.value = true;
     }

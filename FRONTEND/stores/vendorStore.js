@@ -43,6 +43,26 @@ export const useVendorStore = defineStore(
       }
     };
 
+    const findVendorById = (id) => {
+      if (restaurants?.value) {
+        const vendors = [
+          ...restaurants.value,
+          ...retailers.value,
+          ...shops.value,
+        ];
+        const vendorFound = vendors.find((vendor) => {
+          return vendor._id === id;
+        });
+
+        if (vendorFound) {
+          vendor.value = vendorFound;
+          return true;
+        } else {
+          return false;
+        }
+      }
+    };
+
     const setVendor = (newVendor) => {
       vendor.value = newVendor;
     };
@@ -54,6 +74,7 @@ export const useVendorStore = defineStore(
       shops,
       vendor,
       fetchVendorById,
+      findVendorById,
       setVendor,
     };
   },

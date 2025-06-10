@@ -68,23 +68,25 @@ const fetchDetails = async () => {
         {
           label: `${[
             loggedIn.value
-              ? user.value.firstName + " " + user.value.lastName
+              ? user?.value?.firstName + " " + user?.value?.lastName
               : "Guest",
           ]}`,
           avatar: {
             src: `${
-              user.value.picture ? user.value.picture : "avatars/avatar2.jpg"
+              user?.value?.picture
+                ? user?.value?.picture
+                : "avatars/avatar2.jpg"
             }`,
           },
-          to: `${user.value.firstName ? "/profile" : "/"}`,
+          to: `${user?.value?.firstName ? "/profile" : "/"}`,
         },
         {
           label: `${
             loggedIn.value
               ? `${
-                  user.value.hostel +
+                  user?.value?.hostel +
                   ". Room " +
-                  user.value.roomNumber.toString()
+                  user?.value?.roomNumber.toString()
                 }`
               : "SET LOCATION"
           }`,
@@ -123,7 +125,7 @@ const fetchDetails = async () => {
                 label: "Consumer",
                 icon: "i-lucide-user",
                 disabled: Boolean(
-                  `${user.value.role == "Consumer" ? true : false}`
+                  `${user?.value?.role == "Consumer" ? true : false}`
                 ),
                 color: "info",
               },
@@ -131,7 +133,7 @@ const fetchDetails = async () => {
                 label: "Delivery",
                 icon: "i-material-symbols-delivery-truck-speed",
                 disabled: Boolean(
-                  `${user.value.role == "Delivery" ? true : false}`
+                  `${user?.value?.role == "Delivery" ? true : false}`
                 ),
                 color: "info",
               },

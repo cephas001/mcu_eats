@@ -31,7 +31,10 @@
 
   <section
     class="min-h-[80vh]"
-    v-if="!user || user?.favouriteVendors?.length == 0"
+    v-if="
+      (!user || user?.favouriteVendors?.length == 0) &&
+      activeTabFav == 'Vendors'
+    "
   >
     <div class="container relative min-h-[calc(80vh-100px)]">
       <div
@@ -72,7 +75,10 @@
 
   <section
     class="min-h-[80vh]"
-    v-if="!user || user?.favouriteProducts?.length == 0"
+    v-if="
+      (!user || user?.favouriteProducts?.length == 0) &&
+      activeTabFav == 'Products'
+    "
   >
     <div class="container relative min-h-[calc(80vh-100px)]">
       <div
@@ -153,25 +159,25 @@ onMounted(async () => {
   if (!user.value) {
     await userStore.fetchUserDetails();
   }
-
-  const vendors = [...restaurants.value, ...retailers.value, ...shops.value];
-  user?.value?.favouriteProducts.forEach((product) => {
-    const vendor = vendors.find((vendor) => {
-      return vendor._id === product.vendor;
-    });
-    if (vendor) {
-      const foundProduct = vendor.products.find((fproduct) => {
-        return fproduct._id === product.productId;
+  if (user.value) {
+    const vendors = [...restaurants.value, ...retailers.value, ...shops.value];
+    user?.value?.favouriteProducts.forEach((product) => {
+      const vendor = vendors.find((vendor) => {
+        return vendor._id === product.vendor;
       });
-      foundProduct["favourited"] = true;
-      foundProduct["vendorName"] = vendor.name;
-      foundProduct["vendorId"] = vendor._id;
-      foundProduct["vendorOpeningTime"] = vendor.opening_time;
-      foundProduct["vendorClosingTime"] = vendor.closing_time;
-      foundProduct["vendorTakingOrders"] = vendor.taking_orders;
-      products.value = [...products.value, foundProduct];
-    }
-  });
-  console.log(products.value);
+      if (vendor) {
+        const foundProduct = vendor.products.find((fproduct) => {
+          return fproduct._id === product.productId;
+        });
+        foundProduct["favourited"] = true;
+        foundProduct["vendorName"] = vendor.name;
+        foundProduct["vendorId"] = vendor._id;
+        foundProduct["vendorOpeningTime"] = vendor.opening_time;
+        foundProduct["vendorClosingTime"] = vendor.closing_time;
+        foundProduct["vendorTakingOrders"] = vendor.taking_orders;
+        products.value = [...products.value, foundProduct];
+      }
+    });
+  }
 });
 </script>

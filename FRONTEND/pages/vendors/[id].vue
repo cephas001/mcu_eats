@@ -161,7 +161,10 @@ watch(
 onMounted(async () => {
   try {
     if (!vendor.value) {
-      await vendorStore.fetchVendorById(id);
+      const found = vendorStore.findVendorById(id);
+      if (!found) {
+        await vendorStore.fetchVendorById(id);
+      }
     }
     // Initializes Vendor the types of products a vendor offers to an empty array
     vendor.value.types = [];
@@ -197,42 +200,54 @@ onMounted(async () => {
       }
     });
 
-    // Sets the default selected value to the first vendor type
-    selectedType.value = vendor.value.types[0];
-
-    // Checks if a user exists before attempting to check if a user has favourited certain products
-    if (!user.value._id) {
-      const response = await userStore.fetchUserDetails();
-      if (response == "no token") {
-        userStore.setUser({});
-        return;
+    if (route.query.type !== "") {
+      const type = vendor.value.types.find((type) => {
+        return type.name === route.query.type;
+      });
+      if (type) {
+        vendor.value.types[0].selected = false;
+        type.selected = true;
+        selectedType.value = type;
+      } else {
+        // Sets the default selected value to the first vendor type
+        selectedType.value = vendor.value.types[0];
       }
+    } else {
+      // Sets the default selected value to the first vendor type
+      selectedType.value = vendor.value.types[0];
     }
 
-    if (user.value.favouriteProducts.length == 0) {
-      vendor.value.products = vendor.value.products.map((product) => {
-        return { ...product, favourited: false };
-      });
-    } else {
-      const filteredProducts = user.value.favouriteProducts.filter(
-        (product) => {
-          if (product.vendor == vendor.value._id) {
-            return true;
-          } else {
-            return false;
-          }
-        }
-      );
-      vendor.value.products = vendor.value.products.map((product) => {
-        const productFound = filteredProducts.find((favouriteProduct) => {
-          return favouriteProduct.productId === product._id;
-        });
-        if (productFound) {
-          return { ...product, favourited: true };
-        } else {
+    // Checks if a user exists before attempting to check if a user has favourited certain products
+    if (!user?.value?._id) {
+      const response = await userStore.fetchUserDetails();
+    }
+
+    if (user.value) {
+      if (user?.value?.favouriteProducts.length == 0) {
+        vendor.value.products = vendor.value.products.map((product) => {
           return { ...product, favourited: false };
-        }
-      });
+        });
+      } else {
+        const filteredProducts = user.value.favouriteProducts.filter(
+          (product) => {
+            if (product.vendor == vendor.value._id) {
+              return true;
+            } else {
+              return false;
+            }
+          }
+        );
+        vendor.value.products = vendor.value.products.map((product) => {
+          const productFound = filteredProducts.find((favouriteProduct) => {
+            return favouriteProduct.productId === product._id;
+          });
+          if (productFound) {
+            return { ...product, favourited: true };
+          } else {
+            return { ...product, favourited: false };
+          }
+        });
+      }
     }
   } catch (error) {
     console.error("Error fetching vendor:", error);

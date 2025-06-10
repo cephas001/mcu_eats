@@ -58,13 +58,9 @@ const fetchingData = ref(true);
 
 const vendorStore = useVendorStore();
 const { restaurants, retailers, shops } = storeToRefs(vendorStore);
-
 onMounted(async () => {
   if (!user?.value?._id) {
-    const response = await userStore.fetchUserDetails();
-    if (response == "no token") {
-      userStore.setUser({});
-    }
+    await userStore.fetchUserDetails();
   }
   if (!restaurants?.value) {
     fetchingData.value = true;
