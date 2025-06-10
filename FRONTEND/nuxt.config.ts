@@ -17,7 +17,13 @@ export default defineNuxtConfig({
     plugins: [tailwindcss()],
   },
 
-  modules: ["@vueuse/nuxt", "@nuxt/ui", "@nuxt/image", "@pinia/nuxt"],
+  modules: [
+    "@vueuse/nuxt",
+    "@nuxt/ui",
+    "@nuxt/image",
+    "@pinia/nuxt",
+    "pinia-plugin-persistedstate/nuxt",
+  ],
 
   ui: {
     fonts: false,

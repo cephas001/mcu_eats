@@ -1,4 +1,4 @@
-const compareTime = (hour, minute, takingOrders) => {
+export const compareTime = (hour, minute, takingOrders) => {
   if (takingOrders) {
     const now = new Date();
     const currentHour = now.getHours();
@@ -12,5 +12,3 @@ const compareTime = (hour, minute, takingOrders) => {
     return false;
   }
 };
-
-module.exports = compareTime;

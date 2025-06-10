@@ -60,18 +60,22 @@ const vendorStore = useVendorStore();
 const { restaurants, retailers, shops } = storeToRefs(vendorStore);
 
 onMounted(async () => {
-  fetchingData.value = true;
-  try {
-    await vendorStore.fetchVendors();
-    if (!user.value._id) {
-      const response = await userStore.fetchUserDetails();
-      if (response == "no token") {
-        userStore.setUser({});
-      }
+  if (!user?.value?._id) {
+    const response = await userStore.fetchUserDetails();
+    if (response == "no token") {
+      userStore.setUser({});
     }
-  } catch (error) {
-    console.error("Error fetching vendors:", error);
-  } finally {
+  }
+  if (!restaurants?.value) {
+    fetchingData.value = true;
+    try {
+      await vendorStore.fetchVendors();
+    } catch (error) {
+      console.error("Error fetching vendors:", error);
+    } finally {
+      fetchingData.value = false;
+    }
+  } else {
     fetchingData.value = false;
   }
 });

@@ -2,7 +2,6 @@ require("dotenv").config({ path: "../config/config.env" });
 const express = require("express");
 const router = express.Router();
 const Vendors = require("../schemas/vendorSchema");
-const compareTime = require("../utils/compareTime");
 
 // const { GridFsStorage } = require("multer-gridfs-storage");
 
@@ -20,48 +19,9 @@ const compareTime = require("../utils/compareTime");
 
 router.get("/vendors", async (req, res) => {
   try {
-    const rawRestaurants = await Vendors.find({ type: "restaurant" }).lean();
-    const rawRetailers = await Vendors.find({ type: "retailer" }).lean();
-    const rawShops = await Vendors.find({ type: "shop" }).lean();
-
-    // Uses compareTime function to check and return whether a vendor is open or not
-    // Can be scaled to include other Key-Value pairs, through utility functions e.g. favourite? based on the logged in user
-
-    const restaurants = rawRestaurants.map((restaurant) => {
-      return {
-        ...restaurant,
-        // open: compareTime(
-        //   restaurant.closing_time.hour,
-        //   restaurant.closing_time.minute,
-        //   restaurant.taking_orders
-        // ),
-        open: true,
-      };
-    });
-
-    const retailers = rawRetailers.map((retailer) => {
-      return {
-        ...retailer,
-        // open: compareTime(
-        //   retailer.closing_time.hour,
-        //   retailer.closing_time.minute,
-        //   retailer.taking_orders
-        // ),
-        open: true,
-      };
-    });
-
-    const shops = rawShops.map((shop) => {
-      return {
-        ...shop,
-        // open: compareTime(
-        //   shop.closing_time.hour,
-        //   shop.closing_time.minute,
-        //   shop.taking_orders
-        // ),
-        open: true,
-      };
-    });
+    const restaurants = await Vendors.find({ type: "restaurant" }).lean();
+    const retailers = await Vendors.find({ type: "retailer" }).lean();
+    const shops = await Vendors.find({ type: "shop" }).lean();
 
     return res.json({
       restaurants,

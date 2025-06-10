@@ -35,8 +35,9 @@ router.post("/users", async (req, res) => {
 });
 
 router.get("/users/:id", verifyToken, async (req, res) => {
-  const user = await Users.findById({ _id: req.params.id }).lean();
-
+  const user = await Users.findById({ _id: req.params.id })
+    .lean()
+    .populate("favouriteVendors.vendor");
   if (user) {
     res.json({ found: true, user });
   } else {
@@ -52,8 +53,7 @@ router.put("/users/favourites/:id", verifyToken, async (req, res) => {
         req.params.id,
         { $pull: { favouriteVendors: { vendor: req.body.vendorId } } }, // Removes the entire object
         { new: true }
-      );
-      console.log("user", updatedUser);
+      ).populate("favouriteVendors.vendor");
       res.json({ update: true, user: updatedUser });
     }
 
@@ -64,9 +64,8 @@ router.put("/users/favourites/:id", verifyToken, async (req, res) => {
         req.params.id,
         { favouriteVendors },
         { new: true, runValidators: true }
-      );
+      ).populate("favouriteVendors.vendor");
 
-      console.log(updatedUser);
       res.json({ update: true, user: updatedUser });
     }
 
@@ -76,8 +75,7 @@ router.put("/users/favourites/:id", verifyToken, async (req, res) => {
         req.params.id,
         { $pull: { favouriteProducts: { productId: req.body.productId } } }, // Removes the entire object
         { new: true }
-      );
-      console.log(updatedUser);
+      ).populate("favouriteVendors.vendor");
       res.json({ update: true, user: updatedUser });
     }
 
@@ -88,9 +86,8 @@ router.put("/users/favourites/:id", verifyToken, async (req, res) => {
         req.params.id,
         { favouriteProducts },
         { new: true, runValidators: true }
-      );
+      ).populate("favouriteVendors.vendor");
 
-      console.log(updatedUser);
       res.json({ update: true, user: updatedUser });
     }
   } catch (error) {
@@ -101,7 +98,9 @@ router.put("/users/favourites/:id", verifyToken, async (req, res) => {
 
 // To get the raw firebase user object
 router.get("/loggedInUser", verifyToken, async (req, res) => {
-  const user = await Users.findById({ _id: req.user.uid }).lean();
+  const user = await Users.findById({ _id: req.user.uid })
+    .lean()
+    .populate("favouriteVendors.vendor");
 
   const userToSend = { ...user, picture: req.user.picture };
 

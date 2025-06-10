@@ -9,7 +9,7 @@
       :width="imgAttrs.width"
       :height="imgAttrs.height"
       src="/placeholder_.jpg"
-      class="animate-pulse"
+      class="animate-pulse mx-auto"
     />
   </NuxtImg>
 </template>

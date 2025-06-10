@@ -1,23 +1,30 @@
 <template>
   <div class="relative">
-    <h1 class="mb-4">{{ product.name }}</h1>
+    <p
+      class="font-bold text-sm font-manrope uppercase mb-2 tracking-wide text-primary"
+      v-if="favouritePage"
+      @click="checkAndNavigate"
+    >
+      {{ vendorName }}
+    </p>
+    <h1 class="mb-4" @click="checkAndNavigate">{{ product.name }}</h1>
     <p class="text-gray-600 text-sm">
       {{ product.description }}
     </p>
     <p class="text-sm font-bold tracking-wider font-manrope">
       &#8358;{{ product.price.toLocaleString() }}
     </p>
-    <div class="flex w-fit rounded-md gap-1 pt-3 text-xl">
+    <div class="flex w-fit rounded-md gap-1 pt-3 text-xl" v-if="!favouritePage">
       <div class="bg-primary_light rounded-full p-1 flex items-center">
         <UIcon
           name="i-material-symbols-add-2-rounded"
-          @click="update(product, 'increase')"
+          @click="updateCart(product, vendorId, vendorName, 'increase')"
         />
       </div>
       <div class="bg-primary_light rounded-full p-1 flex items-center">
         <UIcon
           name="i-material-symbols-remove"
-          @click="update(product, 'decrease')"
+          @click="updateCart(product, vendorId, vendorName, 'decrease')"
         />
       </div>
       <input
@@ -33,8 +40,7 @@
         product.favourited ? '' : '-outline'
       }`"
       class="text-black absolute right-0 top-0 font-bold text-3xl"
-      :class="product.favourited ? 'animate-[var(--animate-pingOnce)]' : ''"
-      @click="favouriteProduct"
+      @click.self="favouriteProduct"
     />
   </div>
   <UModal v-model:open="open" class="bg-white pb-4" title="Action Required">
@@ -51,23 +57,40 @@
       </div>
     </template>
   </UModal>
+  <UModal v-model:open="openModal" class="bg-white pb-4" title="Message">
+    <template #content>
+      <div class="text-center px-5 py-10 flex items-center h-48">
+        <h1 class="mt-2 tracking-wide">
+          This vendor is not taking orders right now.
+        </h1>
+      </div>
+    </template>
+  </UModal>
 </template>
 
 <script setup>
-import { defineProps } from "vue";
-import {
-  updateInLocalStorage,
-  deleteFromLocalStorage,
-} from "@/utils/localStorage";
-import { useOrderStore } from "@/stores/orderStore";
+import { defineProps, defineEmits } from "vue";
+
 import { useUserStore } from "@/stores/userStore";
+import { useCartStore } from "@/stores/cartStore";
+import { storeToRefs } from "pinia";
+import { useVendorStore } from "@/stores/vendorStore";
+import { compareTime } from "@/utils/compareTime";
+
 const userStore = useUserStore();
 const { user } = storeToRefs(userStore);
 const { setUser } = userStore;
-const orderStore = useOrderStore();
-const { totalPrice } = storeToRefs(orderStore);
+
+const cartStore = useCartStore();
+const { cart } = storeToRefs(cartStore);
+const { updateCart, getProductCount } = cartStore;
+
+const vendorStore = useVendorStore();
+const { setVendor } = vendorStore;
 
 const open = ref(false);
+
+const openModal = ref(false);
 
 const props = defineProps({
   product: {
@@ -76,40 +99,22 @@ const props = defineProps({
   },
   vendorName: {
     type: String,
-    required: true,
   },
   vendorId: {
     type: String,
-    required: true,
+  },
+  vendorClosingTime: {
+    type: Object,
+  },
+  vendorTakingOrders: {
+    type: Boolean,
+  },
+  favouritePage: {
+    type: Boolean,
   },
 });
 
-const update = (product, operation) => {
-  if (operation == "increase") {
-    product.count++;
-    totalPrice.value = totalPrice.value + product.price;
-  } else {
-    if (product.count == 0) {
-      deleteFromLocalStorage("orders", product._id);
-      return;
-    }
-    product.count--;
-    totalPrice.value = totalPrice.value - product.price;
-  }
-  updateInLocalStorage(
-    "orders",
-    {
-      vendorId: props.vendorId,
-      vendorName: props.vendorName,
-      quantity: product.count,
-      price: product.price,
-      name: product.name,
-      _id: product._id,
-    },
-    "quantity",
-    product.count
-  );
-};
+const emit = defineEmits(["unfavourite"]);
 
 const favouriteProduct = async () => {
   const token = useCookie("auth_token");
@@ -143,6 +148,7 @@ const favouriteProduct = async () => {
         }
       );
       props.product.favourited = false;
+      emit("unfavourite", props.product._id);
     } else {
       backendResponse.value = await $fetch(
         `${config.public.apiBaseUrl}/users/favourites/${user.value._id}`,
@@ -161,12 +167,27 @@ const favouriteProduct = async () => {
       );
       props.product.favourited = true;
     }
-
     if (backendResponse.value.user) {
       setUser(backendResponse.value.user);
     }
   } catch (error) {
     console.log(error);
+  }
+};
+
+const checkAndNavigate = () => {
+  if (props.favouritePage) {
+    var open = compareTime(
+      props.vendorClosingTime.hour,
+      props.vendorClosingTime.minute,
+      props.vendorTakingOrders
+    );
+    if (open) {
+      setVendor(null);
+      navigateTo(`/vendors/${props.vendorId}`);
+    } else {
+      openModal.value = true;
+    }
   }
 };
 </script>

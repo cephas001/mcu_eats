@@ -7,7 +7,7 @@
         <UIcon
           name="i-material-symbols-arrow-back"
           class="text-3xl text-white"
-          @click="navigateTo('/')"
+          @click="$router.back()"
         />
       </div>
       <div><Media src="/restaurant/food1.jpg" /></div>
@@ -77,7 +77,7 @@
       <Product :product :vendorId="vendor._id" :vendorName="vendor.name" />
     </div>
 
-    <ViewOrdersButton />
+    <ViewCartButton />
   </section>
 
   <LoadingIconLarge :loading="fetchingData" />
@@ -104,6 +104,11 @@ import { useVendorStore } from "@/stores/vendorStore";
 import { useOrderStore } from "@/stores/orderStore";
 import { storeToRefs } from "pinia";
 import { useUserStore } from "@/stores/userStore";
+import { useCartStore } from "@/stores/cartStore";
+
+const cartStore = useCartStore();
+const { cart } = storeToRefs(cartStore);
+
 const userStore = useUserStore();
 const { user } = storeToRefs(userStore);
 const { favouriteOrNot, favouriteVendor } = userStore;
@@ -129,7 +134,7 @@ const { vendor } = storeToRefs(vendorStore);
 const watchedVendor = computed(() => vendor.value);
 
 const orderStore = useOrderStore();
-const { totalPrice, viewOrdersBtn, selectedType } = storeToRefs(orderStore);
+const { viewOrdersBtn, selectedType } = storeToRefs(orderStore);
 
 // To filter products based on selected type
 const filteredProducts = computed(() => {
@@ -154,91 +159,80 @@ watch(
 );
 
 onMounted(async () => {
-  const ordersPreSaved = localStorage.getItem("orders");
-  const ordersPreSavedValue = JSON.parse(ordersPreSaved);
-
-  if (ordersPreSaved) {
-    // Checks if an order is already stored in localstorage and shows the view orders button
-    viewOrdersBtn.value = true;
-
-    // Clears the price in view orders button then recomputes using the price of all orders in localstorage
-    totalPrice.value = 0;
-    ordersPreSavedValue.forEach((order) => {
-      totalPrice.value = totalPrice.value + order.price * order.quantity;
-    });
-  }
-
   try {
-    await vendorStore.fetchVendorById(id);
-    if (vendor) {
-      // Initializes Vendor the types of products a vendor offers to an empty array
-      vendor.value.types = [];
+    if (!vendor.value) {
+      await vendorStore.fetchVendorById(id);
+    }
+    // Initializes Vendor the types of products a vendor offers to an empty array
+    vendor.value.types = [];
 
-      vendor.value.products.forEach((product, index) => {
-        // Checks if an order is alredy in localstorage and uses the presaved order quantity for the product count
-        if (ordersPreSaved) {
-          ordersPreSavedValue.forEach((order) => {
-            if (order._id === product._id) {
-              product["count"] = order.quantity;
+    vendor.value.products.forEach((product, index) => {
+      // Checks if a cart is in localstorage and uses the presaved order quantity for the product count
+      if (cart.value.length > 0) {
+        cart.value.forEach((item) => {
+          if (item._id == product._id && item.vendorId == vendor.value._id) {
+            product["count"] = item.quantity;
+          } else {
+            if (product["count"]) {
+              return;
             } else {
               product["count"] = 0;
             }
-          });
-        } else {
-          console.log("here2");
-          product["count"] = 0;
-        }
-
-        // New product type object
-        const objectToAdd = {
-          id: Date.now().toString(36) + Math.random().toString(36).substring(2),
-          name: product.type,
-          selected: index === 0,
-        };
-
-        // Check if a vendor product type already exists before adding to the array of vendor product types
-        if (!vendor.value.types.some((type) => type.name === product.type)) {
-          vendor.value.types.push(objectToAdd);
-        }
-      });
-
-      // Sets the default selected value to the first vendor type
-      selectedType.value = vendor.value.types[0];
-
-      // Checks if a user exists before attempting to check if a user has favourited certain products
-      if (!user.value._id) {
-        const response = await userStore.fetchUserDetails();
-        if (response == "no token") {
-          userStore.setUser({});
-        }
-        return;
-      }
-
-      if (user.value.favouriteProducts.length == 0) {
-        vendor.value.products = vendor.value.products.map((product) => {
-          return { ...product, favourited: false };
+          }
         });
       } else {
-        const filteredProducts = user.value.favouriteProducts.filter(
-          (product) => {
-            if (product.vendor == vendor.value._id) {
-              return true;
-            } else {
-              return false;
-            }
-          }
-        );
-        vendor.value.products = vendor.value.products.map((product) => {
-          const productFound = filteredProducts.find((favouriteProduct) => {
-            return favouriteProduct.productId === product._id;
-          });
-          if (productFound) {
-            return { ...product, favourited: true };
-          } else {
-            return { ...product, favourited: false };
-          }
-        });
+        product["count"] = 0;
       }
+
+      // New product type object
+      const objectToAdd = {
+        id: Date.now().toString(36) + Math.random().toString(36).substring(2),
+        name: product.type,
+        selected: index === 0,
+      };
+
+      // Check if a vendor product type already exists before adding to the array of vendor product types
+      if (!vendor.value.types.some((type) => type.name === product.type)) {
+        vendor.value.types.push(objectToAdd);
+      }
+    });
+
+    // Sets the default selected value to the first vendor type
+    selectedType.value = vendor.value.types[0];
+
+    // Checks if a user exists before attempting to check if a user has favourited certain products
+    if (!user.value._id) {
+      const response = await userStore.fetchUserDetails();
+      if (response == "no token") {
+        userStore.setUser({});
+        return;
+      }
+    }
+
+    if (user.value.favouriteProducts.length == 0) {
+      vendor.value.products = vendor.value.products.map((product) => {
+        return { ...product, favourited: false };
+      });
+    } else {
+      const filteredProducts = user.value.favouriteProducts.filter(
+        (product) => {
+          if (product.vendor == vendor.value._id) {
+            return true;
+          } else {
+            return false;
+          }
+        }
+      );
+      vendor.value.products = vendor.value.products.map((product) => {
+        const productFound = filteredProducts.find((favouriteProduct) => {
+          return favouriteProduct.productId === product._id;
+        });
+        if (productFound) {
+          return { ...product, favourited: true };
+        } else {
+          return { ...product, favourited: false };
+        }
+      });
     }
   } catch (error) {
     console.error("Error fetching vendor:", error);

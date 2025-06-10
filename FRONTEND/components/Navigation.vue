@@ -36,31 +36,33 @@
 import { navigateTo } from "nuxt/app";
 import { ref } from "vue";
 import { useUserStore } from "@/stores/userStore";
+import { useCartStore } from "@/stores/cartStore";
+
+const cartStore = useCartStore();
+const { cart } = storeToRefs(cartStore);
 
 const userStore = useUserStore();
 const { user, loggedIn } = storeToRefs(userStore);
 
 const navigationItems = ref([]);
 
-const getNoOfOrders = () => {
-  var noOfOrders = 0;
-  if (process.client) {
-    const orders = JSON.parse(localStorage.getItem("orders"));
-    if (orders && orders.length > 0) {
-      orders.forEach((order) => {
-        // Determines the amount of items in cart
-        noOfOrders += order.quantity;
-      });
-      return noOfOrders;
-    } else {
-      return 0;
-    }
+const totalCartSize = () => {
+  var total = 0;
+  if (cart.value.length > 0) {
+    cart.value.forEach((item) => {
+      total += item.quantity;
+    });
+    return total;
+  } else {
+    return 0;
   }
 };
 
 const fetchDetails = async () => {
   try {
-    await userStore.fetchUserDetails();
+    if (!user.value) {
+      await userStore.fetchUserDetails();
+    }
     navigationItems.value = [
       [
         {
@@ -99,9 +101,9 @@ const fetchDetails = async () => {
           color: "info",
         },
         {
-          label: `View Orders (0)`,
+          label: `View Cart (${totalCartSize()})`,
           icon: "i-material-symbols-garden-cart-outline-sharp",
-          to: "/orders",
+          to: "/cart",
           color: "info",
         },
         {

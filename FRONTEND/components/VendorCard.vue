@@ -8,7 +8,7 @@
     <Media
       src="/restaurant/food1.jpg"
       class="rounded-t-md"
-      @click.self="openVendor(vendor._id, vendor.type, vendor.open)"
+      @click.self="openVendor()"
     />
     <!-- icon to favorite would be to the top right -->
     <UIcon
@@ -16,14 +16,11 @@
         favouriteOrNot(vendor._id) ? '' : '-outline'
       }`"
       class="text-black absolute z-100 top-3 right-3 font-bold text-3xl"
-      :class="
-        favouriteOrNot(vendor._id) ? 'animate-[var(--animate-pingOnce)]' : ''
-      "
       @click.self="favouriteVendorComponent(vendor._id)"
     />
     <div
       class="bg-black/50 absolute inset-0 flex flex-col items-center justify-center gap-5 text-white text-lg"
-      v-if="!vendor.open"
+      v-if="!isOpen"
     >
       <p class="font-semibold">Closed</p>
 
@@ -66,9 +63,14 @@
 
 <script setup>
 import { useUserStore } from "@/stores/userStore";
+import { useVendorStore } from "@/stores/vendorStore";
+import { compareTime } from "@/utils/compareTime";
 const userStore = useUserStore();
 const { favouriteOrNot, favouriteVendor } = userStore;
 const open = ref(false);
+
+const vendorStore = useVendorStore();
+const { setVendor } = vendorStore;
 
 const favouriteVendorComponent = (id) => {
   const token = useCookie("auth_token");
@@ -85,8 +87,18 @@ const props = defineProps({
   },
 });
 
+const isOpen = computed(() => {
+  var open = compareTime(
+    props.vendor.closing_time.hour,
+    props.vendor.closing_time.minute,
+    props.vendor.taking_orders
+  );
+  return open;
+});
+
 const openVendor = () => {
-  if (props.vendor.open) {
+  if (isOpen.value) {
+    setVendor(null);
     navigateTo(`/vendors/${props.vendor._id}`);
   }
 };

@@ -1,7 +1,7 @@
 <template>
   <section
     class="h-[70vh] p-10 flex flex-col justify-center items-center text-center"
-    v-if="!ordersPresentInLocalStorage"
+    v-if="!cart || cart?.length == 0"
   >
     <div class="mb-5">
       <Media src="/no_order.png" />
@@ -19,31 +19,30 @@
     </div>
   </section>
 
-  <section v-if="ordersPresentInLocalStorage">
+  <section v-if="cart && cart?.length > 0">
+    <!-- Cart Heading -->
     <div class="flex items-center justify-around px-7 py-3 bg-white text-md">
       <div class="flex flex-col items-center font-manrope">
-        <h1 class="font-semibold">Orders</h1>
+        <h1 class="font-semibold">Cart</h1>
         <p class="text-gray-800 text-sm">
-          {{ finalOrders.length }} vendor{{
-            finalOrders.length > 1 ? "s" : ""
-          }}, {{ items }} items
+          {{ finalCart.length }} vendor{{ finalCart.length > 1 ? "s" : "" }},
+          {{ items }} item{{ items > 1 ? "s" : "" }}
         </p>
       </div>
 
       <div>
-        <button class="text-red-500 text-sm"
-        @click="clearOrders"
-        >Clear</button>
+        <button class="text-red-500 text-sm" @click="clearCart">Clear</button>
       </div>
     </div>
 
+    <!-- Delivery and Pickup buttons -->
     <div>
       <div
         class="flex items-center justify-center p-5 border-b-2 border-t-5 border-t-gray-200 border-b-gray-200 tracking-tight"
       >
         <div class="flex items-center bg-gray-200 w-full rounded-full">
           <button
-            class="w-[50%] bg-transparent text-gray-900 border-1"
+            class="w-[50%] bg-transparent text-gray-900 border-1 text-sm"
             :class="[
               'px-6 py-2',
               selectedOption == 'delivery'
@@ -56,7 +55,7 @@
           </button>
 
           <button
-            class="w-[50%] bg-transparent text-gray-800 border-1"
+            class="w-[50%] bg-transparent text-gray-800 border-1 text-sm"
             :class="[
               'px-6 py-2',
               selectedOption == 'pickup'
@@ -108,6 +107,7 @@
       </div>
     </div>
 
+    <!-- Swipe text -->
     <div
       class="bg-gray-100 text-center text-gray-600 p-4 text-sm tracking-wide"
     >
@@ -115,18 +115,18 @@
     </div>
 
     <div>
-      <div v-for="orderArray in finalOrders" :key="orderArray.vendorName">
+      <div v-for="cartArray in finalCart" :key="cartArray.vendorName">
         <div class="px-6 py-3 border-b border-gray-200 bg-white">
           <h3 class="font-bold tracking-wide text-black text-sm">
-            {{ orderArray.vendorName }}
+            {{ cartArray.vendorName }}
           </h3>
         </div>
 
-        <div v-for="order in orderArray.orders">
-          <OrderProductCard
-            :productName="order.name"
-            :quantity="order.quantity"
-            :price="order.price"
+        <div v-for="item in cartArray.cart">
+          <CartProductCard
+            :productName="item.name"
+            :quantity="item.quantity"
+            :price="item.price"
           />
         </div>
       </div>
@@ -175,7 +175,7 @@
     <div
       class="px-6 py-3 sticky bottom-0 bg-white flex flex-col gap-2 border-t-1 border-t-gray-200"
     >
-      <div class="flex items-center justify-between">
+      <div class="flex items-center justify-between font-manrope">
         <p>Order total</p>
         <span class="tracking-wide"
           >&#8358;{{ totalOrderAmount.toLocaleString() }}</span
@@ -183,7 +183,7 @@
       </div>
       <div>
         <button
-          class="bg-gradient-to-r from-green-500 to-green-600 text-white uppercase py-2 w-full rounded-md cursor-pointer tracking-wide"
+          class="bg-gradient-to-r from-green-500 to-green-600 text-white uppercase py-2 w-full rounded-md cursor-pointer tracking-wide text-sm"
         >
           Confirm Order
         </button>
@@ -193,19 +193,17 @@
 </template>
 
 <script setup>
-import { onMounted, ref, watch } from "vue";
-import { useOrderStore } from "@/stores/orderStore";
+import { onMounted, ref } from "vue";
+import { useCartStore } from "@/stores/cartStore";
+
+const cartStore = useCartStore();
+const { cart, totalCartPrice } = storeToRefs(cartStore);
 
 // Default selected option
 const selectedOption = ref("delivery");
 
-const finalOrders = ref([]);
+const finalCart = ref([]);
 const items = ref(0);
-
-const ordersPresentInLocalStorage = ref(false);
-
-const orderStore = useOrderStore();
-const { totalPrice } = storeToRefs(orderStore);
 
 const subTotal = ref(0);
 const deliveryFee = ref(500);
@@ -214,62 +212,38 @@ const serviceFee = ref(200);
 const totalOrderAmount = ref(0);
 
 onMounted(() => {
-  const orders = JSON.parse(localStorage.getItem("orders"));
-
-  if (orders && orders.length > 0) {
-    // To toggle the two sections
-    ordersPresentInLocalStorage.value = true;
-
-    // To prevent multiple inaccurate additions
+  if (cart && cart?.value.length > 0) {
     totalOrderAmount.value = 0;
-    totalPrice.value = 0;
 
-    orders.forEach((order) => {
+    cart.value.forEach((item) => {
       // Determines the amount of items in cart
-      items.value += order.quantity;
+      items.value += item.quantity;
 
-      // Calculate the total price of items in cart
-      totalPrice.value += order.price * order.quantity;
-
-      subTotal.value = totalPrice.value;
+      subTotal.value = totalCartPrice.value;
 
       totalOrderAmount.value =
         subTotal.value + deliveryFee.value + serviceFee.value - discount.value;
     });
 
-    const groupedOrders = orders.reduce((acc, order) => {
-      if (order.quantity > 0) {
+    const groupedCart = cart.value.reduce((acc, item) => {
+      if (item.quantity > 0) {
         // Exclude orders where quantity is 0
-        if (!acc[order.vendorId]) {
-          acc[order.vendorId] = { vendorName: order.vendorName, orders: [] };
+        if (!acc[item.vendorId]) {
+          acc[item.vendorId] = { vendorName: item.vendorName, cart: [] };
         }
-        acc[order.vendorId].orders.push(order);
+        acc[item.vendorId].cart.push(item);
       }
       return acc;
     }, {});
 
-
-
-    
-    finalOrders.value = Object.values(groupedOrders).filter(
-      (vendor) => vendor.orders.length > 0
+    finalCart.value = Object.values(groupedCart).filter(
+      (vendor) => vendor.cart.length > 0
     );
   }
 });
 
-
-
-
-
 // Clearing orders
-const clearOrders = () => {
-  localStorage.removeItem('orders');
-  ordersPresentInLocalStorage.value = false
-  finalOrders.value = [];
-  items.value = 0;
-  subTotal.value = 0;
-  totalOrderAmount.value = 0;
-  totalPrice.value = 0;
-
-}
+const clearCart = () => {
+  cartStore.setCart([]);
+};
 </script>
