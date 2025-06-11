@@ -2,7 +2,7 @@ require("dotenv").config({ path: "../config/config.env" });
 const express = require("express");
 const router = express.Router();
 const Users = require("../schemas/userSchema");
-const verifyToken = require("../middlewares/verifyToken");
+// const verifyToken = require("../middlewares/verifyToken");
 
 router.post("/users", async (req, res) => {
   const user = await Users.findById({ _id: req.body.id });
@@ -43,7 +43,7 @@ router.get("/users/:id", async (req, res) => {
   }
 });
 
-router.get("/loggedInUser", verifyToken, async (req, res) => {
+router.get("/loggedInUser", async (req, res) => {
   const user = await Users.findById({ _id: req.user.uid }).lean();
 
   const userToSend = { ...user, picture: req.user.picture };

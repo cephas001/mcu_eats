@@ -184,6 +184,7 @@
       <div>
         <button
           class="bg-gradient-to-r from-green-500 to-green-600 text-white uppercase py-2 w-full rounded-md cursor-pointer tracking-wide"
+          @click="navigateToCheckOut"
         >
           Confirm Order
         </button>
@@ -272,4 +273,12 @@ const clearOrders = () => {
   totalPrice.value = 0;
 
 }
+
+// Navigate to Check Out page
+const navigateToCheckOut = () => {
+  const router = useRouter();
+  router.push('/Checkout');
+};
+
+
 </script>

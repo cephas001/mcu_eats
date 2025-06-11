@@ -4,13 +4,7 @@
       class="favourites-header px-6 z-1000 bg-white sticky top-0 text-md shadow-md"
     >
       <div class="flex px-4 py-3 items-center w-full">
-        <div>
-          <UIcon
-            name="i-material-symbols-light-close"
-            class="text-red-500 w-8 h-8 mr-4 mt-2"
-             @click="navigateTo('/')"
-          />
-        </div>
+        
         <div class="flex justify-center font-manrope">
           <h1 class="text-xl font-bold text-gray-800">Favorites</h1>
         </div>
