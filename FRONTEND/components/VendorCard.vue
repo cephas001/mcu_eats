@@ -16,6 +16,7 @@
         favouriteOrNot(vendor._id) ? '' : '-outline'
       }`"
       class="text-black absolute z-100 top-3 right-3 font-bold text-3xl"
+      :class="animate ? 'animate-[var(--animate-pingOnce)]' : ''"
       @click.self="favouriteVendorComponent(vendor._id)"
     />
     <div
@@ -72,12 +73,15 @@ const open = ref(false);
 const vendorStore = useVendorStore();
 const { setVendor } = vendorStore;
 
+const animate = ref(false);
+
 const favouriteVendorComponent = (id) => {
   const token = useCookie("auth_token");
   if (!token.value || token.value == "") {
     open.value = true;
     return;
   }
+  animate.value = true;
   favouriteVendor(id);
 };
 

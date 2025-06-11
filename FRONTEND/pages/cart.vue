@@ -21,10 +21,10 @@
 
   <section v-if="cart && cart?.length > 0">
     <!-- Cart Heading -->
-    <div class="flex items-center justify-around px-7 py-3 bg-white text-md">
+    <div class="flex items-center justify-around px-7 py-5 bg-white text-md">
       <div class="flex flex-col items-center font-manrope">
-        <h1 class="font-semibold">Cart</h1>
-        <p class="text-gray-800 text-sm">
+        <h1 class="font-semibold uppercase">Cart</h1>
+        <p class="text-gray-800 text-md tracking-wide">
           {{ finalCart.length }} vendor{{ finalCart.length > 1 ? "s" : "" }},
           {{ items }} item{{ items > 1 ? "s" : "" }}
         </p>
@@ -38,7 +38,7 @@
     <!-- Delivery and Pickup buttons -->
     <div>
       <div
-        class="flex items-center justify-center p-5 border-b-2 border-t-5 border-t-gray-200 border-b-gray-200 tracking-tight"
+        class="flex items-center justify-center p-5 border-b-2 border-t-2 border-t-gray-200 border-b-gray-200 tracking-tight"
       >
         <div class="flex items-center bg-gray-200 w-full rounded-full">
           <button
@@ -80,9 +80,7 @@
           <p class="text-black text-sm">Atuwase, Room 5</p>
         </div>
 
-        <div
-          class="flex items-center p-1 rounded-full bg-primary_light cursor-pointer"
-        >
+        <div class="flex items-center cursor-pointer">
           <UIcon
             name="i-material-symbols-keyboard-arrow-down"
             class="text-primary text-xl"
@@ -102,7 +100,7 @@
         </div>
         <UIcon
           name="i-material-symbols-edit-sharp"
-          class="text-gray-600 text-xl"
+          class="text-gray-600 text-md"
         />
       </div>
     </div>
@@ -116,8 +114,8 @@
 
     <div>
       <div v-for="cartArray in finalCart" :key="cartArray.vendorName">
-        <div class="px-6 py-3 border-b border-gray-200 bg-white">
-          <h3 class="font-bold tracking-wide text-black text-sm">
+        <div class="px-6 py-4 border-b border-gray-200 bg-white">
+          <h3 class="font-bold text-primary uppercase tracking-wide text-sm">
             {{ cartArray.vendorName }}
           </h3>
         </div>
@@ -132,51 +130,56 @@
       </div>
     </div>
 
-    <!-- <div
-      class="flex items-center justify-between py-4 px-6 border-y-1 border-gray-200 bg-white text-sm"
+    <UCollapsible
+      class="py-2 px-4 bg-white font-manrope tracking-wide text-gray-500 space-y-2 text-sm"
     >
-      <p class="text-gray-600 text-sm">Add referral or discount code</p>
-      <UIcon
-        name="i-material-symbols-chevron-right-rounded"
-        class="text-gray-600 text-xl"
+      <UButton
+        class="group text-black"
+        label="Price breakdown"
+        color="neutral"
+        variant="ghost"
+        trailing-icon="i-lucide-chevron-down"
+        :ui="{
+          trailingIcon:
+            'group-data-[state=open]:rotate-180 transition-transform duration-200',
+        }"
+        block
       />
-    </div> -->
+      <template #content>
+        <div class="px-3">
+          <div class="flex items-center justify-between mb-1">
+            <h1>Subtotal</h1>
+            <span>&#8358;{{ subTotal.toLocaleString() }}</span>
+          </div>
 
-    <div
-      class="py-5 px-6 bg-white font-manrope tracking-wide text-gray-500 space-y-2 text-sm"
-    >
-      <div class="flex items-center justify-between">
-        <h1>Subtotal</h1>
-        <span>&#8358;{{ subTotal.toLocaleString() }}</span>
-      </div>
+          <div class="flex items-center justify-between mb-1">
+            <div class="flex items-center">
+              <h1 class="mr-1">Delivery fee</h1>
+              <UIcon name="i-material-symbols-help" class="text-xl" />
+            </div>
+            <span>&#8358;{{ deliveryFee.toLocaleString() }}</span>
+          </div>
 
-      <div class="flex items-center justify-between">
-        <div class="flex items-center">
-          <h1 class="mr-1">Delivery fee</h1>
-          <UIcon name="i-material-symbols-help" class="text-xl" />
+          <div class="flex items-center justify-between mb-1">
+            <h1>Discount</h1>
+            <span>&#8358;{{ discount.toLocaleString() }}</span>
+          </div>
+
+          <div class="flex items-center justify-between">
+            <div class="flex items-center">
+              <h1 class="mr-1">Service fee</h1>
+              <UIcon name="i-material-symbols-help" class="text-xl" />
+            </div>
+            <span>&#8358;{{ serviceFee.toLocaleString() }}</span>
+          </div>
         </div>
-        <span>&#8358;{{ deliveryFee.toLocaleString() }}</span>
-      </div>
-
-      <div class="flex items-center justify-between">
-        <h1>Discount</h1>
-        <span>&#8358;{{ discount.toLocaleString() }}</span>
-      </div>
-
-      <div class="flex items-center justify-between">
-        <div class="flex items-center">
-          <h1 class="mr-1">Service fee</h1>
-          <UIcon name="i-material-symbols-help" class="text-xl" />
-        </div>
-        <span>&#8358;{{ serviceFee.toLocaleString() }}</span>
-      </div>
-    </div>
-
+      </template>
+    </UCollapsible>
     <div
       class="px-6 py-3 sticky bottom-0 bg-white flex flex-col gap-2 border-t-1 border-t-gray-200"
     >
       <div class="flex items-center justify-between font-manrope">
-        <p>Order total</p>
+        <p>Order Total</p>
         <span class="tracking-wide"
           >&#8358;{{ totalOrderAmount.toLocaleString() }}</span
         >
@@ -191,6 +194,7 @@
       </div>
     </div>
   </section>
+
   <UModal
     v-model:open="openModal"
     class="bg-white pb-4"

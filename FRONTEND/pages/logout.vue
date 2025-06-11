@@ -11,8 +11,8 @@ onMounted(async () => {
     token.value = null;
 
     // To reset the User state
-    await userStore.fetchUserDetails();
-    navigateTo("/login");
+    userStore.logOut();
+    await navigateTo("/login");
   } catch (error) {
     console.log(error);
   }

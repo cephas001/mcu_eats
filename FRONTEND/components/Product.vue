@@ -40,6 +40,7 @@
         product.favourited ? '' : '-outline'
       }`"
       class="text-black absolute right-0 top-0 font-bold text-3xl"
+      :class="animate ? 'animate-[var(--animate-pingOnce)]' : ''"
       @click.self="favouriteProduct"
     />
   </div>
@@ -92,6 +93,8 @@ const open = ref(false);
 
 const openModal = ref(false);
 
+const animate = ref(false);
+
 const props = defineProps({
   product: {
     type: Object,
@@ -125,6 +128,7 @@ const favouriteProduct = async () => {
     open.value = true;
     return;
   }
+  animate.value = true;
   const config = useRuntimeConfig();
   try {
     if (!user.value._id) {

@@ -20,7 +20,7 @@
     --color-bottom_nav: #9f734036;
     --background-ivory: #F5F5F5;
 
-    --animate-pingOnce: pingOnce 1s cubic-bezier(0, 0, 0.2, 1) forwards;
+    --animate-pingOnce: pingOnce 0.5s cubic-bezier(0, 0, 0.2, 1) forwards;
 
     @keyframes pingOnce {
         0% {

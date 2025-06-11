@@ -13,7 +13,17 @@
     </div>
 
     <div class="flex items-center p-1 cursor-pointer" v-if="edit">
-      <UIcon name="i-material-symbols-edit-sharp" class="text-gray-600" />
+      <UIcon
+        name="i-material-symbols-edit-sharp"
+        class="text-gray-600"
+        v-if="!text.includes('Email')"
+      />
+
+      <UIcon
+        name="i-material-symbols-light-chevron-right"
+        class="text-2xl self-center font-bold ml-auto"
+        v-if="text.includes('Email Unverified')"
+      />
     </div>
   </div>
 </template>

@@ -111,6 +111,20 @@ export function useFormValidationMethods() {
     }
   };
 
+  // Validates phone number
+  const checkPhoneNumber = () => {
+    const phoneNumberRegex =
+      /^(?:\+234|234|0)(701|702|703|704|705|706|707|708|709|802|803|804|805|806|807|808|809|810|811|812|813|814|815|816|817|818|819|909|908|901|902|903|904|905|906|907)\d{7}$/;
+    if (formState.phoneNumber == "" || formState.phoneNumber == undefined) {
+      displayError("Please enter a valid phone number", "phoneNumber");
+      return;
+    }
+    if (!phoneNumberRegex.test(formState.phoneNumber)) {
+      displayError("Please enter a valid phone number", "phoneNumber");
+      return;
+    }
+  };
+
   return {
     checkFormEmail,
     checkFormFirstName,
@@ -119,5 +133,6 @@ export function useFormValidationMethods() {
     checkConfirmPassword,
     checkRoomNumber,
     checkOfficeNumber,
+    checkPhoneNumber,
   };
 }

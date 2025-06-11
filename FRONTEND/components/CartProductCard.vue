@@ -8,7 +8,7 @@
       ref="el"
     >
       <div class="flex items-center">
-        <span class="text-primary font-semibold text-sm mr-8 tracking-wide">
+        <span class="font-semibold text-sm mr-8 tracking-wide">
           {{ quantity }}x</span
         >
         <p class="font-poppins">{{ productName }}</p>

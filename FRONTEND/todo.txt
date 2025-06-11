@@ -1,2 +1,1 @@
 [ ] Clear Cart when a user logs out or dymanically check and use Cart
-[ ] Immediate feeback event when Favourite Icon is click for users to see

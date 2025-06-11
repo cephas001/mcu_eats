@@ -12,6 +12,11 @@ export const useUserStore = defineStore(
       user.value = newUser;
     };
 
+    const logOut = () => {
+      user.value = null;
+      loggedIn.value = false;
+    };
+
     const fetchUserDetails = async (firebaseDetails) => {
       try {
         const token = useCookie("auth_token");
@@ -142,6 +147,7 @@ export const useUserStore = defineStore(
       setUser,
       favouriteVendor,
       favouriteOrNot,
+      logOut,
       loggedIn,
       user,
     };

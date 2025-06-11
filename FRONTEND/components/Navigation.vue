@@ -63,105 +63,146 @@ const fetchDetails = async () => {
     if (!user.value) {
       await userStore.fetchUserDetails();
     }
-    navigationItems.value = [
-      [
-        {
-          label: `${[
-            loggedIn.value
-              ? user?.value?.firstName + " " + user?.value?.lastName
-              : "Guest",
-          ]}`,
-          avatar: {
-            src: `${
-              user?.value?.picture
-                ? user?.value?.picture
-                : "avatars/avatar2.jpg"
-            }`,
+    if (loggedIn?.value) {
+      navigationItems.value = [
+        [
+          {
+            label: `${user?.value?.firstName + " " + user?.value?.lastName}`,
+            avatar: {
+              src: `${
+                user?.value?.picture
+                  ? user?.value?.picture
+                  : "avatars/avatar2.jpg"
+              }`,
+            },
+            to: "/profile",
           },
-          to: `${user?.value?.firstName ? "/profile" : "/"}`,
-        },
-        {
-          label: `${
-            loggedIn.value
-              ? `${
-                  user?.value?.hostel +
-                  ". Room " +
-                  user?.value?.roomNumber.toString()
-                }`
-              : "SET LOCATION"
-          }`,
-          icon: "i-material-symbols-pin-drop",
-          type: "label",
-          color: "info",
-        },
-      ],
-      [
-        {
-          label: "Home",
-          icon: "i-material-symbols-house-rounded",
-          to: "/",
-          color: "info",
-        },
-        {
-          label: `View Cart (${totalCartSize()})`,
-          icon: "i-material-symbols-garden-cart-outline-sharp",
-          to: "/cart",
-          color: "info",
-        },
-        {
-          label: "Favourites",
-          icon: "i-material-symbols-favorite",
-          color: "info",
-          to: "/favourites",
-        },
-      ],
-      [
-        {
-          label: "Switch Role",
-          icon: "i-lucide-user",
-          children: [
-            [
-              {
-                label: "Consumer",
-                icon: "i-lucide-user",
-                disabled: Boolean(
-                  `${user?.value?.role == "Consumer" ? true : false}`
-                ),
-                color: "info",
-              },
-              {
-                label: "Delivery",
-                icon: "i-material-symbols-delivery-truck-speed",
-                disabled: Boolean(
-                  `${user?.value?.role == "Delivery" ? true : false}`
-                ),
-                color: "info",
-              },
+          {
+            label: `${
+              user?.value?.hostel +
+              ". Room " +
+              user?.value?.roomNumber.toString()
+            }`,
+            icon: "i-material-symbols-pin-drop",
+            type: "label",
+            color: "info",
+          },
+        ],
+        [
+          {
+            label: "Home",
+            icon: "i-material-symbols-house-rounded",
+            to: "/",
+            color: "info",
+          },
+          {
+            label: `View Cart (${totalCartSize()})`,
+            icon: "i-material-symbols-garden-cart-outline-sharp",
+            to: "/cart",
+            color: "info",
+          },
+          {
+            label: "Favourites",
+            icon: "i-material-symbols-favorite",
+            color: "info",
+            to: "/favourites",
+          },
+        ],
+        [
+          {
+            label: "Switch Role",
+            icon: "i-lucide-user",
+            children: [
+              [
+                {
+                  label: "Consumer",
+                  icon: "i-lucide-user",
+                  disabled: Boolean(
+                    `${user?.value?.role == "Consumer" ? true : false}`
+                  ),
+                  color: "info",
+                },
+                {
+                  label: "Delivery",
+                  icon: "i-material-symbols-delivery-truck-speed",
+                  disabled: Boolean(
+                    `${user?.value?.role == "Delivery" ? true : false}`
+                  ),
+                  color: "info",
+                },
+              ],
             ],
-          ],
-        },
-        {
-          label: "Change location",
-          icon: "i-material-symbols-edit-location-sharp",
-          color: "info",
-        },
-      ],
-      [
-        {
-          label: "Support",
-          icon: "i-material-symbols-question-mark-rounded",
-          color: "info",
-          to: "/support",
-        },
-        {
-          label: `${loggedIn.value ? "Logout" : "Login"}`,
-          color: `${loggedIn.value ? "error" : "primary"}`,
-          icon: `${loggedIn.value ? "i-lucide-log-out" : "i-lucide-log-in"}`,
-          kbds: ["shift", "meta", "q"],
-          to: `${loggedIn.value ? "/logout" : "/login"}`,
-        },
-      ],
-    ];
+          },
+          {
+            label: "Change location",
+            icon: "i-material-symbols-edit-location-sharp",
+            color: "info",
+          },
+        ],
+        [
+          {
+            label: "Support",
+            icon: "i-material-symbols-question-mark-rounded",
+            color: "info",
+            to: "/support",
+          },
+          {
+            label: "Logout",
+            color: "error",
+            icon: "i-lucide-log-out",
+            kbds: ["shift", "meta", "q"],
+            to: "/logout",
+          },
+        ],
+      ];
+    } else {
+      navigationItems.value = [
+        [
+          {
+            label: "Guest",
+            avatar: {
+              src: "avatars/avatar2.jpg",
+            },
+            to: "/",
+          },
+        ],
+        [
+          {
+            label: "Home",
+            icon: "i-material-symbols-house-rounded",
+            to: "/",
+            color: "info",
+          },
+          {
+            label: `View Cart (${totalCartSize()})`,
+            icon: "i-material-symbols-garden-cart-outline-sharp",
+            to: "/cart",
+            color: "info",
+          },
+          {
+            label: "Favourites",
+            icon: "i-material-symbols-favorite",
+            color: "info",
+            to: "/favourites",
+          },
+        ],
+        [
+          {
+            label: "Support",
+            icon: "i-material-symbols-question-mark-rounded",
+            color: "info",
+            to: "/support",
+          },
+          {
+            label: "Login",
+            color: "primary",
+            icon: "i-lucide-log-in",
+            kbds: ["shift", "meta", "q"],
+            to: "/login",
+          },
+        ],
+      ];
+    }
   } catch (error) {
     console.error("Error fetching user:", error);
   }
