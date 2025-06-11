@@ -3,6 +3,9 @@ const express = require("express");
 const router = express.Router();
 const Users = require("../schemas/userSchema");
 const verifyToken = require("../middlewares/verifyToken");
+const sendVerificationEmail = require("../utils/sendVerificationEmail");
+const admin = require("../firebaseConnection");
+const { getAuth } = require("firebase-admin/auth");
 
 router.post("/users", async (req, res) => {
   const user = await Users.findById({ _id: req.body.id });
@@ -93,6 +96,43 @@ router.put("/users/favourites/:id", verifyToken, async (req, res) => {
   } catch (error) {
     console.log(error);
     res.json({ update: false, message: "An error occurred" });
+  }
+});
+
+router.put("/users/:id", verifyToken, async (req, res) => {
+  if (req.user.uid !== req.params.id) {
+    return res.json({ update: false, message: "Mismatched credentials" });
+  }
+  try {
+    const updatedUser = await Users.findByIdAndUpdate(
+      req.params.id,
+      { $set: req.body },
+      { new: true }
+    );
+    res.json({ update: true, user: updatedUser });
+  } catch (error) {
+    res.status(500).json({ error: error.message });
+  }
+});
+
+router.post("/users/verifyEmail/:id", verifyToken, async (req, res) => {
+  try {
+    if (req.user.uid !== req.params.id) {
+      return res.json({ update: false, message: "Mismatched credentials" });
+    }
+    const actionCodeSettings = {
+      url: "https://super-journey-5p95pj5grgwf7xvq-3000.app.github.dev/profileDetails",
+    };
+    const auth = getAuth(admin.app());
+    const link = await auth.generateEmailVerificationLink(
+      req.body.email,
+      actionCodeSettings
+    );
+
+    await sendVerificationEmail(req.body.email, req.body.fullName, link);
+    res.json({ sent: true });
+  } catch (error) {
+    res.status(500).json({ error: error.message });
   }
 });
 
