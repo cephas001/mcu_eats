@@ -1,4 +1,5 @@
 import { useNuxtApp } from "#app";
+import { useUserStore } from "@/stores/userStore";
 
 export const postNewUserToDB = async (
   user,
@@ -10,13 +11,14 @@ export const postNewUserToDB = async (
   const nuxtApp = useNuxtApp();
   const config = useRuntimeConfig();
 
+  const userStore = useUserStore();
+
   // Getting primary user details
   const userToAdd = {
     id: user.uid,
     gender: `${additionalDetails.gender}`,
     email: user.email,
     emailVerified: user.email_verified,
-    favourites: [],
     firstName: `${
       firstDetails.firstName && firstDetails.firstName != ""
         ? firstDetails.firstName.trim()
@@ -55,6 +57,8 @@ export const postNewUserToDB = async (
   });
 
   if (response.added) {
+    userStore.setUser(response.user);
+    userStore.setLoggedIn(true);
     if (user.accessToken) {
       nuxtApp.$storeToken(user.accessToken);
     } else {

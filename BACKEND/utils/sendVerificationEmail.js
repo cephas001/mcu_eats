@@ -1,5 +1,9 @@
 require("dotenv").config({ path: "../config/config.env" });
 const nodemailer = require("nodemailer");
+const ejs = require("ejs");
+const fs = require("fs");
+
+const template = fs.readFileSync("views/verify-email.ejs", "utf8");
 
 const sendVerificationEmail = async (
   userEmail,
@@ -15,19 +19,18 @@ const sendVerificationEmail = async (
       },
     });
 
+    const html = ejs.render(template, { displayName, verificationLink });
+
     const mailOptions = {
       from: '"MCU EATS" <mcueats@gmail.com>',
       to: userEmail,
       subject: "Verify Your Email",
-      html: `<p>Hi ${displayName},</p>
-                    <p>Please verify your email by clicking the link below:</p>
-                    <a href="${verificationLink}">Verify Email</a>  
-                    `,
+      html,
     };
     await transporter.sendMail(mailOptions);
-    console.log("Verification email sent successfully");
+    return true;
   } catch (error) {
-    console.log(error);
+    return false;
   }
 };
 

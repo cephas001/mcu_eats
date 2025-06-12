@@ -97,7 +97,7 @@ const isOpen = computed(() => {
     props.vendor.closing_time.minute,
     props.vendor.taking_orders
   );
-  return open;
+  return true;
 });
 
 const openVendor = () => {

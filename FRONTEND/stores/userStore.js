@@ -12,6 +12,10 @@ export const useUserStore = defineStore(
       user.value = newUser;
     };
 
+    const setLoggedIn = (newLogin) => {
+      loggedIn.value = newLogin;
+    };
+
     const logOut = () => {
       user.value = null;
       loggedIn.value = false;
@@ -142,12 +146,38 @@ export const useUserStore = defineStore(
       }
     };
 
+    const updateUser = async (body) => {
+      try {
+        const token = useCookie("auth_token");
+        const config = useRuntimeConfig();
+        if (token.value || user?.value) {
+          const response = await $fetch(
+            `${config.public.apiBaseUrl}/users/${user.value._id}`,
+            {
+              method: "PUT",
+              body,
+              headers: {
+                Authorization: `Bearer ${token.value}`,
+              },
+            }
+          );
+          if (response.update) {
+            setUser(response.user);
+          }
+        }
+      } catch (error) {
+        console.log(error);
+      }
+    };
+
     return {
       fetchUserDetails,
       setUser,
       favouriteVendor,
       favouriteOrNot,
       logOut,
+      setLoggedIn,
+      updateUser,
       loggedIn,
       user,
     };

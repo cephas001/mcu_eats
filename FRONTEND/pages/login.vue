@@ -171,8 +171,7 @@
       />
       <button
         type="sumbit"
-        class="text-white rounded-md p-3 w-full text-center text-md"
-        :class="[disableButton ? 'bg-gray-400' : 'bg-primary']"
+        class="text-white rounded-md p-3 w-full bg-primary text-center text-md"
         @click="handleFormSubmit"
       >
         Finish

@@ -9,10 +9,11 @@ import {
 import { postNewUserToDB } from "../utils/postNewUserToDB";
 import { useLogInStore } from "@/stores/logInStore";
 import { storeToRefs } from "pinia";
+import { useUserStore } from "@/stores/userStore";
 
 export function useFirebaseAuthMethods() {
   const logInStore = useLogInStore();
-
+  const userStore = useUserStore();
   const { formState, additionalFormState, toggleNextForm } = useLogInStore();
 
   const {

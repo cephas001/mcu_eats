@@ -1,5 +1,6 @@
 require("dotenv").config({ path: "./config/config.env" });
 
+const path = require("path");
 const http = require("http");
 const WebSocket = require("ws");
 const express = require("express");
@@ -20,6 +21,9 @@ app.use(
   })
 );
 app.use(cookieParser());
+
+app.set("view engine", "ejs");
+app.set("views", path.join(__dirname, "views"));
 
 app.use("/uploads", express.static("./uploads"));
 app.use("", require("./routes/vendorApi"));

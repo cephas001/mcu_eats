@@ -1,1 +1,0 @@
-[ ] Clear Cart when a user logs out or dymanically check and use Cart

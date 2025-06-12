@@ -1,0 +1,5 @@
+[ ] Clear Cart when a user logs out or dymanically check and use Cart
+[ ] Check password validation logical error
+[ ] If someone has an invalid token, what happens? how do we give feedback
+[ ] If someone has an expired token, what happens? how do we give feedback
+[ ] If there is space in the username or any other field, validation fails, find a way to trim before check and trim before send

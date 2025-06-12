@@ -20,17 +20,19 @@ router.post("/users", async (req, res) => {
       role: req.body.role,
       email: req.body.email,
       verifiedEmail: req.body.emailVerified,
-      favourites: req.body.favourites,
-      type: req.body.type,
       ...(req.body.college && { college: req.body.college }),
       ...(req.body.officeNumber && { officeNumber: req.body.officeNumber }),
       ...(req.body.roomNumber && { roomNumber: req.body.roomNumber }),
       ...(req.body.hostel && { hostel: req.body.hostel }),
     };
 
-    const response = await Users.create(userToAdd);
-    if (response) {
-      res.status(200).json({ added: true, message: "User added successfully" });
+    const user = await Users.create(userToAdd);
+    if (user) {
+      res.status(200).json({
+        added: true,
+        message: "User added successfully",
+        user,
+      });
     }
   } else {
     res.status(409).json({ added: false, message: "User already exists" });
@@ -118,19 +120,26 @@ router.put("/users/:id", verifyToken, async (req, res) => {
 router.post("/users/verifyEmail/:id", verifyToken, async (req, res) => {
   try {
     if (req.user.uid !== req.params.id) {
-      return res.json({ update: false, message: "Mismatched credentials" });
+      return res
+        .status(401)
+        .json({ update: false, message: "Mismatched credentials" });
     }
+
     const actionCodeSettings = {
-      url: "https://super-journey-5p95pj5grgwf7xvq-3000.app.github.dev/profileDetails",
+      url: `https://super-journey-5p95pj5grgwf7xvq-3000.app.github.dev/redirected?from=${req.body.url}&mode=verifyEmail&id=${req.params.id}`,
+      handleCodeInApp: false,
     };
     const auth = getAuth(admin.app());
     const link = await auth.generateEmailVerificationLink(
       req.body.email,
       actionCodeSettings
     );
-
-    await sendVerificationEmail(req.body.email, req.body.fullName, link);
-    res.json({ sent: true });
+    const sent = await sendVerificationEmail(
+      req.body.email,
+      req.body.fullName,
+      link
+    );
+    res.json({ sent });
   } catch (error) {
     res.status(500).json({ error: error.message });
   }
