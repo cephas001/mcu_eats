@@ -1,15 +1,6 @@
 <template>
-  <section class="px-6 pt-8 pb-4">
-    <div class="flex items-center">
-      <UIcon
-        name="i-material-symbols-arrow-back"
-        size="30"
-        class="text-primary cursor-pointer"
-        @click.prevent="navigateTo('/feedback')"
-      />
-      <h1 class="text-center w-[100%]">Complaints & Feedback</h1>
-    </div>
-  </section>
+  <ProfilePageHeader text="Complaints & Feedback" />
+
   <section class="px-6 min-h-[90vh] mt-7">
     <h1 class="font-bold mb-5">We listen</h1>
     <p class="text-sm">There is always room for improvement!</p>

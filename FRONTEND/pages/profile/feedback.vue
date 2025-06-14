@@ -1,14 +1,6 @@
 <template>
-  <section class="p-6">
-    <div class="flex items-center">
-      <UIcon
-        name="i-material-symbols-arrow-back"
-        size="30"
-        class="text-primary cursor-pointer"
-        @click.prevent="navigateTo('/profile')"
-      />
-      <h1 class="text-center w-[100%]">Help / Feedback</h1>
-    </div>
+  <ProfilePageHeader text="Help / Feedback" classList="pb-0 px-6 pt-8" />
+  <section class="px-6">
     <div class="flex justify-center items-center mt-4 flex-col">
       <Media src="/background_theme_image.png" class="w-[150px]" />
       <p class="text-sm text-gray-600 tracking-wide">Version 0.0.0</p>
@@ -18,7 +10,7 @@
     <div>
       <div
         class="flex items-center px-6 py-4 border-y-1 border-y-gray-300"
-        @click="navigateTo('/support')"
+        @click="navigateTo('/profile/support')"
       >
         <h1 class="text-sm tracking-wide">Contact support</h1>
         <UIcon
@@ -42,7 +34,7 @@
       </div>
       <div
         class="flex items-center px-6 py-4 border-b-1 border-b-gray-300"
-        @click="navigateTo('/complaints')"
+        @click="navigateTo('/profile/complaints')"
       >
         <h1 class="text-sm tracking-wide">Complaints & Feedback</h1>
         <UIcon

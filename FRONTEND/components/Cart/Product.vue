@@ -1,6 +1,6 @@
 <template>
   <div
-    class="font-manrope flex mb-1 text-left items-center whitespace-nowrap border-b-1 border-gray-300 border-t-1 transition-all w-full overflow-hidden relative"
+    class="font-manrope flex text-left items-center whitespace-nowrap border-gray-300 border-t-1 transition-all w-full overflow-hidden relative"
   >
     <div
       class="flex items-center justify-between px-6 py-4 w-full transition-all duration-400"
@@ -9,12 +9,12 @@
     >
       <div class="flex items-center">
         <span class="font-semibold text-sm mr-8 tracking-wide">
-          {{ quantity }}x</span
+          {{ product.quantity }}x</span
         >
-        <p class="font-poppins">{{ productName }}</p>
+        <p class="font-poppins">{{ product.name }}</p>
       </div>
       <div>
-        <p>&#8358;{{ (price * quantity).toLocaleString() }}</p>
+        <p>&#8358;{{ (product.price * product.quantity).toLocaleString() }}</p>
       </div>
     </div>
     <div
@@ -25,7 +25,7 @@
           : 'opacity-0 right-[-100%] w-0',
       ]"
     >
-      <button>Edit</button>
+      <button @click="openVendor">Edit</button>
     </div>
     <div
       class="transition-all duration-300 absolute bg-red-100 p-4 text-red-700"
@@ -35,13 +35,18 @@
           : 'opacity-0 right-[-100%] w-0',
       ]"
     >
-      <button>Delete</button>
+      <button @click="emitDelete">Delete</button>
     </div>
   </div>
 </template>
 
 <script setup>
 import { defineProps } from "vue";
+import { useCartStore } from "@/stores/cartStore";
+import { useVendorStore } from "@/stores/vendorStore";
+
+const cartStore = useCartStore();
+const vendorStore = useVendorStore();
 
 const el = ref(null);
 const { isSwiping, direction } = useSwipe(el);
@@ -56,17 +61,22 @@ watch(direction, (newDirection) => {
   }
 });
 const props = defineProps({
-  quantity: {
-    type: Number,
-    required: true,
-  },
-  productName: {
-    type: String,
-    required: true,
-  },
-  price: {
-    type: Number,
+  product: {
+    type: Object,
     required: true,
   },
 });
+const emit = defineEmits(["delete"]);
+
+const emitDelete = () => {
+  emit("delete", props.product);
+  showEditDelete.value = false;
+};
+
+const openVendor = async () => {
+  vendorStore.setVendor(null);
+  await navigateTo(
+    `/vendors/${props.product.vendorId}?type=${props.product.type}`
+  );
+};
 </script>

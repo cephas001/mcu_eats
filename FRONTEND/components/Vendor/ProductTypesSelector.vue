@@ -13,9 +13,9 @@
 </template>
 
 <script setup>
-import { useOrderStore } from "@/stores/orderStore";
-const orderStore = useOrderStore();
-const { totalPrice, viewOrdersBtn, selectedType } = storeToRefs(orderStore);
+import { useVendorStore } from "@/stores/vendorStore";
+const vendorStore = useVendorStore();
+const { selectedProductType } = storeToRefs(vendorStore);
 
 const props = defineProps({
   types: {
@@ -29,7 +29,7 @@ const select = (id) => {
     if (id !== type.id) {
       return (type.selected = false);
     }
-    selectedType.value = type;
+    selectedProductType.value = type;
     return (type.selected = true);
   });
 };

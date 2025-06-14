@@ -4,8 +4,11 @@ export const useCartStore = defineStore(
   "cart",
   () => {
     const cart = ref([]);
+    // Organized cart
+    const finalCart = ref([]);
+    const items = ref(0);
     const totalCartPrice = ref(0);
-    const viewCartBtn = ref(false);
+    const totalOrderAmount = ref(0);
 
     const updateCart = (product, vendorId, vendorName, operation) => {
       if (operation == "increase") {
@@ -45,10 +48,20 @@ export const useCartStore = defineStore(
             quantity: product.count,
             price: product.price,
             name: product.name,
+            type: product.type,
             _id: product._id,
           },
         ];
       }
+    };
+
+    const deleteFromCart = (product) => {
+      totalCartPrice.value -= product.quantity * product.price;
+      cart.value = cart.value.filter((item) => {
+        if (item._id !== product._id) {
+          return true;
+        }
+      });
     };
 
     const setCart = (newCart) => {
@@ -56,11 +69,21 @@ export const useCartStore = defineStore(
       totalCartPrice.value = 0;
     };
 
+    const clearCart = () => {
+      cart.value = [];
+      totalCartPrice.value = 0;
+    };
+
     return {
       cart,
+      totalCartPrice,
+      finalCart,
+      items,
+      totalOrderAmount,
       updateCart,
       setCart,
-      totalCartPrice,
+      deleteFromCart,
+      clearCart,
     };
   },
   {

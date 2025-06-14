@@ -1,15 +1,5 @@
 <template>
-  <section class="px-6 pt-6 pb-2">
-    <div class="flex items-center">
-      <UIcon
-        name="i-material-symbols-arrow-back"
-        size="30"
-        class="text-primary cursor-pointer"
-        @click.prevent="$router.back()"
-      />
-      <h1 class="text-center w-[100%] uppercase">Favourites</h1>
-    </div>
-  </section>
+  <ProfilePageHeader text="FAVOURITES" />
 
   <header class="z-1000 sticky top-0 text-md shadow-md pt-4 bg-white">
     <div class="flex items-center justify-center w-full">
@@ -113,7 +103,7 @@
       :key="product._id"
       class="py-5 border-b-1 border-gray-100"
     >
-      <Product
+      <VendorProduct
         :product
         :favouritePage="true"
         :vendorName="product.vendorName"

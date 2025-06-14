@@ -1,15 +1,5 @@
 <template>
-  <section class="px-6 pt-8 pb-4">
-    <div class="flex items-center">
-      <UIcon
-        name="i-material-symbols-arrow-back"
-        size="30"
-        class="text-primary cursor-pointer"
-        @click.prevent="navigateTo('/profile')"
-      />
-      <h1 class="text-center w-[100%] uppercase">Addresses</h1>
-    </div>
-  </section>
+  <ProfilePageHeader text="Addresses" />
 
   <section class="mt-5">
     <div class="px-6 flex items-center justify-between">

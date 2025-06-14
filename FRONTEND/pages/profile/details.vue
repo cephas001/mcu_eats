@@ -1,15 +1,9 @@
 <template>
-  <section class="px-6 mt-6 mb-8" v-if="!verificationSent">
-    <div class="flex items-center">
-      <UIcon
-        name="i-material-symbols-arrow-back"
-        size="30"
-        class="text-primary cursor-pointer"
-        @click.prevent="navigateTo('/profile')"
-      />
-      <h1 class="text-center w-[100%] tracking-wider">My details</h1>
-    </div>
-  </section>
+  <PageHeader
+    text="My details"
+    classList="mb-4 px-6 pt-8 pb-4"
+    v-if="!verificationSent"
+  />
 
   <section
     class="relative min-h-[80vh] pb-5"
@@ -95,7 +89,7 @@
         </div>
         <form class="flex gap-3 flex-col">
           <div>
-            <CustomFormField
+            <FormField
               labelText="First Name"
               placeholder="First"
               name="firstName"
@@ -105,7 +99,7 @@
             />
           </div>
           <div>
-            <CustomFormField
+            <FormField
               labelText="Last Name"
               placeholder="Last"
               name="lastName"
@@ -140,10 +134,11 @@
         </div>
         <form class="flex gap-3 flex-col">
           <div>
-            <CustomFormField
+            <FormField
               labelText="Phone Number"
               placeholder="Your Phone Number"
               name="phoneNumber"
+              inputMode="numeric"
               type="text"
               :state="formState"
               @update="formState.phoneNumber = $event"
@@ -179,7 +174,7 @@
               <label for="verifyEmail">Verify email address</label>
             </div>
 
-            <CustomFormField
+            <FormField
               labelText="Email"
               placeholder="Email"
               name="email"
@@ -222,6 +217,7 @@ import { useFormValidationMethods } from "@/composables/formValidation";
 import { computed } from "vue";
 import { useRequestURL } from "#app";
 import { useRoute } from "vue-router";
+import PageHeader from "../../components/Profile/PageHeader.vue";
 const route = useRoute();
 
 const {

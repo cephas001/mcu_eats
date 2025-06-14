@@ -17,9 +17,9 @@
       Restaurants
     </h1>
 
-    <VendorsCarousel :vendorList="restaurants" />
+    <VendorCarousel :vendorList="restaurants" />
 
-    <NoVendorsCard
+    <VendorEmptyStateCard
       :vendorsLength="restaurants.length"
       vendorType="restaurants"
     />
@@ -28,9 +28,9 @@
   <section class="px-5 pt-5 pb-2" v-if="!fetchingData">
     <h1 class="font-semibold mb-2 tracking-wide text-lg font-manrope">Shops</h1>
 
-    <VendorsCarousel :vendorList="shops" />
+    <VendorCarousel :vendorList="shops" />
 
-    <NoVendorsCard :vendorsLength="shops.length" vendorType="shops" />
+    <VendorEmptyStateCard :vendorsLength="shops.length" vendorType="shops" />
   </section>
 
   <section class="px-5 pt-5 pb-2" v-if="!fetchingData">
@@ -38,9 +38,12 @@
       Retailers
     </h1>
 
-    <VendorsCarousel :vendorList="retailers" />
+    <VendorCarousel :vendorList="retailers" />
 
-    <NoVendorsCard :vendorsLength="retailers.length" vendorType="retailers" />
+    <VendorEmptyStateCard
+      :vendorsLength="retailers.length"
+      vendorType="retailers"
+    />
   </section>
 
   <LoadingIconLarge :loading="fetchingData" />

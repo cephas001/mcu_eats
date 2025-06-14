@@ -10,6 +10,8 @@ export const useVendorStore = defineStore(
 
     const vendor = ref(null);
 
+    const selectedProductType = ref({});
+
     const fetchVendors = async () => {
       const config = useRuntimeConfig();
       try {
@@ -68,11 +70,12 @@ export const useVendorStore = defineStore(
     };
 
     return {
-      fetchVendors,
       restaurants,
       retailers,
       shops,
       vendor,
+      selectedProductType,
+      fetchVendors,
       fetchVendorById,
       findVendorById,
       setVendor,

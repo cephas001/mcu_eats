@@ -83,8 +83,7 @@ const { user } = storeToRefs(userStore);
 const { setUser } = userStore;
 
 const cartStore = useCartStore();
-const { cart } = storeToRefs(cartStore);
-const { updateCart, getProductCount } = cartStore;
+const { updateCart } = cartStore;
 
 const vendorStore = useVendorStore();
 const { setVendor } = vendorStore;

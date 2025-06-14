@@ -66,6 +66,7 @@
 import { useUserStore } from "@/stores/userStore";
 import { useVendorStore } from "@/stores/vendorStore";
 import { compareTime } from "@/utils/compareTime";
+
 const userStore = useUserStore();
 const { favouriteOrNot, favouriteVendor } = userStore;
 const open = ref(false);
@@ -97,7 +98,7 @@ const isOpen = computed(() => {
     props.vendor.closing_time.minute,
     props.vendor.taking_orders
   );
-  return true;
+  return open;
 });
 
 const openVendor = () => {

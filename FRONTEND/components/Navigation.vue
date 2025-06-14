@@ -105,7 +105,7 @@ const fetchDetails = async () => {
             label: "Favourites",
             icon: "i-material-symbols-favorite",
             color: "info",
-            to: "/favourites",
+            to: "/profile/favourites",
           },
         ],
         [
@@ -144,7 +144,7 @@ const fetchDetails = async () => {
             label: "Support",
             icon: "i-material-symbols-question-mark-rounded",
             color: "info",
-            to: "/support",
+            to: "/profile/support",
           },
           {
             label: "Logout",
@@ -183,7 +183,7 @@ const fetchDetails = async () => {
             label: "Favourites",
             icon: "i-material-symbols-favorite",
             color: "info",
-            to: "/favourites",
+            to: "/profile/favourites",
           },
         ],
         [
@@ -191,7 +191,7 @@ const fetchDetails = async () => {
             label: "Support",
             icon: "i-material-symbols-question-mark-rounded",
             color: "info",
-            to: "/support",
+            to: "/profile/support",
           },
           {
             label: "Login",

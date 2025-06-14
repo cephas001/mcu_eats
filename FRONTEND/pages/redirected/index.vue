@@ -5,8 +5,11 @@
 <script setup>
 import { useUserStore } from "@/stores/userStore";
 import { useRoute } from "vue-router";
-import { applyActionCode } from "firebase/auth";
 import { navigateTo } from "nuxt/app";
+
+definePageMeta({
+  layout: "blank",
+});
 
 const userStore = useUserStore();
 
@@ -27,11 +30,11 @@ onMounted(async () => {
           await navigateTo("/");
         }
       } else {
-        await navigateTo("/redirectedFailed");
+        await navigateTo("redirected/failed");
       }
     }
   } catch (error) {
-    await navigateTo("/redirectedFailed");
+    await navigateTo("redirected/failed");
     console.log(error);
   }
 });

@@ -2,7 +2,7 @@ require("dotenv").config({ path: "./config/config.env" });
 
 const path = require("path");
 const http = require("http");
-const WebSocket = require("ws");
+const { Server } = require("socket.io");
 const express = require("express");
 const cors = require("cors");
 const cookieParser = require("cookie-parser");
@@ -30,26 +30,28 @@ app.use("", require("./routes/vendorApi"));
 app.use("", require("./routes/userApi"));
 
 const server = http.createServer(app);
-const wss = new WebSocket.Server({ noServer: true });
+const io = new Server(server);
 
 const registerOrderSocket = require("./websockets/orderSocket");
 
-server.on("upgrade", (request, socket, head) => {
-  authenticateWebSocket(request, socket, head, (err, authenticatedRequest) => {
-    if (err) return;
-
-    wss.handleUpgrade(authenticatedRequest, socket, head, (ws) => {
-      wss.emit("connection", ws, authenticatedRequest);
-    });
+// Authentication middleware
+io.use((socket, next) => {
+  // Example: get token from query or headers
+  const token =
+    socket.handshake.auth.token || socket.handshake.headers["authorization"];
+  authenticateWebSocket(token, (err, user) => {
+    if (err) return next(new Error("Authentication error"));
+    socket.user = user; // Attach user info to socket
+    next();
   });
 });
 
-wss.on("connection", (ws, request) => {
+io.on("connection", (socket) => {
   console.log("Client connected!");
 
-  registerOrderSocket(ws, request);
+  registerOrderSocket(socket);
 
-  ws.on("close", () => console.log("Client disconnected"));
+  socket.on("disconnect", () => console.log("Client disconnected"));
 });
 
 const PORT = process.env.PORT || 5000;

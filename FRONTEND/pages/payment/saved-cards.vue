@@ -1,21 +1,16 @@
 <template>
-     <section class="min-h-screen">
+  <section class="min-h-screen">
     <header>
-            <div 
-            class="flex items-center justify-around px-7 py-5"
-            >
-                <UIcon
-                    name="i-material-symbols-light-close"
-                    class="text-red-500 w-8 h-8"
-                    @click="navigateTo('/transfer')"
-                />
+      <div class="flex items-center justify-around px-7 py-5">
+        <UIcon
+          name="i-material-symbols-light-close"
+          class="text-red-500 w-8 h-8"
+          @click="navigateTo('/transfer')"
+        />
 
-                <h2 
-                  class="text-black font-manrope font-bold"
-                  > Pay with card
-                </h2>
-            </div>
-        </header>
+        <h2 class="text-black font-manrope font-bold">Pay with card</h2>
+      </div>
+    </header>
 
     <div class="container relative min-h-[calc(100vh-100px)]">
       <div
@@ -26,9 +21,7 @@
             name="i-material-symbols-light-credit-card-outline"
             class="text-gray-400 w-25 h-25"
           />
-          <p class="text-center whitespace-nowrap">
-            You have no cards saved
-          </p>
+          <p class="text-center whitespace-nowrap">You have no cards saved</p>
           <div class="btn-container mt-5">
             <button
               class="px-6 py-3 rounded-full cursor-pointer text-white bg-primary text-lg"
@@ -44,6 +37,6 @@
 </template>
 
 <script setup>
-import { navigateTo } from 'nuxt/app';
+import { navigateTo } from "nuxt/app";
 import { useOrderStore } from "@/stores/orderStore";
 </script>

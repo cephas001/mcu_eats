@@ -59,14 +59,14 @@
   </section>
 
   <section v-if="!fetchingData" class="px-5 py-3 border-y-1 border-y-gray-300">
-    <TypesSelector :types="vendor.types" />
+    <VendorProductTypesSelector :types="vendor.types" />
   </section>
 
   <h1
     v-if="!fetchingData"
     class="px-5 py-5 text-sm font-manrope bg-gray-100 tracking-wider"
   >
-    {{ selectedType.name }}
+    {{ selectedProductType.name }}
   </h1>
   <section v-if="!fetchingData" class="px-5 pb-15 relative">
     <div
@@ -74,10 +74,14 @@
       v-for="product in filteredProducts"
       :key="product._id"
     >
-      <Product :product :vendorId="vendor._id" :vendorName="vendor.name" />
+      <VendorProduct
+        :product
+        :vendorId="vendor._id"
+        :vendorName="vendor.name"
+      />
     </div>
 
-    <ViewCartButton />
+    <CartOpenButton />
   </section>
 
   <LoadingIconLarge :loading="fetchingData" />
@@ -101,7 +105,6 @@
 <script setup>
 import { computed, onMounted, watch, ref } from "vue";
 import { useVendorStore } from "@/stores/vendorStore";
-import { useOrderStore } from "@/stores/orderStore";
 import { storeToRefs } from "pinia";
 import { useUserStore } from "@/stores/userStore";
 import { useCartStore } from "@/stores/cartStore";
@@ -131,32 +134,19 @@ const id = route.params.id;
 
 const vendorStore = useVendorStore();
 const { vendor } = storeToRefs(vendorStore);
-const watchedVendor = computed(() => vendor.value);
 
-const orderStore = useOrderStore();
-const { viewOrdersBtn, selectedType } = storeToRefs(orderStore);
+const { selectedProductType } = storeToRefs(vendorStore);
 
 // To filter products based on selected type
 const filteredProducts = computed(() => {
   return vendor.value.products.filter((product) => {
-    if (product.type == selectedType.value.name) {
+    if (product.type == selectedProductType.value.name) {
       return true;
     } else {
       return false;
     }
   });
 });
-
-// To display vieworders button if at least one product is added to cart and remove if no product is added to cart
-watch(
-  watchedVendor,
-  (newValue) => {
-    if (newValue.products.find((product) => product.count > 0)) {
-      viewOrdersBtn.value = true;
-    }
-  },
-  { deep: true }
-);
 
 onMounted(async () => {
   try {
@@ -166,23 +156,18 @@ onMounted(async () => {
         await vendorStore.fetchVendorById(id);
       }
     }
-    // Initializes Vendor the types of products a vendor offers to an empty array
+
+    // Initializes the types of products a vendor offers
     vendor.value.types = [];
 
     vendor.value.products.forEach((product, index) => {
-      // Checks if a cart is in localstorage and uses the presaved order quantity for the product count
-      if (cart.value.length > 0) {
-        cart.value.forEach((item) => {
-          if (item._id == product._id && item.vendorId == vendor.value._id) {
-            product["count"] = item.quantity;
-          } else {
-            if (product["count"]) {
-              return;
-            } else {
-              product["count"] = 0;
-            }
-          }
-        });
+      // Checks if a product is in cart and using the quantity already store for the product count
+      const productInCart = cart?.value?.find((item) => {
+        return item._id == product._id;
+      });
+
+      if (productInCart) {
+        product["count"] = productInCart.quantity;
       } else {
         product["count"] = 0;
       }
@@ -207,14 +192,14 @@ onMounted(async () => {
       if (type) {
         vendor.value.types[0].selected = false;
         type.selected = true;
-        selectedType.value = type;
+        selectedProductType.value = type;
       } else {
         // Sets the default selected value to the first vendor type
-        selectedType.value = vendor.value.types[0];
+        selectedProductType.value = vendor.value.types[0];
       }
     } else {
       // Sets the default selected value to the first vendor type
-      selectedType.value = vendor.value.types[0];
+      selectedProductType.value = vendor.value.types[0];
     }
 
     // Checks if a user exists before attempting to check if a user has favourited certain products

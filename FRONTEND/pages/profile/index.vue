@@ -9,7 +9,7 @@
 
     <div class="mt-10">
       <!-- DETAILS -->
-      <div class="flex items-center" @click="navigateTo('/profileDetails')">
+      <div class="flex items-center" @click="navigateTo('/profile/details')">
         <div
           class="bg-gray-300 flex items-center rounded-full text-center p-1 mr-5"
         >
@@ -32,7 +32,10 @@
         />
       </div>
       <!-- SAVED ADDRESSES -->
-      <div class="mt-7 flex items-center" @click="navigateTo('/addresses')">
+      <div
+        class="mt-7 flex items-center"
+        @click="navigateTo('/profile/addresses')"
+      >
         <div
           class="bg-gray-300 flex items-center rounded-full text-center p-1 mr-5"
         >
@@ -48,7 +51,10 @@
         />
       </div>
       <!-- FAVOURITES -->
-      <div class="mt-7 flex items-center" @click="navigateTo('/favourites')">
+      <div
+        class="mt-7 flex items-center"
+        @click="navigateTo('/profile/favourites')"
+      >
         <div
           class="bg-gray-300 flex items-center rounded-full text-center p-1 mr-5"
         >
@@ -80,7 +86,7 @@
         />
       </div>
       <!-- SAVED NOTES -->
-      <div class="mt-7 flex items-center" @click="navigateTo('/notes')">
+      <div class="mt-7 flex items-center" @click="navigateTo('/profile/notes')">
         <div
           class="bg-gray-300 flex items-center rounded-full text-center p-1 mr-5"
         >
@@ -96,7 +102,10 @@
         />
       </div>
       <!-- HELP/FEEDBACK -->
-      <div class="mt-7 flex items-center" @click="navigateTo('/feedback')">
+      <div
+        class="mt-7 flex items-center"
+        @click="navigateTo('/profile/feedback')"
+      >
         <div
           class="bg-gray-300 flex items-center rounded-full text-center p-1 mr-5"
         >

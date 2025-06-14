@@ -1,15 +1,6 @@
 <template>
-  <section class="px-6 pt-8 pb-2">
-    <div class="flex items-center">
-      <UIcon
-        name="i-material-symbols-arrow-back"
-        size="30"
-        class="text-primary cursor-pointer"
-        @click.prevent="navigateTo('/profile')"
-      />
-      <h1 class="text-center w-[100%] uppercase">Saved Notes</h1>
-    </div>
-  </section>
+  <ProfilePageHeader text="Saved Notes" classList="px-6 pt-8 pb-2" />
+
   <section>
     <div
       class="flex items-center justify-center p-5 border-b-2 border-b-gray-200 tracking-tight"
@@ -43,7 +34,7 @@
       </div>
     </div>
   </section>
-  <section class="relative min-h-[60vh] text-center">
+  <section class="relative min-h-[50vh] text-center">
     <h1 class="mt-20 text-sm font-semibold tracking-wide">
       No order notes saved yet
     </h1>

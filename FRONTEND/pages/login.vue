@@ -7,7 +7,7 @@
       </p>
     </div>
 
-    <ErrorMessageFormDisplay
+    <FormErrorMessage
       :errorMessage="signUpLogInErrors"
       classList="text-center mb-4"
     />
@@ -18,7 +18,7 @@
       :state="formState"
       v-if="!showAdditionalForm && signupPage"
     >
-      <CustomFormField
+      <FormField
         labelText="Email"
         placeholder="Email"
         name="email"
@@ -26,7 +26,7 @@
         :state="formState"
         @update="formState.email = $event"
       />
-      <CustomFormField
+      <FormField
         labelText="First Name"
         placeholder="First"
         name="firstName"
@@ -34,7 +34,7 @@
         :state="formState"
         @update="formState.first = $event"
       />
-      <CustomFormField
+      <FormField
         labelText="Last Name"
         placeholder="Last"
         name="lastName"
@@ -42,7 +42,7 @@
         :state="formState"
         @update="formState.last = $event"
       />
-      <CustomFormField
+      <FormField
         labelText="Password"
         placeholder="Password"
         name="password"
@@ -50,7 +50,7 @@
         :state="formState"
         @update="formState.password = $event"
       />
-      <CustomFormField
+      <FormField
         labelText="Confirm Password"
         placeholder="Confirm Password"
         name="confirmPassword"
@@ -74,7 +74,7 @@
       :state="formState"
       v-if="!showAdditionalForm && !signupPage"
     >
-      <CustomFormField
+      <FormField
         labelText="Email"
         placeholder="Email"
         name="email"
@@ -82,7 +82,7 @@
         :state="formState"
         @update="formState.email = $event"
       />
-      <CustomFormField
+      <FormField
         labelText="Password"
         placeholder="Password"
         name="password"
@@ -111,7 +111,7 @@
         A few more information to get you started.
       </p>
       <!-- GENDER SELECT FIELD -->
-      <CustomFormField
+      <FormField
         labelText="Gender"
         name="gender"
         type="select"
@@ -120,7 +120,7 @@
         @update="additionalFormState.genderValue = $event"
       />
       <!-- COLLEGE SELECT FIELD -->
-      <CustomFormField
+      <FormField
         labelText="College"
         name="college"
         type="select"
@@ -130,17 +130,18 @@
         v-if="showLecturerFields"
       />
       <!-- OFFICE NUMBER FIELD -->
-      <CustomFormField
+      <FormField
         labelText="Office Number"
         placeholder="Your Office Number"
         name="officeNumber"
+        inputMode="numeric"
         type="number"
         :state="additionalFormState"
         @update="additionalFormState.officeNumber = $event"
         v-if="showLecturerFields"
       />
       <!-- HOSTEL SELECT FIELD -->
-      <CustomFormField
+      <FormField
         labelText="Hostel"
         name="hostel"
         type="select"
@@ -150,17 +151,18 @@
         v-if="!showLecturerFields"
       />
       <!-- ROOM NUMBER FIELD -->
-      <CustomFormField
+      <FormField
         labelText="Room number"
         placeholder="Your Room Number"
         name="roomNumber"
         type="number"
+        inputMode="numeric"
         :state="additionalFormState"
         @update="additionalFormState.roomNumber = $event"
         v-if="!showLecturerFields"
       />
       <!-- ROLE SELECT FIELD -->
-      <CustomFormField
+      <FormField
         labelText="Role"
         name="role"
         type="select"
@@ -365,7 +367,6 @@ const handleFormSubmit = async () => {
   } else {
     // Logging In
     checkFormEmail();
-    checkFormPassword();
 
     if (error.value.errorMessage !== "") {
       // If form field validation fails
