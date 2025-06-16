@@ -2,6 +2,7 @@
 [ ] Check password validation logical error # doesn't work
 [ ] If someone has an invalid token, what happens? how do we give feedback
 [ ] If someone has an expired token, what happens? how do we give feedback
+[ ] Expired token issue with user making changes to their details
 [DONE] If there is space in the username or any other field, validation fails, find a way to trim before check and trim before send
 [ ] Find a way to default slider to user's last entry slide
 [ ] Store Cart using IndexDB to increase security

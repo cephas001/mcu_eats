@@ -1,5 +1,5 @@
 <template>
-  <PageHeader
+  <ProfilePageHeader
     text="My details"
     classList="mb-4 px-6 pt-8 pb-4"
     v-if="!verificationSent"
@@ -45,7 +45,7 @@
       :subtext="user?.gender"
       iconName="i-material-symbols-supervisor-account-outline"
     />
-
+    <!-- Verification link success message -->
     <div
       class="bg-white absolute inset-0 px-6 flex text-center justify-center flex-col"
       v-if="verificationSent"
@@ -65,136 +65,67 @@
     </div>
   </section>
 
-  <section
-    class="absolute inset-0 h-0 transform font-manrope"
-    @click.self="expandSection = false"
-    :class="[
-      expandSection
-        ? 'translate-y-0 opacity-100 h-[100vh] bg-black/20'
-        : 'translate-y-20 opacity-0',
-    ]"
+  <PopOverSection
+    :expandSection
+    :subSectionsList
+    :sectionToExpand
+    @closeSection="expandSection = false"
+    @formSubmitted="submitForm"
   >
-    <!-- Edit Name -->
-    <div
-      v-if="sectionToExpand == 'name'"
-      class="bg-white pt-6 px-7 pb-4 flex flex-col absolute bottom-0 left-0 right-0"
-    >
-      <div class="w-full">
-        <div class="mb-6">
-          <h1
-            class="text-center w-[100%] font-manrope font-bold tracking-wider"
-          >
-            Edit name
-          </h1>
-        </div>
-        <form class="flex gap-3 flex-col">
-          <div>
-            <FormField
-              labelText="First Name"
-              placeholder="First"
-              name="firstName"
-              type="text"
-              :state="formState"
-              @update="formState.first = $event"
-            />
-          </div>
-          <div>
-            <FormField
-              labelText="Last Name"
-              placeholder="Last"
-              name="lastName"
-              type="text"
-              :state="formState"
-              @update="formState.last = $event"
-            />
-          </div>
-          <div>
-            <button
-              class="bg-primary w-full rounded-md p-2 text-white"
-              @click.prevent="changeName"
-            >
-              Change
-            </button>
-          </div>
-        </form>
+    <template v-slot:formfields_name>
+      <div>
+        <FormField
+          labelText="First Name"
+          placeholder="First"
+          name="firstName"
+          type="text"
+          :state="formState"
+          @update="formState.first = $event"
+        />
       </div>
-    </div>
-    <!-- Edit Phone Number -->
-    <div
-      v-if="sectionToExpand == 'phoneNumber'"
-      class="bg-white pt-6 px-7 pb-4 flex flex-col absolute bottom-0 left-0 right-0"
-    >
-      <div class="w-full">
-        <div class="mb-6">
-          <h1
-            class="text-center w-[100%] font-manrope font-bold tracking-wider"
-          >
-            Phone Number
-          </h1>
-        </div>
-        <form class="flex gap-3 flex-col">
-          <div>
-            <FormField
-              labelText="Phone Number"
-              placeholder="Your Phone Number"
-              name="phoneNumber"
-              inputMode="numeric"
-              type="text"
-              :state="formState"
-              @update="formState.phoneNumber = $event"
-            />
-          </div>
-          <div>
-            <button
-              class="bg-primary w-full rounded-md p-2 text-white"
-              @click.prevent="changeNumber"
-            >
-              Change
-            </button>
-          </div>
-        </form>
+      <div>
+        <FormField
+          labelText="Last Name"
+          placeholder="Last"
+          name="lastName"
+          type="text"
+          :state="formState"
+          @update="formState.last = $event"
+        />
       </div>
-    </div>
-    <!-- Verify Email -->
-    <div
-      v-if="sectionToExpand == 'verifyEmail'"
-      class="bg-white pt-6 px-7 pb-4 flex flex-col absolute bottom-0 left-0 right-0"
-    >
-      <div class="w-full">
-        <div class="mb-6">
-          <h1
-            class="text-center w-[100%] font-manrope font-bold tracking-wider"
-          >
-            Verify email
-          </h1>
-        </div>
-        <form class="flex gap-3 flex-col">
-          <div>
-            <div class="mb-4">
-              <label for="verifyEmail">Verify email address</label>
-            </div>
+    </template>
 
-            <FormField
-              labelText="Email"
-              placeholder="Email"
-              name="email"
-              type="email"
-              :state="formState"
-              @update="formState.email = $event"
-            />
-          </div>
-          <div>
-            <button
-              class="bg-primary w-full rounded-md p-2 text-white"
-              @click.prevent="verifyEmail"
-            >
-              Verify Email
-            </button>
-          </div>
-        </form>
+    <template v-slot:formfields_phoneNumber>
+      <div>
+        <FormField
+          labelText="Phone Number"
+          placeholder="Your Phone Number"
+          name="phoneNumber"
+          inputMode="numeric"
+          type="text"
+          :state="formState"
+          @update="formState.phoneNumber = $event"
+        />
       </div>
-    </div>
-  </section>
+    </template>
+
+    <template v-slot:formfields_verifyEmail>
+      <div>
+        <div class="mb-4">
+          <label for="verifyEmail">Verify email address</label>
+        </div>
+
+        <FormField
+          labelText="Email"
+          placeholder="Email"
+          name="email"
+          type="email"
+          :state="formState"
+          @update="formState.email = $event"
+        />
+      </div>
+    </template>
+  </PopOverSection>
 
   <LoadingIconLarge
     :loading="loadingUser"
@@ -215,10 +146,6 @@ import { useLogInStore } from "@/stores/logInStore";
 import { storeToRefs } from "pinia";
 import { useFormValidationMethods } from "@/composables/formValidation";
 import { computed } from "vue";
-import { useRequestURL } from "#app";
-import { useRoute } from "vue-router";
-import PageHeader from "../../components/Profile/PageHeader.vue";
-const route = useRoute();
 
 const {
   checkFormEmail,
@@ -236,8 +163,21 @@ const { error } = storeToRefs(logInStore);
 const loadingUser = ref(true);
 
 const expandSection = ref(false);
-
 const sectionToExpand = ref("");
+const subSectionsList = ref([
+  {
+    title: "Edit name",
+    name: "name",
+  },
+  {
+    title: "Phone Number",
+    name: "phoneNumber",
+  },
+  {
+    title: "Verify email",
+    name: "verifyEmail",
+  },
+]);
 
 const changeName = async () => {
   checkFormFirstName();
@@ -332,6 +272,21 @@ const computedPhoneNumber = computed(() => {
     return "NOT SET";
   }
 });
+
+const submitForm = async (event) => {
+  if (event == "name") {
+    await changeName();
+    return;
+  }
+  if (event == "phoneNumber") {
+    await changeNumber();
+    return;
+  }
+  if (event == "verifyEmail") {
+    await verifyEmail();
+    return;
+  }
+};
 
 onMounted(async () => {
   try {

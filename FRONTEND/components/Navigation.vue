@@ -48,7 +48,7 @@ const navigationItems = ref([]);
 
 const totalCartSize = () => {
   var total = 0;
-  if (cart.value.length > 0) {
+  if (cart?.value.length > 0) {
     cart.value.forEach((item) => {
       total += item.quantity;
     });

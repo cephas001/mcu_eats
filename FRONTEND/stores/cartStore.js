@@ -1,4 +1,5 @@
 import { defineStore } from "pinia";
+import { db } from "../utils/db";
 
 export const useCartStore = defineStore(
   "cart",
@@ -9,6 +10,11 @@ export const useCartStore = defineStore(
     const items = ref(0);
     const totalCartPrice = ref(0);
     const totalOrderAmount = ref(0);
+
+    const deliveryFee = ref(500);
+    const discount = ref(0);
+    const serviceFee = ref(200);
+    const subTotal = ref(0);
 
     const updateCart = (product, vendorId, vendorName, operation) => {
       if (operation == "increase") {
@@ -55,13 +61,8 @@ export const useCartStore = defineStore(
       }
     };
 
-    const deleteFromCart = (product) => {
-      totalCartPrice.value -= product.quantity * product.price;
-      cart.value = cart.value.filter((item) => {
-        if (item._id !== product._id) {
-          return true;
-        }
-      });
+    const deleteFromCart = async (product) => {
+      await db.cart.delete(product._id);
     };
 
     const setCart = (newCart) => {
@@ -69,14 +70,45 @@ export const useCartStore = defineStore(
       totalCartPrice.value = 0;
     };
 
-    const clearCart = () => {
+    const clearCart = async () => {
       cart.value = [];
       totalCartPrice.value = 0;
+      await db.cart.clear();
+    };
+
+    const getCartValues = async () => {
+      const indexDBCart = await db.cart.toArray();
+      if (indexDBCart) {
+        cart.value = indexDBCart;
+      }
+    };
+
+    const computeTotalCartPrice = async () => {
+      const indexDBCart = await db.cart.toArray();
+      if (indexDBCart) {
+        totalCartPrice.value = 0;
+        items.value = 0;
+        indexDBCart.forEach((item) => {
+          items.value += item.quantity;
+          totalCartPrice.value =
+            totalCartPrice.value + item.quantity * item.price;
+        });
+        subTotal.value = totalCartPrice.value;
+        totalOrderAmount.value =
+          totalCartPrice.value +
+          deliveryFee.value +
+          serviceFee.value -
+          discount.value;
+      }
     };
 
     return {
       cart,
       totalCartPrice,
+      subTotal,
+      discount,
+      serviceFee,
+      deliveryFee,
       finalCart,
       items,
       totalOrderAmount,
@@ -84,11 +116,13 @@ export const useCartStore = defineStore(
       setCart,
       deleteFromCart,
       clearCart,
+      getCartValues,
+      computeTotalCartPrice,
     };
   },
   {
-    persist: {
-      storage: localStorage,
-    },
+    // persist: {
+    //   storage: localStorage,
+    // },
   }
 );

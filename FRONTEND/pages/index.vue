@@ -20,7 +20,7 @@
     <VendorCarousel :vendorList="restaurants" />
 
     <VendorEmptyStateCard
-      :vendorsLength="restaurants.length"
+      :vendorsLength="restaurants?.length ? restaurants.length : 0"
       vendorType="restaurants"
     />
   </section>
@@ -30,7 +30,10 @@
 
     <VendorCarousel :vendorList="shops" />
 
-    <VendorEmptyStateCard :vendorsLength="shops.length" vendorType="shops" />
+    <VendorEmptyStateCard
+      :vendorsLength="shops?.length ? shops.length : 0"
+      vendorType="shops"
+    />
   </section>
 
   <section class="px-5 pt-5 pb-2" v-if="!fetchingData">
@@ -41,7 +44,7 @@
     <VendorCarousel :vendorList="retailers" />
 
     <VendorEmptyStateCard
-      :vendorsLength="retailers.length"
+      :vendorsLength="retailers?.length ? retailers.length : 0"
       vendorType="retailers"
     />
   </section>

@@ -108,6 +108,7 @@ import { useVendorStore } from "@/stores/vendorStore";
 import { storeToRefs } from "pinia";
 import { useUserStore } from "@/stores/userStore";
 import { useCartStore } from "@/stores/cartStore";
+import { navigateTo } from "nuxt/app";
 
 const cartStore = useCartStore();
 const { cart } = storeToRefs(cartStore);
@@ -150,15 +151,20 @@ const filteredProducts = computed(() => {
 
 onMounted(async () => {
   try {
-    if (!vendor.value) {
-      const found = vendorStore.findVendorById(id);
-      if (!found) {
-        await vendorStore.fetchVendorById(id);
+    const found = await vendorStore.findVendorById(id);
+    if (!found) {
+      const fetched = await vendorStore.fetchVendorById(id);
+      if (!fetched) {
+        await navigateTo("/");
+        return;
       }
     }
 
     // Initializes the types of products a vendor offers
     vendor.value.types = [];
+
+    cartStore.getCartValues();
+    cartStore.computeTotalCartPrice();
 
     vendor.value.products.forEach((product, index) => {
       // Checks if a product is in cart and using the quantity already store for the product count

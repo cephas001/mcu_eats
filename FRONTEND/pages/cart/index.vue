@@ -25,7 +25,7 @@
 
     <!-- Delivery and Pickup buttons -->
     <div
-      class="flex items-center justify-center p-5 border-b-1 border-t-1 border-t-gray-200 border-b-gray-200 tracking-tight"
+      class="p-5 border-b-1 border-t-1 border-t-gray-200 border-b-gray-200 tracking-tight"
     >
       <div class="flex items-center bg-gray-200 w-full rounded-full">
         <ToggleButton
@@ -177,22 +177,23 @@
 import { onMounted, ref } from "vue";
 import { useCartStore } from "@/stores/cartStore";
 import { useUserStore } from "@/stores/userStore";
-import ToggleButton from "../../components/ToggleButton.vue";
 
 const userStore = useUserStore();
 const { user } = storeToRefs(userStore);
 
 const cartStore = useCartStore();
-const { cart, totalCartPrice, finalCart, items, totalOrderAmount } =
-  storeToRefs(cartStore);
+const {
+  cart,
+  finalCart,
+  subTotal,
+  totalOrderAmount,
+  discount,
+  serviceFee,
+  deliveryFee,
+} = storeToRefs(cartStore);
 
 // Default selected option
 const selectedOption = ref("Delivery");
-
-const subTotal = ref(0);
-const deliveryFee = ref(500);
-const discount = ref(0);
-const serviceFee = ref(200);
 
 const openModal = ref(false);
 
@@ -204,45 +205,35 @@ const checkAndConfirm = () => {
   }
 };
 
-const handleDelete = (product) => {
-  cartStore.deleteFromCart(product);
-
+const handleDelete = async (product) => {
+  await cartStore.deleteFromCart(product);
+  await cartStore.getCartValues();
+  await cartStore.computeTotalCartPrice();
   loadFinalCartValue();
 };
 
 const loadFinalCartValue = () => {
   if (cart && cart?.value.length > 0) {
-    totalOrderAmount.value = 0;
-    items.value = 0;
-
-    cart.value.forEach((item) => {
-      // Determines the amount of items in cart
-      items.value += item.quantity;
-
-      subTotal.value = totalCartPrice.value;
-
-      totalOrderAmount.value =
-        subTotal.value + deliveryFee.value + serviceFee.value - discount.value;
-    });
-  }
-
-  const groupedCart = cart.value.reduce((acc, item) => {
-    if (item.quantity > 0) {
-      // Exclude orders where quantity is 0
-      if (!acc[item.vendorId]) {
-        acc[item.vendorId] = { vendorName: item.vendorName, cart: [] };
+    const groupedCart = cart.value.reduce((acc, item) => {
+      if (item.quantity > 0) {
+        // Exclude orders where quantity is 0
+        if (!acc[item.vendorId]) {
+          acc[item.vendorId] = { vendorName: item.vendorName, cart: [] };
+        }
+        acc[item.vendorId].cart.push(item);
       }
-      acc[item.vendorId].cart.push(item);
-    }
-    return acc;
-  }, {});
+      return acc;
+    }, {});
 
-  finalCart.value = Object.values(groupedCart).filter(
-    (vendor) => vendor.cart.length > 0
-  );
+    finalCart.value = Object.values(groupedCart).filter(
+      (vendor) => vendor.cart.length > 0
+    );
+  }
 };
 
-onMounted(() => {
+onMounted(async () => {
+  await cartStore.getCartValues();
+  await cartStore.computeTotalCartPrice();
   loadFinalCartValue();
 });
 </script>
