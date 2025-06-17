@@ -24,6 +24,7 @@ const AddressesSchema = new mongoose.Schema({
     default: () => new mongoose.Types.ObjectId(),
   },
   address: String,
+  tag: String,
 });
 
 const NotesSchema = new mongoose.Schema({

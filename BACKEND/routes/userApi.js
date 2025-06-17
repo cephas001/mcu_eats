@@ -1,10 +1,15 @@
 require("dotenv").config({ path: "../config/config.env" });
+
+const admin = require("../firebaseConnection");
+
+const verifyToken = require("../middlewares/verifyToken");
+
+const sendVerificationEmail = require("../utils/sendVerificationEmail");
+
+const Users = require("../schemas/userSchema");
+
 const express = require("express");
 const router = express.Router();
-const Users = require("../schemas/userSchema");
-const verifyToken = require("../middlewares/verifyToken");
-const sendVerificationEmail = require("../utils/sendVerificationEmail");
-const admin = require("../firebaseConnection");
 const { getAuth } = require("firebase-admin/auth");
 
 router.post("/users", async (req, res) => {
@@ -106,11 +111,33 @@ router.put("/users/:id", verifyToken, async (req, res) => {
     return res.json({ update: false, message: "Mismatched credentials" });
   }
   try {
+    // Adds an address to the user. Entire list should be sent from frontend as this just resets it
+    if (req.body.addresses) {
+      const { addresses } = req.body;
+      const updatedUser = await Users.findByIdAndUpdate(
+        req.params.id,
+        { addresses },
+        { new: true, runValidators: true }
+      ).populate("favouriteVendors.vendor");
+
+      return res.json({ update: true, user: updatedUser });
+    }
+
+    // Removes an address from the user.
+    if (req.body.removeAddress) {
+      const updatedUser = await Users.findByIdAndUpdate(
+        req.params.id,
+        { $pull: { address: { _id: req.body.addressId } } }, // Removes the entire object
+        { new: true }
+      ).populate("favouriteVendors.vendor");
+      return res.json({ update: true, user: updatedUser });
+    }
+
     const updatedUser = await Users.findByIdAndUpdate(
       req.params.id,
       { $set: req.body },
       { new: true }
-    );
+    ).populate("favouriteVendors.vendor");
     res.json({ update: true, user: updatedUser });
   } catch (error) {
     res.status(500).json({ error: error.message });

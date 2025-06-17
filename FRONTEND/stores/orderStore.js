@@ -5,9 +5,5 @@ export const useOrderStore = defineStore(
   () => {
     return {};
   },
-  {
-    persist: {
-      storage: localStorage,
-    },
-  }
+  {}
 );

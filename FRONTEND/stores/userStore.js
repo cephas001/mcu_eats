@@ -21,6 +21,11 @@ export const useUserStore = defineStore(
       loggedIn.value = false;
     };
 
+    const addressFormState = reactive({
+      tag: undefined,
+      address: undefined,
+    });
+
     const fetchUserDetails = async (firebaseDetails) => {
       try {
         const token = useCookie("auth_token");
@@ -180,6 +185,7 @@ export const useUserStore = defineStore(
       updateUser,
       loggedIn,
       user,
+      addressFormState,
     };
   },
   {
