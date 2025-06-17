@@ -8,3 +8,4 @@
 [DONE] Store Cart using IndexDB to increase security
 [ ] Remove all instances of useCookie for more security
 [ ] OTP for email verification issue
+[ ] Run validation on card number
