@@ -2,10 +2,9 @@ import { fileURLToPath } from "url";
 import vuetify, { transformAssetUrls } from "vite-plugin-vuetify";
 
 // PWA Config
-const title = "Dash UI - Vuetify Nuxt Admin Template Free";
-const shortTitle = "Dash UI - Vuetify Nuxt Admin Template Free";
-const description =
-  "Dash UI - Vuetify Nuxt Admin Template Free and open-source Github, provides developers with everything need to create Web Application & Kick start project";
+const title = "Mcu Eats Admin";
+const shortTitle = "Mcu Eats Administrator Page";
+const description = "McU Eats adminstator page for vendors and application reviewiers";
 const image = "";
 const url = "";
 const themeColor = "#f1f5f9";

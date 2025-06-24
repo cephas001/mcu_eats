@@ -31,8 +31,8 @@ if (smallDisplay.value) {
           <img
             :src="
               themeName === 'light'
-                ? '/images/brand/logo/logo-light.svg'
-                : '/images/brand/logo/logo-dark.svg'
+                ? '/images/brand/logo/mcu_eats_logo_light_.png'
+                : '/images/brand/logo/mcu_eats_logo_.png'
             "
             height="30px"
           />

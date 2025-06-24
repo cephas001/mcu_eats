@@ -5,46 +5,24 @@ const menuList = [
   { title: "Something elese here" },
 ];
 
-const tableHeader = ["", "Name", "Deadline", "Status"];
+const tableHeader = ["Select", "Order Code", "Order Status", "Updated At"];
 
-const tableData = [
+const orders = [
   {
     id: 1,
-    name: "Design a FreshCart Home page",
-    deadline: "Today",
-    status: 1,
+    orderCode: "3323",
+    orderStatus: {
+      state: "Assigned",
+      updatedAt: "18/06/2025 - 5:16",
+    },
   },
   {
     id: 2,
-    name: "Dash UI Dark Version Design",
-    deadline: "Yesterday",
-    status: 3,
-  },
-  {
-    id: 3,
-    name: "Dash UI landing page design",
-    deadline: "16 Sept, 2023",
-    status: 2,
-  },
-  {
-    name: "Next.js Dash UI version",
-    deadline: "23 Sept, 2023",
-    status: 1,
-  },
-  {
-    name: "Develop a Dash UI Laravel",
-    deadline: "23 Sept, 2023",
-    status: 3,
-  },
-  {
-    name: "Coach home page design",
-    deadline: "12 Sept, 2023",
-    status: 1,
-  },
-  {
-    name: "Develop a Dash UI Vue Js",
-    deadline: "11 Sept, 2023",
-    status: 3,
+    orderCode: "5141",
+    orderStatus: {
+      state: "Opened",
+      updatedAt: "15/06/2025 - 9:29",
+    },
   },
 ];
 
@@ -70,7 +48,7 @@ const resolveStatusVariant = (status) => {
 <template>
   <v-card class="h-100">
     <v-card-title class="d-flex align-center justify-space-between">
-      <h4 class="text-h4">My Task</h4>
+      <h4 class="text-h4">Pending Orders</h4>
       <v-menu location="bottom">
         <template v-slot:activator="{ props }">
           <v-btn
@@ -80,7 +58,7 @@ const resolveStatusVariant = (status) => {
             variant="outlined"
             color="secondary"
           >
-            Task <v-icon icon="tabler-chevron-down" />
+            Action <v-icon icon="tabler-chevron-down" />
           </v-btn>
         </template>
         <v-list>
@@ -99,26 +77,20 @@ const resolveStatusVariant = (status) => {
           </th>
         </tr>
       </thead>
+
       <tbody>
-        <tr v-for="item in tableData" :key="item.name">
+        <tr v-for="order in orders" :key="order.id">
           <td class="w-36">
             <v-checkbox />
           </td>
-          <td class="min-w-65">
-            {{ item.name }}
+          <td class="min-w-30">
+            {{ order.orderCode }}
           </td>
-          <td class="min-w-37">
-            {{ item.deadline }}
+          <td class="min-w-40">
+            {{ order.orderStatus.state }}
           </td>
-          <td>
-            <v-chip
-              size="x-small"
-              class="font-weight-6"
-              :color="resolveStatusVariant(item.status).color"
-              label
-            >
-              {{ resolveStatusVariant(item.status).text }}
-            </v-chip>
+          <td class="min-w-60">
+            {{ order.orderStatus.updatedAt }}
           </td>
         </tr>
       </tbody>

@@ -135,7 +135,7 @@ const loadingUser = ref(false);
 
 onMounted(async () => {
   try {
-    if (user.value == {}) {
+    if (!user) {
       await userStore.fetchUserDetails();
     } else {
       loadingUser.value = false;

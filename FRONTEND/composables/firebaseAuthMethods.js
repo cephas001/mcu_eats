@@ -1,4 +1,4 @@
-import { useCookie, useNuxtApp } from "#app";
+import { navigateTo, useNuxtApp } from "#app";
 import {
   createUserWithEmailAndPassword,
   GoogleAuthProvider,
@@ -17,16 +17,34 @@ export function useFirebaseAuthMethods() {
   const { formState, additionalFormState, toggleNextForm } = useLogInStore();
 
   const {
-    showAdditionalForm,
     showLecturerFields,
     signUpLogInErrors,
     tryingToSignIn,
     hideOptionToGoBack,
   } = storeToRefs(logInStore);
 
-  // Google Sign In
+  // Function that POSTs to /login and sets a cookie
+  const backendLogin = async (token, user) => {
+    const config = useRuntimeConfig();
+    const response = await $fetch("/api/login", {
+      method: "POST",
+      body: {
+        token,
+      },
+    });
+
+    if (response.message == "Success") {
+      // Sets the user in session storage
+      userStore.setUser(user);
+      await navigateTo("/");
+    } else {
+      throw new Error("Backend error occurred");
+    }
+  };
+
+  // Google and Facebook Sign In
   const socialSignIn = async (method) => {
-    const { $firebaseAuth, $storeToken } = useNuxtApp();
+    const { $firebaseAuth } = useNuxtApp();
 
     // Checks which service provider to use based on the method passed
     var provider;
@@ -35,7 +53,7 @@ export function useFirebaseAuthMethods() {
     } else if (method == "facebook") {
       provider = new FacebookAuthProvider();
     } else {
-      return;
+      throw new Error("No authentication provider chosen");
     }
 
     // Tries to use that provider to sign up/sign in the user
@@ -45,7 +63,8 @@ export function useFirebaseAuthMethods() {
       const config = useRuntimeConfig();
       const result = await signInWithPopup($firebaseAuth, provider);
       const user = result.user;
-      // After user is signed in or signed up, tries to check if the user is already saved in mongodb database
+
+      // After user is signed in, checks if the user is already saved in mongodb database
       const response = await $fetch(
         `${config.public.apiBaseUrl}/users/${user.uid}`,
         {
@@ -57,16 +76,15 @@ export function useFirebaseAuthMethods() {
 
       if (!response.found) {
         // If user is not yet saved
-        $storeToken(user.accessToken);
         toggleNextForm();
         tryingToSignIn.value = false;
-      } else {
-        // If user is already saved just store token and return "redirect"
-        $storeToken(user.accessToken);
-        tryingToSignIn.value = false;
-        return "redirect";
+        return;
       }
+
+      // If user is already saved, try our own backend login
+      await backendLogin(user.token, response.user);
     } catch (error) {
+      console.log(error);
       tryingToSignIn.value = false;
       signUpLogInErrors.value = "An error occurred. Please try again";
     }
@@ -91,24 +109,28 @@ export function useFirebaseAuthMethods() {
         additionalFormState,
         showLecturerFields.value
       );
+
       if (response.added) {
-        tryingToSignIn.value = false;
-        return "redirect";
+        // Once user is saved, try our own backend login
+        await backendLogin(user.accessToken, response.user);
       } else {
-        return response.message;
+        throw new Error(response.message);
       }
     } catch (error) {
       tryingToSignIn.value = false;
       if (error.code == "auth/email-already-in-use") {
         signUpLogInErrors.value =
           "Email already in use. Please log in instead.";
+        return;
       }
+      signUpLogInErrors.value = "An error occurred. Please try again";
     }
   };
 
   // Manual Log In
   const manualLogIn = async () => {
-    const { $firebaseAuth, $storeToken } = useNuxtApp();
+    const { $firebaseAuth } = useNuxtApp();
+    const config = useRuntimeConfig();
 
     try {
       tryingToSignIn.value = true;
@@ -118,17 +140,34 @@ export function useFirebaseAuthMethods() {
         formState.password
       );
 
-      $storeToken(userCredential.user.accessToken);
+      if (userCredential.user.accessToken) {
+        // After user is signed in, checks if the user is already saved in mongodb database
+        const response = await $fetch(
+          `${config.public.apiBaseUrl}/users/${userCredential.user.uid}`,
+          {
+            headers: {
+              Authorization: `Bearer ${userCredential.user.accessToken}`,
+            },
+          }
+        );
 
-      tryingToSignIn.value = false;
-      return "redirect";
+        if (response.found) {
+          await backendLogin(userCredential.user.accessToken, response.user);
+        } else {
+          throw new Error(
+            "User does not exist in database, please contact admin"
+          );
+        }
+      }
     } catch (error) {
       tryingToSignIn.value = false;
 
       if (error.code == "auth/invalid-credential") {
         signUpLogInErrors.value = "Invalid email or password";
+        return;
       }
-      console.log(error.code);
+      console.log(error);
+      signUpLogInErrors.value = "An error occurred. Please try again later.";
     }
   };
 

@@ -1,6 +1,7 @@
 require("dotenv").config({ path: "./config/config.env" });
 
 const path = require("path");
+const fs = require("fs");
 const http = require("http");
 const { Server } = require("socket.io");
 const express = require("express");
@@ -15,8 +16,10 @@ require("./dbConnection");
 
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
+
 app.use(
   cors({
+    origin: `${process.env.FRONTEND_URL}`,
     credentials: true,
   })
 );
@@ -28,6 +31,8 @@ app.set("views", path.join(__dirname, "views"));
 app.use("/uploads", express.static("./uploads"));
 app.use("", require("./routes/vendorApi"));
 app.use("", require("./routes/userApi"));
+
+const serverPemPath = path.resolve(__dirname, "config", "server.pem");
 
 const server = http.createServer(app);
 const io = new Server(server);
