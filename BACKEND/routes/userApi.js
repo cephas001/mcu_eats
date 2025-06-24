@@ -45,9 +45,8 @@ router.post("/users", async (req, res) => {
 });
 
 router.get("/users/:id", verifyToken, async (req, res) => {
-  const user = await Users.findById({ _id: req.params.id })
-    .lean()
-    .populate("favouriteVendors.vendor");
+  const user = await Users.findById({ _id: req.params.id }).lean();
+
   if (user) {
     res.json({ found: true, user });
   } else {

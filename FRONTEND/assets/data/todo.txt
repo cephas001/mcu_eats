@@ -9,3 +9,4 @@
 [ ] Remove all instances of useCookie for more security
 [ ] OTP for email verification issue
 [ ] Run validation on card number
+[ ] Allow users to be navigated to the page they came from on log in completion
