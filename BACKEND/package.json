@@ -3,6 +3,7 @@
   "version": "1.0.0",
   "description": "Backend for Mcu Eats",
   "main": "app.js",
+  "type": "commonjs",
   "scripts": {
     "start": "node app.js",
     "dev": "node --watch app.js"

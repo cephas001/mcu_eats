@@ -1,39 +1,18 @@
-const connection = require("../dbConnection");
 const mongoose = require("mongoose");
 
-const FavouriteVendorsSchema = new mongoose.Schema({
-  vendor: {
-    type: mongoose.Schema.Types.ObjectId,
-    ref: "Vendor",
+const ProfileRefSchema = new mongoose.Schema(
+  {
+    type: {
+      type: String,
+      enum: ["consumer", "delivery_person", "vendor"],
+    },
+    profileId: {
+      type: mongoose.Schema.Types.ObjectId,
+      refPath: "Profile", // This makes it dynamic based on the `type`
+    },
   },
-});
-
-const FavouriteProductsSchema = new mongoose.Schema({
-  vendor: {
-    type: mongoose.Schema.Types.ObjectId,
-    ref: "Vendor",
-  },
-  productId: {
-    type: mongoose.Schema.Types.ObjectId,
-  },
-});
-
-const AddressesSchema = new mongoose.Schema({
-  _id: {
-    type: mongoose.Schema.Types.ObjectId,
-    default: () => new mongoose.Types.ObjectId(),
-  },
-  address: String,
-  tag: String,
-});
-
-const NotesSchema = new mongoose.Schema({
-  _id: {
-    type: mongoose.Schema.Types.ObjectId,
-    default: () => new mongoose.Types.ObjectId(),
-  },
-  note: String,
-});
+  { _id: false }
+);
 
 const UserSchema = new mongoose.Schema(
   {
@@ -41,11 +20,7 @@ const UserSchema = new mongoose.Schema(
       type: String,
       required: true,
     },
-    firstName: {
-      type: String,
-      required: true,
-    },
-    lastName: {
+    name: {
       type: String,
       required: true,
     },
@@ -57,7 +32,7 @@ const UserSchema = new mongoose.Schema(
       required: true,
     },
     phoneNumber: {
-      type: Number,
+      type: String,
     },
     role: {
       type: String,
@@ -66,33 +41,29 @@ const UserSchema = new mongoose.Schema(
     email: {
       type: String,
     },
-    verifiedEmail: {
-      type: Boolean,
+    profiles: {
+      type: [ProfileRefSchema],
     },
-    gender: {
+    status: {
       type: String,
+      enum: ["active", "inactive", "banned"],
+      default: "active",
+    },
+    createdAt: {
+      type: Date,
       required: true,
     },
-    college: {
+    updatedAt: {
+      type: Date,
+      required: true,
+    },
+    lastLogin: {
       type: String,
     },
-    officeNumber: {
-      type: Number,
-    },
-    hostel: {
-      type: String,
-    },
-    roomNumber: {
-      type: Number,
-    },
-    favouriteVendors: [FavouriteVendorsSchema],
-    favouriteProducts: [FavouriteProductsSchema],
-    addresses: [AddressesSchema],
-    notes: [NotesSchema],
   },
-  { timestamps: true }
+  { timestamps: false }
 );
 
-const Users = mongoose.model("User", UserSchema);
+const User = mongoose.model("User", UserSchema);
 
-module.exports = Users;
+module.exports = User;

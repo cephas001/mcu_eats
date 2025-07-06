@@ -12,35 +12,20 @@ const express = require("express");
 const router = express.Router();
 const { getAuth } = require("firebase-admin/auth");
 
-router.post("/users", async (req, res) => {
-  const user = await Users.findById({ _id: req.body.id });
-  if (!user) {
-    const userToAdd = {
-      _id: req.body.id,
-      gender: req.body.gender,
-      firstName: req.body.firstName,
-      lastName: req.body.lastName,
-      username: req.body.firstName + req.body.id.slice(-4),
-      type: req.body.type,
-      role: req.body.role,
-      email: req.body.email,
-      verifiedEmail: req.body.emailVerified,
-      ...(req.body.college && { college: req.body.college }),
-      ...(req.body.officeNumber && { officeNumber: req.body.officeNumber }),
-      ...(req.body.roomNumber && { roomNumber: req.body.roomNumber }),
-      ...(req.body.hostel && { hostel: req.body.hostel }),
-    };
+const { createUserUseCase } = require("../services/userService");
 
-    const user = await Users.create(userToAdd);
-    if (user) {
-      res.status(200).json({
-        added: true,
-        message: "User added successfully",
-        user,
-      });
-    }
-  } else {
-    res.status(409).json({ added: false, message: "User already exists" });
+router.post("/users", async (req, res) => {
+  try {
+    const user = await createUserUseCase(req.body);
+    console.log("User created successfully:", user);
+    res.status(200).json({
+      added: true,
+      message: "User added successfully",
+      user,
+    });
+  } catch (error) {
+    console.log(error);
+    res.status(500).json({ added: false, message: error.message });
   }
 });
 
