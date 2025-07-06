@@ -2,7 +2,6 @@
 import Dashboard from "./Dashboard.vue";
 import LayoutAndPage from "./LayoutAndPage.vue";
 import UiComponents from "./UiComponents.vue";
-import Docs from "./Docs.vue";
 
 defineProps({
   isVertical: {
@@ -17,7 +16,6 @@ defineProps({
     <dashboard />
     <layout-and-page />
     <ui-components />
-    <docs />
   </v-list>
 </template>
 

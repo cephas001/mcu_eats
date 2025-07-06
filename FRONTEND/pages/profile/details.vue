@@ -141,7 +141,7 @@
 
 <script setup>
 import { useUserStore } from "@/stores/userStore";
-import { navigateTo, useCookie } from "nuxt/app";
+import { useCookie } from "nuxt/app";
 import { useLogInStore } from "@/stores/logInStore";
 import { storeToRefs } from "pinia";
 import { useFormValidationMethods } from "@/composables/formValidation";
@@ -291,18 +291,11 @@ const submitForm = async (event) => {
 onMounted(async () => {
   try {
     if (!user?.value || !loggedIn?.value) {
-      const response = await userStore.fetchUserDetails();
-      if (response == "no token") {
-        await navigateTo("/login");
-        return;
-      }
-      if (!loggedIn?.value) {
-        await navigateTo("/login");
-        return;
-      }
+      await userStore.fetchUserDetails(false, true);
     } else {
       loadingUser.value = false;
     }
+
     formState.firstName = user?.value?.firstName;
     formState.lastName = user?.value?.lastName;
     formState.phoneNumber = user?.value?.phoneNumber;

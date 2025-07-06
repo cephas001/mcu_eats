@@ -1,5 +1,6 @@
 import { defineNuxtPlugin } from "nuxt/app";
 import { db } from "../utils/db";
+import { stringifyArrays } from "../utils/stringifyArrays";
 
 export default defineNuxtPlugin((nuxtApp) => {
   // key: {store name}
@@ -10,47 +11,14 @@ export default defineNuxtPlugin((nuxtApp) => {
     vendor: {
       key: "vendors",
     },
+    userFavouritesStore: {
+      key: "userFavouriteVendors",
+    },
   };
 
   nuxtApp.$pinia.use(({ store }) => {
     const config = PRESIST_CONFIG[store.$id];
     if (!config) return;
-
-    // const loadInitialState = async () => {
-    //   try {
-    //     const savedData = await db.table(config.key).toArray();
-    //     if (savedData.length > 0) {
-    //       const cartData = await db.cart.toArray();
-    //       const vendorData = await db.vendors.toArray();
-
-    //       if (cartData.length > 0) {
-    //         store.cart.$patch(cartData[0]); // Patch only cart state
-    //       }
-
-    //       if (vendorData.length > 0) {
-    //         console.log(store);
-    //         store.vendor.$patch({ vendors: vendorData }); // Patch only vendors
-    //       }
-
-    //       await db.table(config.key).clear();
-    //       await db.table(config.key).bulkAdd(savedData);
-    //     }
-    //   } catch (error) {
-    //     console.log(`Error loading: ${store.$id} from IndexDB`, error);
-    //   }
-    // };
-
-    function stringifyArrays(obj) {
-      if (Array.isArray(obj)) {
-        return JSON.stringify(obj); // Convert arrays to string
-      } else if (typeof obj === "object" && obj !== null) {
-        return Object.keys(obj).reduce((acc, key) => {
-          acc[key] = stringifyArrays(obj[key]); // Recursively stringify nested arrays
-          return acc;
-        }, {});
-      }
-      return obj; // Return other data types unchanged
-    }
 
     const unsubscribe = store.$subscribe(async (mutation, state) => {
       try {
@@ -65,6 +33,21 @@ export default defineNuxtPlugin((nuxtApp) => {
               stringifyArrays(vendor)
             ); // Stringify nested arrays in vendors
             await db.vendors.bulkPut(vendorData);
+          }
+        }
+
+        if (mutation.storeId === "userFavouritesStore") {
+          if (state.userFavouriteVendors) {
+            const favouriteVendorsData = state.userFavouriteVendors.map(
+              (vendor) => stringifyArrays(vendor)
+            );
+            await db.favouriteVendors.bulkPut(favouriteVendorsData);
+          }
+          if (state.userFavouriteProducts) {
+            const favouriteProductsData = state.userFavouriteProducts.map(
+              (product) => stringifyArrays(product)
+            );
+            await db.favouriteProducts.bulkPut(favouriteProductsData);
           }
         }
       } catch (error) {

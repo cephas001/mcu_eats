@@ -9,117 +9,48 @@
 
     <div class="mt-10">
       <!-- DETAILS -->
-      <div class="flex items-center" @click="navigateTo('/profile/details')">
-        <div
-          class="bg-gray-300 flex items-center rounded-full text-center p-1 mr-5"
-        >
-          <UIcon
-            name="i-material-symbols-person-2-outline"
-            class="text-xl self-center"
-          />
-        </div>
-        <h1 class="flex gap-5 items-center text-sm tracking-wide">
-          My details
-          <span
-            class="bg-primary text-white px-4 py-1 rounded-full text-[10px] tracking-wide"
-            v-if="!user.verifiedEmail"
-            >Verify email</span
-          >
-        </h1>
-        <UIcon
-          name="i-material-symbols-light-chevron-right"
-          class="text-2xl self-center font-bold ml-auto"
-        />
-      </div>
+      <ProfileCard
+        text="My details"
+        url="/profile/details"
+        :verifiedEmail="user.verifiedEmail"
+        iconName="i-material-symbols-person-2-outline"
+      />
+      <!-- ORDERS -->
+      <ProfileCard
+        text="My orders"
+        url="/orders"
+        iconName="i-material-symbols-shopping-bag-speed-outline"
+      />
       <!-- SAVED ADDRESSES -->
-      <div
-        class="mt-7 flex items-center"
-        @click="navigateTo('/profile/addresses')"
-      >
-        <div
-          class="bg-gray-300 flex items-center rounded-full text-center p-1 mr-5"
-        >
-          <UIcon
-            name="i-material-symbols-light-location-on-outline-rounded"
-            class="text-xl self-center font-bold"
-          />
-        </div>
-        <h1 class="text-sm tracking-wide">Saved addresses</h1>
-        <UIcon
-          name="i-material-symbols-light-chevron-right"
-          class="text-2xl self-center font-bold ml-auto"
-        />
-      </div>
+      <ProfileCard
+        text="Saved addresses"
+        url="/profile/addresses"
+        iconName="i-material-symbols-light-location-on-outline-rounded"
+      />
       <!-- FAVOURITES -->
-      <div
-        class="mt-7 flex items-center"
-        @click="navigateTo('/profile/favourites')"
-      >
-        <div
-          class="bg-gray-300 flex items-center rounded-full text-center p-1 mr-5"
-        >
-          <UIcon
-            name="i-material-symbols-favorite-outline"
-            class="text-lg self-center"
-          />
-        </div>
-        <h1 class="text-sm tracking-wide">Favourites</h1>
-        <UIcon
-          name="i-material-symbols-light-chevron-right"
-          class="text-2xl self-center font-bold ml-auto"
-        />
-      </div>
+      <ProfileCard
+        text="Favourites"
+        url="/profile/favourites"
+        iconName="i-material-symbols-favorite-outline"
+      />
       <!-- ITEM SUGGESTIONS -->
-      <div class="mt-7 flex items-center">
-        <div
-          class="bg-gray-300 flex items-center rounded-full text-center p-1 mr-5"
-        >
-          <UIcon
-            name="i-material-symbols-garden-cart-outline-sharp"
-            class="text-lg self-center"
-          />
-        </div>
-        <h1 class="text-sm tracking-wide">Item suggestions</h1>
-        <UIcon
-          name="i-material-symbols-light-chevron-right"
-          class="text-2xl self-center font-bold ml-auto"
-        />
-      </div>
+      <ProfileCard
+        text="Item suggestions"
+        iconName="i-material-symbols-garden-cart-outline-sharp"
+        url=""
+      />
       <!-- SAVED NOTES -->
-      <div class="mt-7 flex items-center" @click="navigateTo('/profile/notes')">
-        <div
-          class="bg-gray-300 flex items-center rounded-full text-center p-1 mr-5"
-        >
-          <UIcon
-            name="i-material-symbols-light-chat-outline-rounded"
-            class="text-lg self-center"
-          />
-        </div>
-        <h1 class="text-sm tracking-wide">Saved notes</h1>
-        <UIcon
-          name="i-material-symbols-light-chevron-right"
-          class="text-2xl self-center font-bold ml-auto"
-        />
-      </div>
+      <ProfileCard
+        text="Saved notes"
+        url="/profile/notes"
+        iconName="i-material-symbols-light-chat-outline-rounded"
+      />
       <!-- HELP/FEEDBACK -->
-      <div
-        class="mt-7 flex items-center"
-        @click="navigateTo('/profile/feedback')"
-      >
-        <div
-          class="bg-gray-300 flex items-center rounded-full text-center p-1 mr-5"
-        >
-          <UIcon
-            name="i-material-symbols-light-help-outline"
-            class="text-lg self-center"
-          />
-        </div>
-        <h1 class="text-sm tracking-wide">Help / Feedback</h1>
-        <UIcon
-          name="i-material-symbols-light-chevron-right"
-          class="text-2xl self-center font-bold ml-auto"
-        />
-      </div>
+      <ProfileCard
+        text="Help / Feedback"
+        url="/profile/feedback"
+        iconName="i-material-symbols-light-help-outline"
+      />
     </div>
   </section>
   <LoadingIconLarge :loading="loadingUser" />
@@ -135,7 +66,7 @@ const loadingUser = ref(false);
 
 onMounted(async () => {
   try {
-    if (user.value == {}) {
+    if (!user) {
       await userStore.fetchUserDetails();
     } else {
       loadingUser.value = false;

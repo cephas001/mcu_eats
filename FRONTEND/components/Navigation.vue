@@ -61,7 +61,7 @@ const totalCartSize = () => {
 const fetchDetails = async () => {
   try {
     if (!user.value) {
-      await userStore.fetchUserDetails();
+      await userStore.fetchUserDetails(true);
     }
     if (loggedIn?.value) {
       navigationItems.value = [

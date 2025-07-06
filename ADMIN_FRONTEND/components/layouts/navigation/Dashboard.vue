@@ -8,8 +8,20 @@ defineProps({
 
 const Dashboard = [
   {
-    title: "Project",
+    title: "Overview",
     to: "",
+  },
+  { 
+    title: "Pending Orders",
+    to: "pending-orders"
+  },
+  {
+    title: "Active Orders",
+    to: "active-orders",
+  },
+  {
+    title: "Completed Orders",
+    to: "completed-orders",
   },
 ];
 </script>

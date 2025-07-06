@@ -45,9 +45,8 @@ router.post("/users", async (req, res) => {
 });
 
 router.get("/users/:id", verifyToken, async (req, res) => {
-  const user = await Users.findById({ _id: req.params.id })
-    .lean()
-    .populate("favouriteVendors.vendor");
+  const user = await Users.findById({ _id: req.params.id }).lean();
+
   if (user) {
     res.json({ found: true, user });
   } else {
@@ -57,46 +56,26 @@ router.get("/users/:id", verifyToken, async (req, res) => {
 
 router.put("/users/favourites/:id", verifyToken, async (req, res) => {
   try {
-    // Removes a favourite vendor from the user
-    if (req.body.removeFavouriteVendor) {
-      const updatedUser = await Users.findByIdAndUpdate(
-        req.params.id,
-        { $pull: { favouriteVendors: { vendor: req.body.vendorId } } }, // Removes the entire object
-        { new: true }
-      ).populate("favouriteVendors.vendor");
-      res.json({ update: true, user: updatedUser });
-    }
-
-    // Adds a favourite vendor to the user. Entire list should be sent from frontend as this just resets it
+    // Updates a user's favourite vendors. Entire list should be sent from frontend as this just resets it
     if (req.body.favouriteVendors) {
       const { favouriteVendors } = req.body;
       const updatedUser = await Users.findByIdAndUpdate(
         req.params.id,
         { favouriteVendors },
         { new: true, runValidators: true }
-      ).populate("favouriteVendors.vendor");
+      );
 
       res.json({ update: true, user: updatedUser });
     }
 
-    // Removes a favourite product from the user.
-    if (req.body.removeFavouriteProduct) {
-      const updatedUser = await Users.findByIdAndUpdate(
-        req.params.id,
-        { $pull: { favouriteProducts: { productId: req.body.productId } } }, // Removes the entire object
-        { new: true }
-      ).populate("favouriteVendors.vendor");
-      res.json({ update: true, user: updatedUser });
-    }
-
-    // Adds a favourite product to the user. Entire list should be send from frontend as this just resets it.
+    // Update a user's favourite products. Entire list should be send from frontend as this just resets it.
     if (req.body.favouriteProducts) {
       const { favouriteProducts } = req.body;
       const updatedUser = await Users.findByIdAndUpdate(
         req.params.id,
         { favouriteProducts },
         { new: true, runValidators: true }
-      ).populate("favouriteVendors.vendor");
+      );
 
       res.json({ update: true, user: updatedUser });
     }
@@ -174,9 +153,7 @@ router.post("/users/verifyEmail/:id", verifyToken, async (req, res) => {
 
 // To get the raw firebase user object
 router.get("/loggedInUser", verifyToken, async (req, res) => {
-  const user = await Users.findById({ _id: req.user.uid })
-    .lean()
-    .populate("favouriteVendors.vendor");
+  const user = await Users.findById({ _id: req.user.uid }).lean();
 
   const userToSend = { ...user, picture: req.user.picture };
 

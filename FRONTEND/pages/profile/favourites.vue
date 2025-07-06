@@ -1,7 +1,10 @@
 <template>
   <ProfilePageHeader text="FAVOURITES" />
 
-  <header class="z-1000 sticky top-0 text-md shadow-md pt-4 bg-white">
+  <header
+    class="z-1000 sticky top-0 text-md shadow-md pt-4 bg-white"
+    v-if="!fetchingData"
+  >
     <div class="flex items-center justify-center w-full">
       <button
         v-for="tab in tabs"
@@ -22,8 +25,9 @@
   <section
     class="min-h-[80vh]"
     v-if="
-      (!user || user?.favouriteVendors?.length == 0) &&
-      activeTabFav == 'Vendors'
+      (!user || favouriteVendors.length == 0) &&
+      activeTabFav == 'Vendors' &&
+      !fetchingData
     "
   >
     <div class="container relative min-h-[calc(80vh-100px)]">
@@ -50,24 +54,28 @@
       </div>
     </div>
   </section>
+
   <section
-    v-if="activeTabFav == 'Vendors' && user?.favouriteVendors?.length > 0"
+    v-if="
+      activeTabFav == 'Vendors' && favouriteVendors.length > 0 && !fetchingData
+    "
     class="min-h-[90vh] px-6 pt-8"
   >
     <div
-      v-for="vendorObject in user.favouriteVendors"
-      :key="vendorObject._id"
+      v-for="vendor in favouriteVendors"
+      :key="vendor._id"
       class="rounded-md shadow-md text-sm mb-7 cursor-pointer hover:shadow-lg focus:shadow-lg"
     >
-      <VendorCard :vendor="vendorObject.vendor" />
+      <VendorCard :vendor="vendor" :favouriteIds="favouriteVendorIds" />
     </div>
   </section>
 
   <section
     class="min-h-[80vh]"
     v-if="
-      (!user || user?.favouriteProducts?.length == 0) &&
-      activeTabFav == 'Products'
+      (!user || favouriteProducts.length == 0) &&
+      activeTabFav == 'Products' &&
+      !fetchingData
     "
   >
     <div class="container relative min-h-[calc(80vh-100px)]">
@@ -94,27 +102,29 @@
       </div>
     </div>
   </section>
+
   <section
-    v-if="activeTabFav == 'Products' && user?.favouriteProducts?.length > 0"
+    v-if="
+      activeTabFav == 'Products' &&
+      favouriteProducts.length > 0 &&
+      !fetchingData
+    "
     class="min-h-[90vh] px-6 pt-6"
   >
     <div
-      v-for="product in products"
+      v-for="product in favouriteProducts"
       :key="product._id"
       class="py-5 border-b-1 border-gray-100"
     >
       <VendorProduct
         :product
         :favouritePage="true"
-        :vendorName="product.vendorName"
-        :vendorId="product.vendorId"
-        :vendorOpeningTime="product.vendorOpeningTime"
-        :vendorClosingTime="product.vendorClosingTime"
-        :vendorTakingOrders="product.vendorTakingOrders"
         @unfavourite="removeProduct"
       />
     </div>
   </section>
+
+  <LoadingIconLarge :loading="fetchingData" />
 </template>
 
 <script setup>
@@ -122,9 +132,12 @@ import { navigateTo } from "nuxt/app";
 import { useUserStore } from "@/stores/userStore";
 import { useVendorStore } from "@/stores/vendorStore";
 import { onMounted } from "vue";
+import { parseArrays } from "@/utils/parseArrays";
+
+const fetchingData = ref(true);
 
 const vendorStore = useVendorStore();
-const { restaurants, retailers, shops } = storeToRefs(vendorStore);
+const { vendors } = storeToRefs(vendorStore);
 const userStore = useUserStore();
 const { user } = storeToRefs(userStore);
 
@@ -132,6 +145,11 @@ const tabs = ["Vendors", "Products"];
 const activeTabFav = useLocalStorage("activeTabFav", ref("Vendors"));
 
 const products = ref([]);
+
+const favouriteVendorIds = ref([]);
+
+const favouriteVendors = ref([]);
+const favouriteProducts = ref([]);
 
 const removeProduct = (id) => {
   products.value = products.value.filter((product) => {
@@ -142,32 +160,30 @@ const removeProduct = (id) => {
 };
 
 onMounted(async () => {
-  if (!restaurants.value) {
-    await vendorStore.fetchVendors();
-  }
+  try {
+    if (!vendors.value) {
+      await vendorStore.fetchVendors();
+    }
 
-  if (!user.value) {
-    await userStore.fetchUserDetails();
-  }
-  if (user.value) {
-    const vendors = [...restaurants.value, ...retailers.value, ...shops.value];
-    user?.value?.favouriteProducts.forEach((product) => {
-      const vendor = vendors.find((vendor) => {
-        return vendor._id === product.vendor;
-      });
-      if (vendor) {
-        const foundProduct = vendor.products.find((fproduct) => {
-          return fproduct._id === product.productId;
-        });
-        foundProduct["favourited"] = true;
-        foundProduct["vendorName"] = vendor.name;
-        foundProduct["vendorId"] = vendor._id;
-        foundProduct["vendorOpeningTime"] = vendor.opening_time;
-        foundProduct["vendorClosingTime"] = vendor.closing_time;
-        foundProduct["vendorTakingOrders"] = vendor.taking_orders;
-        products.value = [...products.value, foundProduct];
-      }
-    });
+    if (!user.value) {
+      await userStore.fetchUserDetails();
+    }
+
+    const indexedDBFavouriteVendors = await db.favouriteVendors.toArray();
+    const indexedDBFavouriteProducts = await db.favouriteProducts.toArray();
+
+    if (indexedDBFavouriteVendors?.length > 0) {
+      favouriteVendors.value = parseArrays(indexedDBFavouriteVendors);
+      favouriteProducts.value = parseArrays(indexedDBFavouriteProducts);
+
+      favouriteVendorIds.value = favouriteVendors.value.map(
+        (vendor) => vendor._id
+      );
+    }
+  } catch (error) {
+    console.error("Error fetching favourites:", error);
+  } finally {
+    fetchingData.value = false;
   }
 });
 </script>

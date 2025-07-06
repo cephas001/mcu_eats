@@ -5,7 +5,7 @@
       v-if="favouritePage"
       @click="checkAndNavigate"
     >
-      {{ vendorName }}
+      {{ product.vendorName }}
     </p>
     <h1 class="mb-4" @click="checkAndNavigate">{{ product.name }}</h1>
     <p class="text-gray-600 text-sm">
@@ -18,13 +18,27 @@
       <div class="bg-primary_light rounded-full p-1 flex items-center">
         <UIcon
           name="i-material-symbols-add-2-rounded"
-          @click="updateCart(product, vendorId, vendorName, 'increase')"
+          @click="
+            updateCart(
+              product,
+              product.vendorId || vendorId,
+              product.vendorName || vendorName,
+              'increase'
+            )
+          "
         />
       </div>
       <div class="bg-primary_light rounded-full p-1 flex items-center">
         <UIcon
           name="i-material-symbols-remove"
-          @click="updateCart(product, vendorId, vendorName, 'decrease')"
+          @click="
+            updateCart(
+              product,
+              product.vendorId || vendorId,
+              product.vendorName || vendorName,
+              'decrease'
+            )
+          "
         />
       </div>
       <input
@@ -77,6 +91,9 @@ import { useCartStore } from "@/stores/cartStore";
 import { storeToRefs } from "pinia";
 import { useVendorStore } from "@/stores/vendorStore";
 import { compareTime } from "@/utils/compareTime";
+import { useUserFavouritesStore } from "@/stores/userFavouritesStore";
+
+const userFavouritesStore = useUserFavouritesStore();
 
 const userStore = useUserStore();
 const { user } = storeToRefs(userStore);
@@ -99,83 +116,33 @@ const props = defineProps({
     type: Object,
     required: true,
   },
-  vendorName: {
-    type: String,
+  favouritePage: {
+    type: Boolean,
   },
   vendorId: {
     type: String,
   },
-  vendorClosingTime: {
-    type: Object,
-  },
-  vendorOpeningTime: {
-    type: Object,
-  },
-  vendorTakingOrders: {
-    type: Boolean,
-  },
-  favouritePage: {
-    type: Boolean,
+  vendorName: {
+    type: String,
   },
 });
 
 const emit = defineEmits(["unfavourite"]);
 
 const favouriteProduct = async () => {
-  const token = useCookie("auth_token");
-  if (!token.value || token.value == "") {
+  const user = await db.user.toArray();
+  if (!user || user.length === 0) {
     open.value = true;
     return;
   }
   animate.value = true;
-  const config = useRuntimeConfig();
-  try {
-    if (!user.value._id) {
-      await fetchUserDetails();
-      if (!user.value._id) {
-        showModal.value = true;
-        return;
-      }
-    }
 
-    var backendResponse = ref(null);
-    if (props.product.favourited) {
-      backendResponse.value = await $fetch(
-        `${config.public.apiBaseUrl}/users/favourites/${user.value._id}`,
-        {
-          method: "PUT",
-          body: {
-            removeFavouriteProduct: true,
-            productId: props.product._id,
-          },
-          headers: {
-            Authorization: `Bearer ${token.value}`,
-          },
-        }
-      );
-      props.product.favourited = false;
-      emit("unfavourite", props.product._id);
-    } else {
-      backendResponse.value = await $fetch(
-        `${config.public.apiBaseUrl}/users/favourites/${user.value._id}`,
-        {
-          method: "PUT",
-          body: {
-            favouriteProducts: [
-              ...user.value.favouriteProducts,
-              { vendor: props.vendorId, productId: props.product._id },
-            ],
-          },
-          headers: {
-            Authorization: `Bearer ${token.value}`,
-          },
-        }
-      );
-      props.product.favourited = true;
-    }
-    if (backendResponse.value.user) {
-      setUser(backendResponse.value.user);
-    }
+  try {
+    userFavouritesStore.favouriteProduct(
+      props.vendorId,
+      props.product,
+      user[0]._id
+    );
   } catch (error) {
     console.log(error);
   }
@@ -184,13 +151,15 @@ const favouriteProduct = async () => {
 const checkAndNavigate = () => {
   if (props.favouritePage) {
     var open = compareTime(
-      props.vendorClosingTime.hour,
-      props.vendorClosingTime.minute,
-      props.vendorTakingOrders
+      props.product.vendorClosingTime.hour,
+      props.product.vendorClosingTime.minute,
+      props.product.vendorTakingOrders
     );
     if (open) {
       setVendor(null);
-      navigateTo(`/vendors/${props.vendorId}?type=${props.product.type}`);
+      navigateTo(
+        `/vendors/${props.product.vendorId}?type=${props.product.type}`
+      );
     } else {
       openModal.value = true;
     }

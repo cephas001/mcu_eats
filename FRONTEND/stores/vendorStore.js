@@ -1,6 +1,7 @@
 import { defineStore } from "pinia";
 import { $fetch } from "ofetch";
 import { db } from "../utils/db";
+import { parseArrays } from "../utils/parseArrays";
 
 export const useVendorStore = defineStore("vendor", () => {
   const restaurants = ref(null);
@@ -15,36 +16,42 @@ export const useVendorStore = defineStore("vendor", () => {
 
   const selectedProductType = ref({});
 
-  const parseStringifiedProductAndMap = (array) => {
-    return array.map((rawVendor) => {
-      return { ...rawVendor, products: JSON.parse(rawVendor.products) };
-    });
-  };
-
   const fetchVendors = async () => {
     if (vendors.value) return;
 
-    const indexedDBvendors = await db.vendors.toArray();
-    if (indexedDBvendors?.length > 0) {
-      const rawRestaurants = await db.vendors
-        .where("type")
-        .equals("restaurant")
-        .toArray();
-      const rawRetailers = await db.vendors
-        .where("type")
-        .equals("retailer")
-        .toArray();
-      const rawShops = await db.vendors.where("type").equals("shop").toArray();
-
-      restaurants.value = parseStringifiedProductAndMap(rawRestaurants);
-      retailers.value = parseStringifiedProductAndMap(rawRetailers);
-      shops.value = parseStringifiedProductAndMap(rawShops);
-
-      return;
-    }
-
-    const config = useRuntimeConfig();
     try {
+      // Check if vendors are already stored in IndexedDB
+      const indexedDBvendors = await db.vendors.toArray();
+      if (indexedDBvendors?.length > 0) {
+        const stringifiedEmbeddedRestaurants = await db.vendors
+          .where("type")
+          .equals("restaurant")
+          .toArray();
+        const stringifiedEmbeddedRetailers = await db.vendors
+          .where("type")
+          .equals("retailer")
+          .toArray();
+        const stringifiedEmbeddedShops = await db.vendors
+          .where("type")
+          .equals("shop")
+          .toArray();
+
+        restaurants.value = parseArrays(stringifiedEmbeddedRestaurants);
+        retailers.value = parseArrays(stringifiedEmbeddedRetailers);
+        shops.value = parseArrays(stringifiedEmbeddedShops);
+
+        vendors.value = [
+          ...restaurants.value,
+          ...retailers.value,
+          ...shops.value,
+        ];
+
+        lastFetched.value = Date.now();
+        return;
+      }
+
+      // If not found in IndexedDB, fetch from API
+      const config = useRuntimeConfig();
       const response = await $fetch(`${config.public.apiBaseUrl}/vendors`);
 
       restaurants.value = response.restaurants;
@@ -59,7 +66,8 @@ export const useVendorStore = defineStore("vendor", () => {
 
       lastFetched.value = Date.now();
     } catch (error) {
-      console.log(error);
+      console.error("Error fetching vendors:", error);
+      throw new Error("Error fetching vendors: " + error);
     }
   };
 
@@ -81,7 +89,7 @@ export const useVendorStore = defineStore("vendor", () => {
   const findVendorById = async (id) => {
     const indexDBVendor = await db.vendors.get(id);
     if (indexDBVendor) {
-      vendor.value = parseStringifiedProductAndMap([indexDBVendor])[0];
+      vendor.value = parseArrays([indexDBVendor])[0];
       return true;
     } else {
       return false;

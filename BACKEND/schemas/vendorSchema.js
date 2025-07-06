@@ -1,4 +1,3 @@
-const connection = require("../dbConnection");
 const mongoose = require("mongoose");
 
 const ProductSchema = new mongoose.Schema({
@@ -14,6 +13,11 @@ const ProductSchema = new mongoose.Schema({
 
 const VendorSchema = new mongoose.Schema(
   {
+    _id: {
+      type: String,
+      required: true,
+      ref: "Vendor",
+    },
     name: {
       type: String,
       required: true,

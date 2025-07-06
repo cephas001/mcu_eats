@@ -12,9 +12,7 @@
     />
     <!-- icon to favorite would be to the top right -->
     <UIcon
-      :name="`i-material-symbols-favorite${
-        favouriteOrNot(vendor._id) ? '' : '-outline'
-      }`"
+      :name="`i-material-symbols-favorite${favourited ? '' : '-outline'}`"
       class="text-black absolute z-100 top-3 right-3 font-bold text-3xl"
       :class="animate ? 'animate-[var(--animate-pingOnce)]' : ''"
       @click.self="favouriteVendorComponent(vendor._id)"
@@ -63,32 +61,42 @@
 </template>
 
 <script setup>
-import { useUserStore } from "@/stores/userStore";
 import { useVendorStore } from "@/stores/vendorStore";
 import { compareTime } from "@/utils/compareTime";
+import { useUserFavouritesStore } from "@/stores/userFavouritesStore";
+import { db } from "@/utils/db";
 
-const userStore = useUserStore();
-const { favouriteOrNot, favouriteVendor } = userStore;
 const open = ref(false);
 
 const vendorStore = useVendorStore();
 const { setVendor } = vendorStore;
-
+const userFavouritesStore = useUserFavouritesStore();
+const { favouriteVendor } = userFavouritesStore;
 const animate = ref(false);
 
-const favouriteVendorComponent = (id) => {
-  const token = useCookie("auth_token");
-  if (!token.value || token.value == "") {
+const favouriteVendorComponent = async (id) => {
+  const user = await db.user.toArray();
+  if (!user || user.length === 0) {
     open.value = true;
     return;
   }
   animate.value = true;
-  favouriteVendor(id);
+
+  try {
+    favourited.value = !favourited.value;
+    await favouriteVendor(id, user[0]._id);
+  } catch (error) {
+    favourited.value = !favourited.value;
+    console.log("Error favouriting vendor:", error);
+  }
 };
 
 const props = defineProps({
   vendor: {
     type: Object,
+  },
+  favouriteIds: {
+    type: Array,
   },
 });
 
@@ -98,7 +106,13 @@ const isOpen = computed(() => {
     props.vendor.closing_time.minute,
     props.vendor.taking_orders
   );
-  return open;
+  return true;
+});
+
+const favourited = ref(false);
+
+watchEffect(() => {
+  favourited.value = props.favouriteIds?.includes(props.vendor._id) || false;
 });
 
 const openVendor = () => {

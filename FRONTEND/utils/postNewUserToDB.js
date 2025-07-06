@@ -1,17 +1,10 @@
-import { useNuxtApp } from "#app";
-import { useUserStore } from "@/stores/userStore";
-
 export const postNewUserToDB = async (
   user,
   firstDetails,
   additionalDetails,
-  lecturer,
-  token
+  lecturer
 ) => {
-  const nuxtApp = useNuxtApp();
   const config = useRuntimeConfig();
-
-  const userStore = useUserStore();
 
   // Getting primary user details
   const userToAdd = {
@@ -56,16 +49,9 @@ export const postNewUserToDB = async (
     body: finalUserObject,
   });
 
-  if (response.added) {
-    userStore.setUser(response.user);
-    userStore.setLoggedIn(true);
-    if (user.accessToken) {
-      nuxtApp.$storeToken(user.accessToken);
-    } else {
-      nuxtApp.$storeToken(token);
-    }
-    return { added: true, message: "Added successfully" };
-  } else {
-    return { added: false, message: response.message };
-  }
+  return {
+    added: response.added,
+    message: "Added successfully",
+    user: response?.user,
+  };
 };

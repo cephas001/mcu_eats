@@ -19,12 +19,17 @@ const props = defineProps({
     type: String,
     default: "Button",
   },
+
+  titleColor: {
+    type: String,
+    default: "text-light",
+  },
 });
 </script>
 
 <template>
   <div class="global-header d-flex align-center justify-space-between pb-5 flex-wrap ga-2">
-    <h3 :class="`global-header__text text-h3 ${btnColor === 'light' ? 'text-light' : ''}`">
+    <h3 :class="`global-header__text text-h3 ${btnColor === 'light' ? 'text-light' : titleColor}`">
       {{ props.title }}
     </h3>
 

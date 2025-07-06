@@ -17,7 +17,7 @@
       Restaurants
     </h1>
 
-    <VendorCarousel :vendorList="restaurants" />
+    <VendorCarousel :vendorList="restaurants" :favouriteIds />
 
     <VendorEmptyStateCard
       :vendorsLength="restaurants?.length ? restaurants.length : 0"
@@ -28,7 +28,7 @@
   <section class="px-5 pt-5 pb-2" v-if="!fetchingData">
     <h1 class="font-semibold mb-2 tracking-wide text-lg font-manrope">Shops</h1>
 
-    <VendorCarousel :vendorList="shops" />
+    <VendorCarousel :vendorList="shops" :favouriteIds />
 
     <VendorEmptyStateCard
       :vendorsLength="shops?.length ? shops.length : 0"
@@ -41,7 +41,7 @@
       Retailers
     </h1>
 
-    <VendorCarousel :vendorList="retailers" />
+    <VendorCarousel :vendorList="retailers" :favouriteIds />
 
     <VendorEmptyStateCard
       :vendorsLength="retailers?.length ? retailers.length : 0"
@@ -55,19 +55,20 @@
 <script setup>
 import { onMounted } from "vue";
 import { useVendorStore } from "@/stores/vendorStore";
-import { useUserStore } from "@/stores/userStore";
 import { storeToRefs } from "pinia";
-const userStore = useUserStore();
-const { user } = storeToRefs(userStore);
+import { returnFavouriteVendorIds } from "@/composables/returnFavouriteIds";
+
+const favouriteIds = ref([]);
 
 const fetchingData = ref(true);
 
 const vendorStore = useVendorStore();
 const { restaurants, retailers, shops } = storeToRefs(vendorStore);
+
 onMounted(async () => {
-  if (!user?.value?._id) {
-    await userStore.fetchUserDetails();
-  }
+  const { favouriteVendorIds } = await returnFavouriteVendorIds();
+  favouriteIds.value = favouriteVendorIds;
+
   if (!restaurants?.value) {
     fetchingData.value = true;
     try {
@@ -77,8 +78,9 @@ onMounted(async () => {
     } finally {
       fetchingData.value = false;
     }
-  } else {
-    fetchingData.value = false;
+    return;
   }
+
+  fetchingData.value = false;
 });
 </script>

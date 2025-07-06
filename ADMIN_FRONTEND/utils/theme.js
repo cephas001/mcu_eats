@@ -3,13 +3,15 @@ export default {
   themes: {
     light: {
       colors: {
-        dark: "#1e293b",
+        dark: "#322414", // Closest match to primary[800]
         light: "#f1f5f9",
         white: "#ffffff",
-        primary: "#624bff",
-        "on-primary": "#fff",
-        secondary: "#475569",
-        "on-secondary": "#fff",
+        primary: "#bb8c57", // Closest match to primary[400]
+        "on-primary": "#eee3d6", // Primary[50] for contrast
+        secondary: "#5784bb", // Closest match to secondary[400]
+        "on-secondary": "#d6e1ee", // Secondary[50] for contrast
+        accent: "#be58ba", // Closest match to accent[400]
+        "on-accent": "#f0d9ef", // Accent[50] for contrast
         success: "#198754",
         "on-success": "#fff",
         info: "#0dcaf0",
@@ -21,23 +23,6 @@ export default {
         "on-background": "#1e293b",
         surface: "#ffffff",
         "on-surface": "#1e293b",
-        grey200: "#e2e8f0",
-        grey300: "#cbd5e1",
-        grey600: "#475569",
-        grey400: "#94a3b8",
-        "grey-50": "#f8f8f9",
-        "grey-100": "#f1f5f9",
-        "grey-200": "#e2e8f0",
-        "grey-300": "#cbd5e1",
-        "grey-400": "#94a3b8",
-        "grey-500": "#64748b",
-        "grey-600": "#475569",
-        "grey-700": "#334155",
-        "grey-800": "#1e293b",
-        "grey-900": "#0f172a",
-        "perfect-scrollbar-thumb": "#4A5072",
-        "skin-bordered-background": "#2f3349",
-        "skin-bordered-surface": "#2f3349",
       },
 
       variables: {
@@ -79,10 +64,12 @@ export default {
         dark: "#f1f5f9",
         light: "#1e293b",
         white: "#ffffff",
-        primary: "#624bff",
-        "on-primary": "#fff",
-        secondary: "#f3f5f7",
-        "on-secondary": "#1e293b",
+        primary: "#bb8c57",
+        "on-primary": "#eee3d6",
+        secondary: "#5784bb",
+        "on-secondary": "#d6e1ee",
+        accent: "#be58ba",
+        "on-accent": "#f0d9ef",
         success: "#198754",
         "on-success": "#fff",
         info: "#0dcaf0",
@@ -94,23 +81,6 @@ export default {
         "on-background": "#f1f5f9",
         surface: "#1e293b",
         "on-surface": "#fff",
-        grey200: "#26293A",
-        grey300: "#4A5072",
-        grey400: "#5E6692",
-        grey600: "#AAB3DE",
-        "grey-50": "#26293A",
-        "grey-100": "#2F3349",
-        "grey-200": "#26293A",
-        "grey-300": "#4A5072",
-        "grey-400": "#5E6692",
-        "grey-500": "#7983BB",
-        "grey-600": "#AAB3DE",
-        "grey-700": "#B6BEE3",
-        "grey-800": "#CFD3EC",
-        "grey-900": "#E7E9F6",
-        "perfect-scrollbar-thumb": "#4A5072",
-        "skin-bordered-background": "#2f3349",
-        "skin-bordered-surface": "#2f3349",
       },
 
       variables: {

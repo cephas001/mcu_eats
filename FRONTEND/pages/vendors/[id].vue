@@ -13,12 +13,9 @@
       <div><Media src="/restaurant/food1.jpg" /></div>
       <UIcon
         :name="`i-material-symbols-favorite${
-          favouriteOrNot(vendor._id) ? '' : '-outline'
+          vendorFavourited ? '' : '-outline'
         }`"
         class="text-white absolute top-5 right-15 font-bold text-3xl"
-        :class="
-          favouriteOrNot(vendor._id) ? 'animate-[var(--animate-pingOnce)]' : ''
-        "
         @click="favouriteVendorComponent(vendor._id)"
       />
       <UIcon
@@ -109,13 +106,17 @@ import { storeToRefs } from "pinia";
 import { useUserStore } from "@/stores/userStore";
 import { useCartStore } from "@/stores/cartStore";
 import { navigateTo } from "nuxt/app";
+import {
+  returnFavouriteVendorIds,
+  returnFavouriteProductIds,
+} from "@/composables/returnFavouriteIds";
 
 const cartStore = useCartStore();
 const { cart } = storeToRefs(cartStore);
 
 const userStore = useUserStore();
 const { user } = storeToRefs(userStore);
-const { favouriteOrNot, favouriteVendor } = userStore;
+const { favouriteVendor } = userStore;
 const open = ref(false);
 
 const favouriteVendorComponent = (id) => {
@@ -135,6 +136,7 @@ const id = route.params.id;
 
 const vendorStore = useVendorStore();
 const { vendor } = storeToRefs(vendorStore);
+const vendorFavourited = ref(false);
 
 const { selectedProductType } = storeToRefs(vendorStore);
 
@@ -160,6 +162,13 @@ onMounted(async () => {
       }
     }
 
+    const { favouriteProductIds } = await returnFavouriteProductIds();
+    const { favouriteVendorIds } = await returnFavouriteVendorIds();
+
+    if (favouriteVendorIds.includes(vendor.value._id)) {
+      vendorFavourited.value = true;
+    }
+
     // Initializes the types of products a vendor offers
     vendor.value.types = [];
 
@@ -167,6 +176,13 @@ onMounted(async () => {
     cartStore.computeTotalCartPrice();
 
     vendor.value.products.forEach((product, index) => {
+      // Checks if a product is favourited by the user
+      if (favouriteProductIds.includes(product._id)) {
+        product.favourited = true;
+      } else {
+        product.favourited = false;
+      }
+
       // Checks if a product is in cart and using the quantity already store for the product count
       const productInCart = cart?.value?.find((item) => {
         return item._id == product._id;
@@ -206,39 +222,6 @@ onMounted(async () => {
     } else {
       // Sets the default selected value to the first vendor type
       selectedProductType.value = vendor.value.types[0];
-    }
-
-    // Checks if a user exists before attempting to check if a user has favourited certain products
-    if (!user?.value?._id) {
-      const response = await userStore.fetchUserDetails();
-    }
-
-    if (user.value) {
-      if (user?.value?.favouriteProducts.length == 0) {
-        vendor.value.products = vendor.value.products.map((product) => {
-          return { ...product, favourited: false };
-        });
-      } else {
-        const filteredProducts = user.value.favouriteProducts.filter(
-          (product) => {
-            if (product.vendor == vendor.value._id) {
-              return true;
-            } else {
-              return false;
-            }
-          }
-        );
-        vendor.value.products = vendor.value.products.map((product) => {
-          const productFound = filteredProducts.find((favouriteProduct) => {
-            return favouriteProduct.productId === product._id;
-          });
-          if (productFound) {
-            return { ...product, favourited: true };
-          } else {
-            return { ...product, favourited: false };
-          }
-        });
-      }
     }
   } catch (error) {
     console.error("Error fetching vendor:", error);

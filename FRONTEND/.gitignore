@@ -6,6 +6,7 @@
 .nitro
 .cache
 dist
+config
 
 # Node dependencies
 
