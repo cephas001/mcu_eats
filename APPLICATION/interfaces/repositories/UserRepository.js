@@ -40,4 +40,12 @@ export default class UserRepository {
   async delete(id) {
     throw new Error("Method not implemented.");
   }
+
+  /**
+   * @param {Object} user
+   * @returns {Promise<Boolean>}
+   */
+  async userHasProfile(user) {
+    throw new Error("Method not implemented.");
+  }
 }

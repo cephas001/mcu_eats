@@ -1,5 +1,5 @@
 <template>
-  <section class="py-5 px-6" v-if="!tryingToSignIn">
+  <section class="py-5 px-6" v-if="!tryingToLogin">
     <div class="text-center mt-10 mb-5">
       <h1 class="font-bold text-2xl mb-3">Welcome</h1>
       <p class="text-md font-manrope tracking-tight">
@@ -8,87 +8,31 @@
     </div>
 
     <FormErrorMessage
-      :errorMessage="signUpLogInErrors"
+      :errorMessage="loginErrors"
       classList="text-center mb-4"
     />
-    <!-- Signup -->
-    <UForm
-      class="mb-5 flex flex-col gap-3"
-      :class="[signUpLogInErrors != '' ? 'mt-4' : '']"
-      :state="formState"
-      v-if="!showAdditionalForm && signupPage"
-    >
-      <FormField
-        labelText="Email"
-        placeholder="Email"
-        name="email"
-        type="email"
-        :state="formState"
-        @update="formState.email = $event"
-      />
-      <FormField
-        labelText="First Name"
-        placeholder="First"
-        name="firstName"
-        type="text"
-        :state="formState"
-        @update="formState.first = $event"
-      />
-      <FormField
-        labelText="Last Name"
-        placeholder="Last"
-        name="lastName"
-        type="text"
-        :state="formState"
-        @update="formState.last = $event"
-      />
-      <FormField
-        labelText="Password"
-        placeholder="Password"
-        name="password"
-        type="password"
-        :state="formState"
-        @update="formState.password = $event"
-      />
-      <FormField
-        labelText="Confirm Password"
-        placeholder="Confirm Password"
-        name="confirmPassword"
-        type="password"
-        :state="formState"
-        @update="formState.confirmPassword = $event"
-      />
-      <button
-        class="text-white rounded-md p-3 w-full text-center text-md bg-primary"
-        @click="toggleNextForm"
-        :class="[disableButton && !signupPage ? 'bg-gray-400' : 'bg-primary']"
-      >
-        Sign Up
-      </button>
-    </UForm>
 
     <!-- Login Form -->
     <UForm
       class="mb-5 flex flex-col gap-3"
-      :class="[signUpLogInErrors != '' ? 'mt-4' : '']"
-      :state="formState"
-      v-if="!showAdditionalForm && !signupPage"
+      :class="[loginErrors != '' ? 'mt-4' : '']"
+      :state="loginForm"
     >
       <FormField
         labelText="Email"
         placeholder="Email"
         name="email"
         type="email"
-        :state="formState"
-        @update="formState.email = $event"
+        :state="loginForm"
+        @update="loginForm.email = $event"
       />
       <FormField
         labelText="Password"
         placeholder="Password"
         name="password"
         type="password"
-        :state="formState"
-        @update="formState.password = $event"
+        :state="loginForm"
+        @update="loginForm.password = $event"
       />
       <button
         class="text-white rounded-md p-3 w-full text-center text-md bg-primary"
@@ -98,301 +42,93 @@
       </button>
     </UForm>
 
-    <!-- Room Details / Additional Details Form -->
-    <UForm
-      class="mb-5 flex flex-col gap-3"
-      :state="additionalFormState"
-      v-if="showAdditionalForm && signupPage"
-    >
-      <p
-        class="text-md font-manrope tracking-tight w-full text-center text-primary font-bold mb-2"
-      >
-        Almost there! <br />
-        A few more information to get you started.
-      </p>
-      <!-- GENDER SELECT FIELD -->
-      <FormField
-        labelText="Gender"
-        name="gender"
-        type="select"
-        :state="additionalFormState"
-        :items="additionalFormState.genderList"
-        @update="additionalFormState.genderValue = $event"
-      />
-      <!-- COLLEGE SELECT FIELD -->
-      <FormField
-        labelText="College"
-        name="college"
-        type="select"
-        :state="additionalFormState"
-        :items="additionalFormState.collegeList"
-        @update="additionalFormState.collegeValue = $event"
-        v-if="showLecturerFields"
-      />
-      <!-- OFFICE NUMBER FIELD -->
-      <FormField
-        labelText="Office Number"
-        placeholder="Your Office Number"
-        name="officeNumber"
-        inputMode="numeric"
-        type="number"
-        :state="additionalFormState"
-        @update="additionalFormState.officeNumber = $event"
-        v-if="showLecturerFields"
-      />
-      <!-- HOSTEL SELECT FIELD -->
-      <FormField
-        labelText="Hostel"
-        name="hostel"
-        type="select"
-        :state="additionalFormState"
-        :items="additionalFormState.hostelList"
-        @update="additionalFormState.hostelValue = $event"
-        v-if="!showLecturerFields"
-      />
-      <!-- ROOM NUMBER FIELD -->
-      <FormField
-        labelText="Room number"
-        placeholder="Your Room Number"
-        name="roomNumber"
-        type="number"
-        inputMode="numeric"
-        :state="additionalFormState"
-        @update="additionalFormState.roomNumber = $event"
-        v-if="!showLecturerFields"
-      />
-      <!-- ROLE SELECT FIELD -->
-      <FormField
-        labelText="Role"
-        name="role"
-        type="select"
-        :state="additionalFormState"
-        :items="additionalFormState.roleList"
-        @update="additionalFormState.roleValue = $event"
-        v-if="!showLecturerFields"
-      />
-      <button
-        type="sumbit"
-        class="text-white rounded-md p-3 w-full bg-primary text-center text-md"
-        @click="handleFormSubmit"
-      >
-        Finish
-      </button>
-      <p class="text-center">
-        For {{ showLecturerFields ? "students" : "lecturers" }}, please click
-        <span
-          class="text-primary"
-          @click="showLecturerFields = !showLecturerFields"
-          >here.</span
-        >
-      </p>
-      <p class="text-center" v-if="!hideOptionToGoBack">
-        Click <span class="text-primary" @click="toggleNextForm">here</span> to
-        go back.
-      </p>
-    </UForm>
+    <LoginPolicyService />
 
-    <div class="mt-8 text-sm font-manrope tracking-tight">
-      <p>
-        This site is protected by reCAPTCHA and the Google
-        <NuxtLink class="text-primary">Privacy Policy</NuxtLink> and
-        <NuxtLink class="text-primary">Terms of Service</NuxtLink> apply
-      </p>
-    </div>
+    <LoginSocialMediaService />
 
-    <div class="mt-6 text-center" v-if="!showAdditionalForm">
-      <p class="text-gray-600 mb-2">or with</p>
-      <button
-        class="flex border-1 border-gray-200 p-4 rounded-full w-full items-center justify-center gap-2 mb-3 font-semibold focus:bg-gray-100"
-        @click="googleSignIn"
-      >
-        <img
-          src="@/assets/images/google.73c708cb.svg"
-          alt="Google Icon"
-        />Google
-      </button>
-      <button
-        class="flex border-1 border-gray-200 p-4 rounded-full w-full items-center justify-center gap-2 mb-3 font-semibold focus:bg-gray-100"
-        @click="facebookSignIn"
-      >
-        <img
-          src="@/assets/images/facebook.e4480188.svg"
-          alt="Facebook Icon"
-        />Facebook
-      </button>
-    </div>
-
-    <div class="mt-6">
-      <p
-        class="text-center tracking-wide font-manrope"
-        :class="[signupPage ? 'flex flex-col' : '']"
-      >
-        {{ signupPage ? "Already have an account?" : "No account? " }}
-        <NuxtLink class="text-primary font-bold" @click="toggleAction">{{
-          signupPage ? "Login here" : "Signup here"
-        }}</NuxtLink>
-      </p>
-    </div>
-
-    <div class="mt-8 text-gray-600 text-center font-manrope" v-if="signupPage">
-      <p>
-        By creating an account, you automatically accept our
-        <NuxtLink to="/" class="font-poppins text-primary"
-          >Terms of service</NuxtLink
-        >,
-        <NuxtLink class="font-poppins text-primary">Privacy Policy</NuxtLink>
-        and
-        <NuxtLink class="font-poppins text-primary">Cookies Policy</NuxtLink>
-      </p>
-    </div>
+    <LoginSwitchAction page="LoginPage" />
   </section>
   <LoadingIconLarge
-    :loading="tryingToSignIn"
+    :loading="tryingToLogin"
     imageSrc="/Pulse@1x-1.0s-200px-200px.svg"
     class="animate-none"
   />
 </template>
 
 <script setup>
-import { useCookie } from "nuxt/app";
 import { useLogInStore } from "@/stores/logInStore";
+import { navigateTo, useNuxtApp } from "nuxt/app";
 import { storeToRefs } from "pinia";
-import { useFirebaseAuthMethods } from "@/composables/firebaseAuthMethods";
-import { useFormValidationMethods } from "@/composables/formValidation";
-import { postNewUserToDB } from "~/utils/postNewUserToDB";
-import { useUserStore } from "@/stores/userStore";
+import { useRouter } from "vue-router";
 
-const userStore = useUserStore();
-const { user } = storeToRefs(userStore);
-
-const { socialSignIn, manualSignUp, manualLogIn } = useFirebaseAuthMethods();
-
-const {
-  checkFormEmail,
-  checkFormFirstName,
-  checkFormLastName,
-  checkFormPassword,
-  checkConfirmPassword,
-  checkRoomNumber,
-  checkOfficeNumber,
-} = useFormValidationMethods();
+const tryingToLogin = ref(false);
 
 const logInStore = useLogInStore();
 
-const { formState, additionalFormState, toggleNextForm, toggleAction } =
-  useLogInStore();
+const { loginForm, displayError } = useLogInStore();
 
-const {
-  showAdditionalForm,
-  showLecturerFields,
-  signUpLogInErrors,
-  error,
-  signupPage,
-  tryingToSignIn,
-  hideOptionToGoBack,
-} = storeToRefs(logInStore);
-
-const disableButton = ref(false);
-watch(error, (newValue, oldValue) => {
-  if (newValue.errorMessage) {
-    disableButton.value = true;
-  } else {
-    disableButton.value = false;
-  }
-});
+const { loginErrors } = storeToRefs(logInStore);
+const router = useRouter();
 
 const handleFormSubmit = async () => {
-  if (signupPage.value && showAdditionalForm.value) {
-    // SIGNING UP
+  tryingToLogin.value = true;
 
-    // Checking if token already exists. Hence, user already authenticated through Google/Facebook and just needs to be added to our DB
-    const token = useCookie("auth_token");
+  try {
+    const {
+      $useLoginUserWithEmailAndPasswordUseCase,
+      $expressAuthBackendService,
+    } = useNuxtApp();
 
-    if (token.value && token.value != "") {
-      // If token exists
+    const token = await $useLoginUserWithEmailAndPasswordUseCase({
+      email: loginForm.email?.trim(),
+      password: loginForm.password?.trim(),
+    });
 
-      // So users don't see the Google and Facebook icon when they are about to complete their signup
-      hideOptionToGoBack.value = true;
+    const response = await $fetch("/api/login", {
+      method: "POST",
+      body: {
+        token,
+      },
+    });
 
-      if (showLecturerFields.value) {
-        checkOfficeNumber();
-      } else {
-        checkRoomNumber();
-      }
+    const user = await $expressAuthBackendService.login(token);
 
-      if (error.value.errorMessage != "") {
-        // If form field validation fails
-        return;
-      } else {
-        await userStore.fetchUserDetails(true);
-        const response = await postNewUserToDB(
-          user.value,
-          formState,
-          additionalFormState,
-          showLecturerFields.value,
-          token.value
-        );
-        if (response.added) {
-          tryingToSignIn.value = false;
-          await navigateTo("/");
-        } else {
-          signUpLogInErrors.value = response.message;
-        }
-      }
-    } else {
-      // SIGNING UP
+    console.log(user);
 
-      // If token doesn't exists, then the user is trying to sign up manually
-      if (showLecturerFields.value) {
-        checkOfficeNumber();
-      } else {
-        checkRoomNumber();
-      }
-      checkConfirmPassword();
-      checkFormPassword();
-      checkFormLastName();
-      checkFormFirstName();
-      checkFormEmail();
-
-      if (error.value.errorMessage !== "") {
-        // If form field validation fails
-        return;
-      } else {
-        const response = await manualSignUp();
-        if (response == "redirect") {
-          await navigateTo("/");
-        }
-      }
+    if (response.message !== "Success") {
+      throw new Error("Failed to store auth token in cookie");
     }
-  } else {
-    // Logging In
-    checkFormEmail();
 
-    if (error.value.errorMessage !== "") {
-      // If form field validation fails
+    router.back();
+  } catch (error) {
+    loginErrors.value = "";
+    if (error.type == "ValidationError") {
+      if (error.errorList) {
+        const { inputName, errorMessage } = error.errorList[0];
+        displayError(errorMessage, inputName);
+      } else {
+        displayError(error.message, error.inputName);
+      }
       return;
-    } else {
-      const response = await manualLogIn();
-      if (response == "redirect") {
-        await navigateTo("/");
-      }
     }
-  }
-};
 
-// Google Sign In
-const googleSignIn = async () => {
-  const response = await socialSignIn("google");
-  if (response == "redirect") {
-    await navigateTo("/");
-  }
-};
+    if (error.type == "InvalidCredentialsError") {
+      loginErrors.value = error.message;
+    }
 
-// Facebook Sign In
-const facebookSignIn = async () => {
-  const response = await socialSignIn("facebook");
-  if (response == "redirect") {
-    await navigateTo("/");
+    if (error.type == "UserExistenceError") {
+      return await navigateTo("/auth/register");
+    }
+
+    if (error.type == "ProfileExistenceError") {
+      return await navigateTo("/auth/profile");
+    }
+
+    if (error.type == "UnexpectedError") {
+      loginErrors.value = "An unexpected error occurred";
+    }
+  } finally {
+    tryingToLogin.value = false;
   }
 };
 </script>

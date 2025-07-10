@@ -1,9 +1,6 @@
 import User from "../../../domain/User.js";
 import { createUserSchema } from "../../../validators/validateUserData.js";
-import {
-  ValidationError,
-  UserAlreadyExistsError,
-} from "../../../domain/Error.js";
+import { ValidationError, UserExistenceError } from "../../../domain/Error.js";
 
 export default function createUser(userRepo) {
   return async function (userData) {
@@ -28,7 +25,7 @@ export default function createUser(userRepo) {
     const existingUser = await userRepo.findById(validatedData.id);
 
     if (existingUser) {
-      throw new UserAlreadyExistsError("User already exists");
+      throw new UserExistenceError("User already exists");
     }
 
     // Create a new user instance

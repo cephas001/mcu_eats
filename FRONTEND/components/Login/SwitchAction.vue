@@ -13,13 +13,18 @@
 </template>
 
 <script setup>
+import { navigateTo } from "nuxt/app";
+
 const props = defineProps({
   page: {
     type: String,
   },
 });
 
-const toggleAction = () => {
-  console.log("toggled");
+const toggleAction = async () => {
+  if (props.page == "SignUpPage") {
+    return await navigateTo("/auth/login");
+  }
+  await navigateTo("/auth/signup");
 };
 </script>

@@ -8,11 +8,27 @@ export class ValidationError extends Error {
   }
 }
 
-export class UserAlreadyExistsError extends Error {
+export class UserExistenceError extends Error {
   constructor(message) {
     super(message);
-    this.name = "UserAlreadyExistsError";
-    this.type = "UserAlreadyExistsError";
+    this.name = "UserExistenceError";
+    this.type = "UserExistenceError";
+  }
+}
+
+export class ProfileExistenceError extends Error {
+  constructor(message) {
+    super(message);
+    this.name = "ProfileExistenceError";
+    this.type = "ProfileExistenceError";
+  }
+}
+
+export class InvalidCredentialsError extends Error {
+  constructor(message) {
+    super(message);
+    this.name = "InvalidCredentialsError";
+    this.type = "InvalidCredentialsError";
   }
 }
 

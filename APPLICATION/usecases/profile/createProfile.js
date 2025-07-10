@@ -2,7 +2,7 @@ import Profile from "../../domain/Profile.js";
 import { createProfileSchema } from "../../validators/validateProfileData.js";
 import {
   ValidationError,
-  UserAlreadyExistsError,
+  UserExistenceError,
   UnexpectedError,
 } from "../../domain/Error.js";
 
@@ -49,7 +49,7 @@ export default function createProfile(profileRepo, userRepo) {
     );
 
     if (existingProfile) {
-      throw new UserAlreadyExistsError(
+      throw new UserExistenceError(
         "This profile already exists for this user",
         null
       );

@@ -14,6 +14,11 @@ export const useLogInStore = defineStore("logIn", () => {
     phoneNumber: undefined,
   });
 
+  const loginForm = reactive({
+    email: undefined,
+    password: undefined,
+  });
+
   const registrationForm = reactive({
     name: undefined,
     profileList: ["Consumer", "Delivery Person", "Vendor"],
@@ -116,6 +121,7 @@ export const useLogInStore = defineStore("logIn", () => {
   const signUpErrors = ref("");
   const registrationErrors = ref("");
   const profileRegistrationErrors = ref("");
+  const loginErrors = ref("");
 
   // Toggle additional form for users who sign up manually
   const toggleNextForm = () => {
@@ -139,19 +145,21 @@ export const useLogInStore = defineStore("logIn", () => {
 
   return {
     signUpForm,
+    registrationForm,
+    profileRegistrationForm,
+    loginForm,
     additionalFormState,
     showAdditionalForm,
     showLecturerFields,
-    registrationForm,
     error,
     signupPage,
     signUpLogInErrors,
+    loginErrors,
     signUpErrors,
     tryingToSignIn,
     registrationErrors,
     hideOptionToGoBack,
     profileRegistrationErrors,
-    profileRegistrationForm,
     displayError,
     clearError,
     toggleNextForm,

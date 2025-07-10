@@ -69,9 +69,10 @@ const tryingToRegister = ref(false);
 const handleFormSubmit = async () => {
   tryingToRegister.value = true;
   try {
-    const { $expressUserBackendService } = useNuxtApp();
+    const { $expressAuthBackendService, $expressUserBackendService } =
+      useNuxtApp();
 
-    const response = await $expressUserBackendService.verifyToken();
+    const response = await $expressAuthBackendService.verifyToken();
 
     const { id, email, verifiedEmail } = response;
 

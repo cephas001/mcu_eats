@@ -1,4 +1,7 @@
-import { createUserWithEmailAndPassword } from "firebase/auth";
+import {
+  createUserWithEmailAndPassword,
+  signInWithEmailAndPassword,
+} from "firebase/auth";
 import AuthService from "../../../APPLICATION/interfaces/services/AuthService.js";
 
 export default class FirebaseAuthService extends AuthService {
@@ -40,5 +43,21 @@ export default class FirebaseAuthService extends AuthService {
     }
   }
 
-  async getUser(email) {}
+  async loginWithEmailAndPassword(email, password) {
+    try {
+      const userCredential = await signInWithEmailAndPassword(
+        this.auth,
+        email,
+        password
+      );
+
+      return userCredential.user.accessToken;
+    } catch (error) {
+      if (error.code == "auth/invalid-credential") {
+        error.type = "InvalidCredentialsError";
+        throw error;
+      }
+      throw error;
+    }
+  }
 }

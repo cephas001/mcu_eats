@@ -48,6 +48,12 @@ export default class MongoUserRepository extends UserRepository {
     }
   }
 
+  async userHasProfile(user) {
+    const hasProfile = !!(await Profile.exists({ userId: user._id }));
+
+    return hasProfile;
+  }
+
   async update(id, updateData) {
     return await User.findByIdAndUpdate(id, updateData, { new: true });
   }

@@ -15,13 +15,9 @@ router.post("/login", async (req, res) => {
   try {
     const { token } = req.body;
     const user = await createLoginUserUseCase(token);
-    res.json({
-      loggedIn: true,
-      user,
-    });
+    res.json(user);
   } catch (error) {
-    res.json({ loggedIn: false, message: error.message });
-    console.log(error);
+    throw error;
   }
 });
 

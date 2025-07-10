@@ -58,7 +58,8 @@ const consumerDataSchema = z.object({
         type: z.string().min(1), // 'vendor' or 'product'
       })
     )
-    .optional(),
+    .optional()
+    .default([]),
   addresses: z
     .array(
       z.object({
@@ -67,7 +68,8 @@ const consumerDataSchema = z.object({
         tag: z.string().optional(), // e.g., 'home', 'work'
       })
     )
-    .optional(),
+    .optional()
+    .default([]),
   notes: z
     .array(
       z.object({
@@ -76,7 +78,8 @@ const consumerDataSchema = z.object({
         type: z.enum(["delivery", "pickup"]),
       })
     )
-    .optional(),
+    .optional()
+    .default([]),
 });
 
 const deliveryPersonDataSchema = z.object({
@@ -91,8 +94,8 @@ const deliveryPersonDataSchema = z.object({
   department: z.string().min(1),
   matricNumber: z.string().min(1),
   available: z.boolean().default(false),
-  penaltyPoints: z.number().int().nonnegative().optional(),
-  averageDeliveryTime: z.number().positive().optional(),
+  penaltyPoints: z.number().int().nonnegative().optional().default(0),
+  averageDeliveryTime: z.number().positive().optional().default(0),
   location: locationSchema.optional(),
   accountDetails: accountDetailsSchema.optional(),
   pendingOrders: z.array(pendingOrderSchema).optional().default([]),

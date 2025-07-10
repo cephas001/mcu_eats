@@ -1,9 +1,10 @@
 export default class AuthService {
   /**
-   * @param {string} token
-   * @returns {Promise<Object>}
+   * @param {string} email
+   * @param {string} password
+   * @returns {token}
    */
-  async login(token) {
+  async loginWithEmailAndPassword(email, password) {
     throw new Error("Not implemented");
   }
 

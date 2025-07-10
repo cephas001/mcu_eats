@@ -1,7 +1,7 @@
 import { createSignUpUserSchema } from "../../../validators/validateSignUpUserData.js";
 import {
   ValidationError,
-  UserAlreadyExistsError,
+  UserExistenceError,
   UnexpectedError,
 } from "../../../domain/Error.js";
 
@@ -33,7 +33,7 @@ export default function signUpUser(signUpService) {
     );
 
     if (signedUpUser) {
-      throw new UserAlreadyExistsError(
+      throw new UserExistenceError(
         "User already exists. Please login instead."
       );
     }

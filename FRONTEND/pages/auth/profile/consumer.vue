@@ -113,9 +113,10 @@ const handleFormSubmit = async () => {
   tryingToCreateProfile.value = true;
 
   try {
-    const { $expressUserBackendService } = useNuxtApp();
+    const { $expressUserBackendService, $expressAuthBackendService } =
+      useNuxtApp();
 
-    const response = await $expressUserBackendService.verifyToken();
+    const response = await $expressAuthBackendService.verifyToken();
 
     const { id } = response;
 

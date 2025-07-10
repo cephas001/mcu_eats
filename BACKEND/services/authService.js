@@ -8,7 +8,7 @@ import getUserByEmail from "../../APPLICATION/usecases/user/services/getUserByEm
 const userRepo = new MongoUserRepository();
 const authService = new FirebaseAuthService();
 
-export const createLoginUserUseCase = loginUser({ userRepo, authService });
+export const createLoginUserUseCase = loginUser(userRepo, authService);
 export const createVerifyUserUseCase = verifyUser(authService);
 export const createDeleteUserAuthUseCase = deleteUserAuth(authService);
 export const createGetUserByEmailUseCase = getUserByEmail(authService);
