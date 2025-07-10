@@ -1,4 +1,4 @@
-module.exports = class UserRepository {
+export default class UserRepository {
   /**
    * @param {Object} userData
    * @returns {Promise<Object>}
@@ -16,10 +16,11 @@ module.exports = class UserRepository {
   }
 
   /**
-   * @param {String} id
+   * @param {String} profileId
+   * @param {String} userId
    * @returns {Promise<Object|null>}
    */
-  async findById(id) {
+  async linkProfile(userId, profileId) {
     throw new Error("Method not implemented.");
   }
 
@@ -39,4 +40,4 @@ module.exports = class UserRepository {
   async delete(id) {
     throw new Error("Method not implemented.");
   }
-};
+}

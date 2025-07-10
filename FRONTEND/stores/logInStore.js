@@ -5,14 +5,50 @@ export const useLogInStore = defineStore("logIn", () => {
   const tryingToSignIn = ref(false);
 
   // Holds the data emitted from the Form Field component Signup and Login Form
-  const formState = reactive({
+  const signUpForm = reactive({
     email: undefined,
     password: undefined,
-    firstName: undefined,
-    lastName: undefined,
+    name: undefined,
     password: undefined,
     confirmPassword: undefined,
     phoneNumber: undefined,
+  });
+
+  const registrationForm = reactive({
+    name: undefined,
+    profileList: ["Consumer", "Delivery Person", "Vendor"],
+    profileValue: undefined,
+    phoneNumber: undefined,
+  });
+
+  const profileRegistrationForm = reactive({
+    username: undefined,
+    genderList: ["Male", "Female"],
+    genderValue: undefined,
+    roomNumber: undefined,
+    officeNumber: undefined,
+    college: undefined,
+    department: undefined,
+    matricNumber: undefined,
+    vendorName: undefined,
+    vendorTypeList: ["Restaurant", "Retailer", "Shop"],
+    description: undefined,
+    hostelList: ["Atuwase Hall", "Glenn Borris", "Jehovah Shammah"],
+    hostelValue: undefined,
+    categoryList: [
+      "Pastries",
+      "Snacks and Grills",
+      "Stationeries",
+      "Quick Meals",
+      "Swallow and More",
+      "Electronics",
+    ],
+    collegeList: ["COLNAS", "COLCOM"],
+    collegeValue: undefined,
+    categoryValue: undefined,
+    openingTime: undefined,
+    closingTime: undefined,
+    address: undefined,
   });
 
   // Holds the data emitted from the Form Field component in Additional Details Form
@@ -40,6 +76,19 @@ export const useLogInStore = defineStore("logIn", () => {
     errorList: [],
   });
 
+  // // Displays error
+  // const displayError = (errorMessage, inputName, errorList) => {
+  //   error.value = {
+  //     errorMessage: errorMessage,
+  //     inputName: inputName,
+  //     ...(errorList && { errorList: errorList }),
+  //   };
+  //   // In a case where a user proceeds to the additional form without inputting correct details in the previous form, this would return them back to the previous form to correct their details
+  //   if (inputName !== "roomNumber" && inputName !== "officeNumber") {
+  //     showAdditionalForm.value = false;
+  //   }
+  // };
+
   // Displays error
   const displayError = (errorMessage, inputName, errorList) => {
     error.value = {
@@ -47,10 +96,6 @@ export const useLogInStore = defineStore("logIn", () => {
       inputName: inputName,
       ...(errorList && { errorList: errorList }),
     };
-    // In a case where a user proceeds to the additional form without inputting correct details in the previous form, this would return them back to the previous form to correct their details
-    if (inputName !== "roomNumber" && inputName !== "officeNumber") {
-      showAdditionalForm.value = false;
-    }
   };
 
   // Clears any error
@@ -66,6 +111,11 @@ export const useLogInStore = defineStore("logIn", () => {
 
   // Displays any errors associated with signup or login
   const signUpLogInErrors = ref("");
+
+  // Display any errors associated with signup, registration
+  const signUpErrors = ref("");
+  const registrationErrors = ref("");
+  const profileRegistrationErrors = ref("");
 
   // Toggle additional form for users who sign up manually
   const toggleNextForm = () => {
@@ -88,15 +138,20 @@ export const useLogInStore = defineStore("logIn", () => {
   const hideOptionToGoBack = ref(false);
 
   return {
-    formState,
+    signUpForm,
     additionalFormState,
     showAdditionalForm,
     showLecturerFields,
+    registrationForm,
     error,
     signupPage,
     signUpLogInErrors,
+    signUpErrors,
     tryingToSignIn,
+    registrationErrors,
     hideOptionToGoBack,
+    profileRegistrationErrors,
+    profileRegistrationForm,
     displayError,
     clearError,
     toggleNextForm,

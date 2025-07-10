@@ -1,5 +1,4 @@
-const connection = require("../dbConnection");
-const mongoose = require("mongoose");
+import mongoose from "mongoose";
 
 const OrderProductSchema = new mongoose.Schema({
   _id: {
@@ -103,4 +102,4 @@ const OrderSchema = new mongoose.Schema(
 
 const Orders = mongoose.model("Order", OrderSchema);
 
-module.exports = Orders;
+export default Orders;

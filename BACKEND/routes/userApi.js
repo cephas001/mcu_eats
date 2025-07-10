@@ -1,31 +1,36 @@
-require("dotenv").config({ path: "../config/config.env" });
+import dotenv from "dotenv";
+dotenv.config({ path: "../config/config.env" });
 
-const admin = require("../firebaseConnection");
+import admin from "../firebaseConnection.js";
 
-const verifyToken = require("../middlewares/verifyToken");
+import verifyToken from "../middlewares/verifyToken.js";
 
-const sendVerificationEmail = require("../utils/sendVerificationEmail");
+import sendVerificationEmail from "../utils/sendVerificationEmail.js";
 
-const Users = require("../schemas/userSchema");
+import Users from "../models/userModel.js";
 
-const express = require("express");
+import express from "express";
+
 const router = express.Router();
-const { getAuth } = require("firebase-admin/auth");
+import { getAuth } from "firebase-admin/auth";
 
-const { createUserUseCase } = require("../services/userService");
+import { createUserUseCase } from "../services/index.js";
 
 router.post("/users", async (req, res) => {
   try {
-    const user = await createUserUseCase(req.body);
-    console.log("User created successfully:", user);
-    res.status(200).json({
-      added: true,
-      message: "User added successfully",
-      user,
+    const { id, name, email, verifiedEmail, phoneNumber } = req.body;
+
+    const user = await createUserUseCase({
+      id,
+      name,
+      email,
+      verifiedEmail,
+      phoneNumber,
     });
+
+    res.status(200).json(user);
   } catch (error) {
-    console.log(error);
-    res.status(500).json({ added: false, message: error.message });
+    throw error;
   }
 });
 
@@ -153,4 +158,4 @@ router.get("/loggedInUserFirebaseDetails", verifyToken, async (req, res) => {
   res.json({ found: true, user: req.user });
 });
 
-module.exports = router;
+export default router;

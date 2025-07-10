@@ -1,7 +1,9 @@
-require("dotenv").config({ path: "../config/config.env" });
-const express = require("express");
+import dotenv from "dotenv";
+dotenv.config({ path: "../config/config.env" });
+
+import express from "express";
 const router = express.Router();
-const Vendors = require("../schemas/vendorSchema");
+import Vendors from "../models/vendorModel.js";
 
 router.get("/vendors", async (req, res) => {
   try {
@@ -32,4 +34,4 @@ router.get("/vendors/:id", async (req, res) => {
   }
 });
 
-module.exports = router;
+export default router;

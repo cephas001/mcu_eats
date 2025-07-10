@@ -1,10 +1,6 @@
-const MongoUserRepository = require("../infrastructure/MongoUserRepository.js");
-const createUser = require("../../APPLICATION/usecases/createUser.js");
+import MongoUserRepository from "../infrastructure/repositories/MongoUserRepository.js";
+import createUser from "../../APPLICATION/usecases/user/repositories/createUser.js";
 
 const userRepo = new MongoUserRepository();
 
-const createUserUseCase = createUser(userRepo);
-
-module.exports = {
-  createUserUseCase,
-};
+export const createUserUseCase = createUser(userRepo);

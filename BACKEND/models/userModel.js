@@ -1,4 +1,4 @@
-const mongoose = require("mongoose");
+import mongoose from "mongoose";
 
 const ProfileRefSchema = new mongoose.Schema(
   {
@@ -24,30 +24,24 @@ const UserSchema = new mongoose.Schema(
       type: String,
       required: true,
     },
-    username: {
+    email: {
       type: String,
     },
-    type: {
-      type: String,
+    verifiedEmail: {
+      type: Boolean,
       required: true,
-    },
-    phoneNumber: {
-      type: String,
     },
     role: {
       type: String,
       required: true,
     },
-    email: {
-      type: String,
-    },
     profiles: {
       type: [ProfileRefSchema],
+      required: true,
     },
     status: {
       type: String,
       enum: ["active", "inactive", "banned"],
-      default: "active",
     },
     createdAt: {
       type: Date,
@@ -66,4 +60,4 @@ const UserSchema = new mongoose.Schema(
 
 const User = mongoose.model("User", UserSchema);
 
-module.exports = User;
+export default User;

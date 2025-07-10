@@ -1,6 +1,6 @@
-const admin = require("../firebaseConnection");
+import admin from "../firebaseConnection.js";
 
-module.exports = async function authenticateWebSocket(token, callback) {
+export default async function authenticateWebSocket(token, callback) {
   try {
     if (!token) {
       throw new Error("No token provided");
@@ -13,4 +13,4 @@ module.exports = async function authenticateWebSocket(token, callback) {
     socket.write("HTTP/1.1 401 Unauthorized\r\n\r\n");
     socket.destroy();
   }
-};
+}

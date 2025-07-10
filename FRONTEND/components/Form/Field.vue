@@ -133,9 +133,7 @@ const updateValue = (event) => {
     return;
   }
   const value =
-    props.type == "select"
-      ? props.state[`${props.name}`]
-      : event.target.value.trim();
+    props.type == "select" ? props.state[`${props.name}`] : event.target.value;
   if (props.type !== "select") {
     event.target.value = value;
   }

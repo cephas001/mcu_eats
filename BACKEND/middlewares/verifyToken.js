@@ -1,18 +1,15 @@
-const admin = require("../firebaseConnection");
+import { createVerifyUserUseCase } from "../services/index.js";
 
 const verifyToken = async (req, res, next) => {
-  const token =
-    req.cookies.auth_token || req.headers?.authorization?.split(" ")[1];
-  if (!token) {
-    return res.json({ token: false, error: "Unauthorized: No token provided" });
-  }
   try {
-    const decodedToken = await admin.auth().verifyIdToken(token);
-    req.user = decodedToken;
+    const token =
+      req.cookies.auth_token || req.headers?.authorization?.split(" ")[1];
+    const user = await createVerifyUserUseCase(token);
+    req.user = user;
     next();
   } catch (error) {
-    return res.json({ validToken: false, error: "Invalid or expired token" });
+    return res.json({ validToken: false, error: error.message });
   }
 };
 
-module.exports = verifyToken;
+export default verifyToken;

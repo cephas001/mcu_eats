@@ -1,7 +1,9 @@
-require("dotenv").config({ path: "../config/config.env" });
-const nodemailer = require("nodemailer");
-const ejs = require("ejs");
-const fs = require("fs");
+import dotenv from "dotenv";
+dotenv.config({ path: "../config/config.env" });
+
+import nodemailer from "nodemailer";
+import ejs from "ejs";
+import fs from "fs";
 
 const template = fs.readFileSync("views/verify-email.ejs", "utf8");
 
@@ -34,4 +36,4 @@ const sendVerificationEmail = async (
   }
 };
 
-module.exports = sendVerificationEmail;
+export default sendVerificationEmail;

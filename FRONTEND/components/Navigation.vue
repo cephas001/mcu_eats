@@ -151,7 +151,7 @@ const fetchDetails = async () => {
             color: "error",
             icon: "i-lucide-log-out",
             kbds: ["shift", "meta", "q"],
-            to: "/logout",
+            to: "/auth/logout",
           },
         ],
       ];
@@ -198,7 +198,7 @@ const fetchDetails = async () => {
             color: "primary",
             icon: "i-lucide-log-in",
             kbds: ["shift", "meta", "q"],
-            to: "/login",
+            to: "/auth/login",
           },
         ],
       ];

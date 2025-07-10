@@ -1,24 +1,22 @@
-class User {
+export default class User {
   constructor({
     id,
     name,
-    username,
-    type,
-    phoneNumber,
     email,
-    role = "user",
+    phoneNumber,
+    verifiedEmail = false,
+    role = "user", // 'user' | 'admin' | 'superadmin'
     profiles = [],
-    status = "active",
+    status = "active", // 'active' | 'inactive' | 'banned'
     createdAt = new Date(),
     updatedAt = new Date(),
     lastLogin = null,
   }) {
     this.id = id;
     this.name = name;
-    this.username = username;
-    this.type = type;
-    this.phoneNumber = phoneNumber;
     this.email = email;
+    this.phoneNumber = phoneNumber;
+    this.verifiedEmail = verifiedEmail;
     this.role = role;
     this.profiles = profiles;
     this.status = status;
@@ -27,5 +25,3 @@ class User {
     this.lastLogin = lastLogin;
   }
 }
-
-module.exports = User;

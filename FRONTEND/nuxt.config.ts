@@ -14,7 +14,10 @@ export default defineNuxtConfig({
       credentials: "include",
     },
   },
-
+  plugins: [
+    "~/plugins/services/firebase.client.js",
+    "~/plugins/services/express.client.js",
+  ],
   css: ["~/assets/css/main.css"],
 
   vite: {

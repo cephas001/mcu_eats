@@ -1,18 +1,30 @@
-require("dotenv").config({ path: "./config/config.env" });
+// Handle __dirname in ESM
+import { fileURLToPath } from "url";
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = path.dirname(__filename);
 
-const path = require("path");
-const fs = require("fs");
-const http = require("http");
-const { Server } = require("socket.io");
-const express = require("express");
-const cors = require("cors");
-const cookieParser = require("cookie-parser");
+import dotenv from "dotenv";
+dotenv.config({ path: path.resolve(__dirname, "./config/config.env") });
 
-const authenticateWebSocket = require("./middlewares/websocketAuth");
+import path from "path";
+import http from "http";
+import { Server } from "socket.io";
+import express from "express";
+import cors from "cors";
+import cookieParser from "cookie-parser";
+
+import authenticateWebSocket from "./middlewares/websocketAuth.js";
+
+import vendorApi from "./routes/vendorApi.js";
+import userApi from "./routes/userApi.js";
+import profileApi from "./routes/profileApi.js";
+import authApi from "./routes/authApi.js";
+
+import { errorHandler } from "./middlewares/errorHandler.js";
 
 const app = express();
 
-require("./dbConnection");
+import "./dbConnection.js";
 
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
@@ -29,15 +41,20 @@ app.set("view engine", "ejs");
 app.set("views", path.join(__dirname, "views"));
 
 app.use("/uploads", express.static("./uploads"));
-app.use("", require("./routes/vendorApi"));
-app.use("", require("./routes/userApi"));
+
+app.use("", vendorApi);
+app.use("", userApi);
+app.use("", profileApi);
+app.use("", authApi);
+
+app.use(errorHandler);
 
 const serverPemPath = path.resolve(__dirname, "config", "server.pem");
 
 const server = http.createServer(app);
 const io = new Server(server);
 
-const registerOrderSocket = require("./websockets/orderSocket");
+import registerOrderSocket from "./websockets/orderSocket.js";
 
 // Authentication middleware
 io.use((socket, next) => {
