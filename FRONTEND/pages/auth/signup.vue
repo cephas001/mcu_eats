@@ -43,7 +43,7 @@
       />
       <button
         class="text-white rounded-md p-3 w-full text-center text-md bg-primary"
-        @click="handleFormSubmit"
+        @click="handleSignUp"
       >
         Sign Up
       </button>
@@ -51,7 +51,7 @@
 
     <LoginPolicyService />
 
-    <LoginSocialMediaService />
+    <LoginSignupServiceProviders @error="showProviderError" />
 
     <LoginSwitchAction page="SignUpPage" />
 
@@ -69,22 +69,23 @@
 import { useLogInStore } from "@/stores/logInStore";
 import { storeToRefs } from "pinia";
 import { navigateTo, useNuxtApp } from "nuxt/app";
+import { onMounted } from "vue";
 
 const logInStore = useLogInStore();
 
-const { signUpForm, displayError } = useLogInStore();
+const { signUpForm, displayError, clearError } = useLogInStore();
 
 const { signUpErrors } = storeToRefs(logInStore);
 
 const tryingToSignIn = ref(false);
 
-const handleFormSubmit = async () => {
+const handleSignUp = async () => {
   tryingToSignIn.value = true;
   try {
-    const { $useSignUpUserUseCase } = useNuxtApp();
+    const { $useSignUpUserWithEmailAndPasswordUseCase } = useNuxtApp();
 
     // Sign User Up
-    const { token } = await $useSignUpUserUseCase({
+    const { token } = await $useSignUpUserWithEmailAndPasswordUseCase({
       email: signUpForm.email,
       password: signUpForm.password,
       confirmPassword: signUpForm.confirmPassword,
@@ -113,7 +114,7 @@ const handleFormSubmit = async () => {
       return;
     }
 
-    if (error.type == "UserAlreadyExistsError") {
+    if (error.type == "UserExistenceError") {
       signUpErrors.value = error.message;
       return;
     }
@@ -129,4 +130,13 @@ const handleFormSubmit = async () => {
     tryingToSignIn.value = false;
   }
 };
+
+const showProviderError = (message) => {
+  signUpErrors.value = message;
+};
+
+onMounted(() => {
+  clearError();
+  signUpErrors.value = "";
+});
 </script>

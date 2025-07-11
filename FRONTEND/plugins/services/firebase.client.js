@@ -2,7 +2,8 @@ import { initializeApp } from "firebase/app";
 import { getAuth } from "firebase/auth";
 
 import FirebaseAuthService from "../../infrastructure/services/FirebaseAuthService.js";
-import signUpUser from "../../../APPLICATION/usecases/user/services/signUpUser.js";
+import signUpUserWithEmailAndPassword from "../../../APPLICATION/usecases/user/services/signUpUserWithEmailAndPassword.js";
+import signUpUserWithProvider from "../../../APPLICATION/usecases/user/services/signUpUserWithProvider.js";
 import loginUserWithEmailAndPassword from "../../../APPLICATION/usecases/user/services/loginUserWithEmailAndPassword.js";
 
 import ExpressUserBackend from "../../infrastructure/backend/ExpressUserBackend.js";
@@ -28,9 +29,11 @@ export default defineNuxtPlugin((nuxtApp) => {
 
   return {
     provide: {
-      useSignUpUserUseCase: signUpUser(authService),
+      useSignUpUserWithEmailAndPasswordUseCase:
+        signUpUserWithEmailAndPassword(authService),
       useLoginUserWithEmailAndPasswordUseCase:
         loginUserWithEmailAndPassword(authService),
+      useSignUpUserWithProviderUseCase: signUpUserWithProvider(authService),
     },
   };
 });

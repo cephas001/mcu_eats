@@ -16,5 +16,5 @@ const passwordSchema = z
 export const createSignUpUserSchema = z.object({
   email: z.string().email("Invalid email address"),
   password: passwordSchema,
-  confirmPassword: z.string().min(1),
+  confirmPassword: z.string().min(1, "Please enter your password again"),
 });

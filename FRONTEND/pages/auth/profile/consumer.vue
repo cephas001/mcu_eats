@@ -1,11 +1,6 @@
 <template>
-  <section class="py-5 px-6" v-if="!tryingToCreateProfile">
-    <div class="text-center mt-10 mb-5">
-      <h1 class="font-bold text-2xl mb-3">Consumer</h1>
-      <p class="text-md font-manrope tracking-tight">
-        Set up a consumer profile.
-      </p>
-    </div>
+  <section class="pb-5 pt-15 px-6" v-if="!tryingToCreateProfile">
+    <ProfileAuthHeader title="Consumer" text="Set up a consumer profile" />
 
     <p class="text-center">
       For {{ showStaffFields ? "students" : "lecturers" }}, please click
@@ -100,9 +95,9 @@
 import { useLogInStore } from "@/stores/logInStore";
 import { navigateTo } from "nuxt/app";
 import { storeToRefs } from "pinia";
+import { onMounted } from "vue";
 
 const logInStore = useLogInStore();
-
 const { profileRegistrationForm, displayError, clearError } = logInStore;
 const { profileRegistrationErrors } = storeToRefs(logInStore);
 
@@ -130,6 +125,7 @@ const handleFormSubmit = async () => {
       officeNumber: profileRegistrationForm.officeNumber?.toString().trim(),
       college: profileRegistrationForm.collegeValue,
     };
+
     const studentConsumerData = {
       ...generalConsumerData,
       hostel: profileRegistrationForm.hostelValue,
@@ -147,7 +143,7 @@ const handleFormSubmit = async () => {
 
     await navigateTo("/");
   } catch (error) {
-    console.log(error);
+    clearError();
     profileRegistrationErrors.value = "";
 
     if (error.type == "ValidationError") {
@@ -161,23 +157,27 @@ const handleFormSubmit = async () => {
       return;
     }
 
-    if (error.type == "UserAlreadyExistsError") {
-      profileRegistrationErrors.value = error.message;
-
-      return;
-    }
-
     if (error.type == "InvalidTokenError") {
-      await navigateTo("auth/login");
-
-      return;
+      return await navigateTo("/auth/login");
     }
 
-    clearError();
+    if (error.type == "UserExistenceError") {
+      return await navigateTo("/auth/register");
+    }
+
+    if (error.type == "ProfileExistenceError") {
+      profileRegistrationErrors.value = error.message;
+      return;
+    }
 
     profileRegistrationErrors.value = "An unexpected error occurred";
   } finally {
     tryingToCreateProfile.value = false;
   }
 };
+
+onMounted(() => {
+  clearError();
+  profileRegistrationErrors.value = "";
+});
 </script>

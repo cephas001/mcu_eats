@@ -83,19 +83,22 @@ const consumerDataSchema = z.object({
 });
 
 const deliveryPersonDataSchema = z.object({
-  username: z
-    .string()
-    .min(4, "Username must be at least 4 characters")
-    .optional(),
+  username: z.string().min(4, "Username must be at least 4 characters"),
   gender: z.enum(["male", "female"]),
-  hostel: z.string().min(1),
-  roomNumber: z.string().min(1),
-  college: z.string().min(1),
-  department: z.string().min(1),
-  matricNumber: z.string().min(1),
+  hostel: z.string().min(1, "Hostel is required"),
+  roomNumber: z
+    .string()
+    .min(1, "Room number is required")
+    .max(3, "Please enter a valid room number"),
+  college: z.string().min(1, "College is required"),
+  department: z.string().min(1, "Department is required"),
+  matricNumber: z
+    .string()
+    .min(5, { message: "Please enter a valid matric number" })
+    .max(10, { message: "Please enter a valid matric number" }),
   available: z.boolean().default(false),
   penaltyPoints: z.number().int().nonnegative().optional().default(0),
-  averageDeliveryTime: z.number().positive().optional().default(0),
+  averageDeliveryTime: z.number().nonnegative().optional().default(1),
   location: locationSchema.optional(),
   accountDetails: accountDetailsSchema.optional(),
   pendingOrders: z.array(pendingOrderSchema).optional().default([]),
@@ -112,9 +115,9 @@ const productSchema = z.object({
 });
 
 const vendorDataSchema = z.object({
-  vendorName: z.string().min(1),
+  vendorName: z.string().min(1, "Vendor name is required"),
   vendorType: z.enum(["restaurant", "retailer", "shop"]),
-  description: z.string().min(1),
+  description: z.string().min(1, "Description is required"),
   category: z.enum([
     "pastries",
     "snacks and grills",
@@ -126,7 +129,7 @@ const vendorDataSchema = z.object({
   takingOrders: z.boolean().default(false),
   openingTime: timeSchema,
   closingTime: timeSchema,
-  address: z.string().min(1),
+  address: z.string().min(1, "Address is required"),
   products: z.array(productSchema).optional().default([]),
   verificationStatus: z
     .enum(["pending", "approved", "rejected"])

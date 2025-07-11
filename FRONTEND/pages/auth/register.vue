@@ -39,7 +39,7 @@
       />
       <button
         class="text-white rounded-md p-3 w-full text-center text-md bg-primary"
-        @click="handleFormSubmit"
+        @click="handleRegister"
       >
         Continue
       </button>
@@ -57,6 +57,7 @@
 import { useLogInStore } from "@/stores/logInStore";
 import { storeToRefs } from "pinia";
 import { navigateTo, useNuxtApp } from "nuxt/app";
+import { onMounted } from "vue";
 
 const logInStore = useLogInStore();
 
@@ -66,7 +67,7 @@ const { registrationErrors } = storeToRefs(logInStore);
 
 const tryingToRegister = ref(false);
 
-const handleFormSubmit = async () => {
+const handleRegister = async () => {
   tryingToRegister.value = true;
   try {
     const { $expressAuthBackendService, $expressUserBackendService } =
@@ -109,9 +110,7 @@ const handleFormSubmit = async () => {
     }
 
     if (error.type == "InvalidTokenError") {
-      await navigateTo("auth/login");
-
-      return;
+      return await navigateTo("/auth/login");
     }
 
     clearError();
@@ -122,4 +121,9 @@ const handleFormSubmit = async () => {
     tryingToRegister.value = false;
   }
 };
+
+onMounted(() => {
+  clearError();
+  registrationErrors.value = "";
+});
 </script>

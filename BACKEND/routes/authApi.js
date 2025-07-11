@@ -7,7 +7,7 @@ const router = express.Router();
 import {
   createLoginUserUseCase,
   createDeleteUserAuthUseCase,
-  createVerifyUserUseCase,
+  createVerifyTokenUseCase,
   createGetUserByEmailUseCase,
 } from "../services/index.js";
 
@@ -37,7 +37,7 @@ router.post("/verifyToken", async (req, res) => {
   try {
     const { auth_token } = req.cookies;
     const token = auth_token;
-    const { id, email, verifiedEmail } = await createVerifyUserUseCase(token);
+    const { id, email, verifiedEmail } = await createVerifyTokenUseCase(token);
     res.json({ id, email, verifiedEmail });
   } catch (error) {
     throw error;

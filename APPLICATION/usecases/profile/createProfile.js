@@ -4,6 +4,7 @@ import {
   ValidationError,
   UserExistenceError,
   UnexpectedError,
+  ProfileExistenceError,
 } from "../../domain/Error.js";
 
 export default function createProfile(profileRepo, userRepo) {
@@ -16,8 +17,27 @@ export default function createProfile(profileRepo, userRepo) {
       throw new ValidationError("User ID is not defined", "userId");
     }
 
+    // Check if user exists by ID
+    const existingUser = await profileRepo.findUserById(profileData.userId);
+
+    if (!existingUser) {
+      throw new UserExistenceError("A user with this ID does not exist");
+    }
+
     if (!profileData.type) {
       throw new ValidationError("Validation failed", null, errorList);
+    }
+
+    // Check if profile already exists
+    const existingProfile = await profileRepo.existsByUserIdAndType(
+      profileData.userId,
+      profileData.type
+    );
+
+    if (existingProfile) {
+      throw new ProfileExistenceError(
+        "This profile already exists for this user"
+      );
     }
 
     const validationResult = createProfileSchema.safeParse(profileData);
@@ -31,29 +51,6 @@ export default function createProfile(profileRepo, userRepo) {
     }
 
     const validatedData = validationResult.data;
-
-    // Check if user already exists by ID
-    const existingUser = await profileRepo.findUserById(validatedData.userId);
-
-    if (!existingUser) {
-      throw new UserAlreadyExistsError(
-        "A user with this ID does not exist",
-        null
-      );
-    }
-
-    // Check if profile already exists
-    const existingProfile = await profileRepo.existsByUserIdAndType(
-      validatedData.userId,
-      profileData.type
-    );
-
-    if (existingProfile) {
-      throw new UserExistenceError(
-        "This profile already exists for this user",
-        null
-      );
-    }
 
     // Create a new profile instance
     const profile = new Profile(validatedData);

@@ -36,7 +36,7 @@
       />
       <button
         class="text-white rounded-md p-3 w-full text-center text-md bg-primary"
-        @click="handleFormSubmit"
+        @click="handleLogin"
       >
         Log In
       </button>
@@ -44,7 +44,7 @@
 
     <LoginPolicyService />
 
-    <LoginSocialMediaService />
+    <LoginSignupServiceProviders @error="showProviderError" />
 
     <LoginSwitchAction page="LoginPage" />
   </section>
@@ -59,18 +59,19 @@
 import { useLogInStore } from "@/stores/logInStore";
 import { navigateTo, useNuxtApp } from "nuxt/app";
 import { storeToRefs } from "pinia";
+import { onMounted } from "vue";
 import { useRouter } from "vue-router";
 
 const tryingToLogin = ref(false);
 
 const logInStore = useLogInStore();
 
-const { loginForm, displayError } = useLogInStore();
+const { loginForm, displayError, clearError } = useLogInStore();
 
 const { loginErrors } = storeToRefs(logInStore);
 const router = useRouter();
 
-const handleFormSubmit = async () => {
+const handleLogin = async () => {
   tryingToLogin.value = true;
 
   try {
@@ -91,13 +92,13 @@ const handleFormSubmit = async () => {
       },
     });
 
-    const user = await $expressAuthBackendService.login(token);
-
-    console.log(user);
-
     if (response.message !== "Success") {
       throw new Error("Failed to store auth token in cookie");
     }
+
+    const user = await $expressAuthBackendService.login(token);
+
+    console.log(user);
 
     router.back();
   } catch (error) {
@@ -131,4 +132,13 @@ const handleFormSubmit = async () => {
     tryingToLogin.value = false;
   }
 };
+
+const showProviderError = (message) => {
+  loginErrors.value = message;
+};
+
+onMounted(() => {
+  clearError();
+  loginErrors.value = "";
+});
 </script>

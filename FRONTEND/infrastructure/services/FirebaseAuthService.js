@@ -1,6 +1,9 @@
 import {
   createUserWithEmailAndPassword,
   signInWithEmailAndPassword,
+  signInWithPopup,
+  GoogleAuthProvider,
+  FacebookAuthProvider,
 } from "firebase/auth";
 import AuthService from "../../../APPLICATION/interfaces/services/AuthService.js";
 
@@ -11,7 +14,7 @@ export default class FirebaseAuthService extends AuthService {
     this.backendService = backendService;
   }
 
-  async signUp({ email, password }) {
+  async signUpUserWithEmailAndPassword({ email, password }) {
     try {
       const userCredential = await createUserWithEmailAndPassword(
         this.auth,
@@ -26,6 +29,23 @@ export default class FirebaseAuthService extends AuthService {
         id: user.uid,
         token: user.accessToken,
       };
+    } catch (error) {
+      throw error;
+    }
+  }
+
+  async signUpUserWithProvider(provider) {
+    try {
+      var serviceProvider;
+      if (provider == "google") {
+        serviceProvider = new GoogleAuthProvider();
+      }
+      if (provider == "facebook") {
+        serviceProvider = new FacebookAuthProvider();
+      }
+      const result = await signInWithPopup(this.auth, serviceProvider);
+      const user = result.user;
+      return { user, id: user.uid, token: user.accessToken };
     } catch (error) {
       throw error;
     }

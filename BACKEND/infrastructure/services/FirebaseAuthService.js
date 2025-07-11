@@ -27,11 +27,7 @@ export default class FirebaseAuthService extends AuthService {
         verifiedEmail: decoded.email_verified,
       };
     } catch (error) {
-      if (error) {
-        const error = new Error("Invalid or expired token");
-        error.type = "InvalidTokenError";
-        throw error;
-      }
+      throw error;
     }
   }
 

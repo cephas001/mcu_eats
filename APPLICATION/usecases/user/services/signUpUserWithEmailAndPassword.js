@@ -5,7 +5,7 @@ import {
   UnexpectedError,
 } from "../../../domain/Error.js";
 
-export default function signUpUser(signUpService) {
+export default function signUpUserWithEmailAndPassword(signUpService) {
   return async function ({ email, password, confirmPassword }) {
     const validationResult = createSignUpUserSchema.safeParse({
       email,
@@ -39,10 +39,11 @@ export default function signUpUser(signUpService) {
     }
 
     try {
-      const { user, id, token } = await signUpService.signUp({
-        email: validatedData.email,
-        password: validatedData.password,
-      });
+      const { user, id, token } =
+        await signUpService.signUpUserWithEmailAndPassword({
+          email: validatedData.email,
+          password: validatedData.password,
+        });
 
       return { user, id, token };
     } catch (error) {

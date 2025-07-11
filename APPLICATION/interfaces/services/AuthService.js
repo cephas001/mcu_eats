@@ -13,7 +13,15 @@ export default class AuthService {
    * @param {string} password
    * @returns {Promise<Object>}
    */
-  async signUp(email, password) {
+  async signUpUserWithEmailAndPassword({ email, password }) {
+    throw new Error("Not implemented");
+  }
+
+  /**
+   * @param {Object} provider
+   * @returns {Promise<Object>}
+   */
+  async signUpUserWithProvider(provider) {
     throw new Error("Not implemented");
   }
 
