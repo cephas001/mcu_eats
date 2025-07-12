@@ -1,17 +1,18 @@
-import User from "../../models/userModel.js";
-import Profile from "../../models/profileModel.js";
 import UserRepository from "../../../APPLICATION/interfaces/repositories/UserRepository.js";
 
 export default class MongoUserRepository extends UserRepository {
-  constructor() {
+  constructor(userRepo, profileRepo) {
     super();
+    this.userRepo = userRepo;
+    this.profileRepo = profileRepo;
   }
 
   async create(userData) {
     try {
+      console.log(userData);
       userData._id = userData.id;
       delete userData.id; // Remove id to avoid duplication
-      const user = new User(userData);
+      const user = new this.userRepo(userData);
       // Set the _id field to user.id if it exists
       return await user.save();
     } catch (error) {
@@ -21,17 +22,17 @@ export default class MongoUserRepository extends UserRepository {
   }
 
   async findById(id) {
-    return await User.findById(id);
+    return await this.userRepo.findById(id);
   }
 
   async linkProfile(userId, profileId) {
     try {
-      const profile = await Profile.findById(profileId);
+      const profile = await this.profileRepo.findById(profileId);
       if (!profile) {
         throw new Error("Profile not found");
       }
 
-      return await User.findByIdAndUpdate(
+      return await this.userRepo.findByIdAndUpdate(
         userId,
         {
           $push: {
@@ -49,17 +50,34 @@ export default class MongoUserRepository extends UserRepository {
   }
 
   async userHasProfile(user) {
-    const hasProfile = !!(await Profile.exists({ userId: user._id }));
+    try {
+      const hasProfile = !!(await this.profileRepo.exists({
+        userId: user._id,
+      }));
 
-    return hasProfile;
+      return hasProfile;
+    } catch (error) {
+      throw error;
+    }
   }
 
   async update(id, updateData) {
-    return await User.findByIdAndUpdate(id, updateData, { new: true });
+    try {
+      const user = await this.userRepo.findByIdAndUpdate(id, updateData, {
+        new: true,
+        runValidators: true,
+      });
+      if (!user) return null;
+
+      const { _id, ...rest } = user.toObject?.() || user; // Ensure it's a plain object
+      return { ...rest, id: _id };
+    } catch (error) {
+      throw error;
+    }
   }
 
   async delete(id) {
-    const res = await User.deleteOne({ _id: id });
+    const res = await this.userRepo.deleteOne({ _id: id });
     return res.deletedCount > 0;
   }
 }

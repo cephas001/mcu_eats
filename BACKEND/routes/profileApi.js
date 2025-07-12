@@ -4,7 +4,10 @@ dotenv.config({ path: "../config/config.env" });
 import express from "express";
 const router = express.Router();
 
-import { createProfileUseCase } from "../services/index.js";
+import {
+  createProfileUseCase,
+  createGetProfilesDataUseCase,
+} from "../services/index.js";
 
 router.post("/profile", async (req, res) => {
   try {
@@ -15,4 +18,14 @@ router.post("/profile", async (req, res) => {
   }
 });
 
+router.post("/profile-data", async (req, res) => {
+  try {
+    const { profileIds } = req.body;
+    const profileData = await createGetProfilesDataUseCase(profileIds);
+
+    res.json(profileData);
+  } catch (error) {
+    throw error;
+  }
+});
 export default router;

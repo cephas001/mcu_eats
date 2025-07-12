@@ -2,6 +2,7 @@ import {
   ValidationError,
   UserExistenceError,
   ProfileExistenceError,
+  UnexpectedError,
 } from "../../../domain/Error.js";
 
 export default function loginUser(userRepo, loginService) {
@@ -24,6 +25,15 @@ export default function loginUser(userRepo, loginService) {
       throw new ProfileExistenceError("User has no profile");
     }
 
-    return existingUser;
+    try {
+      const user = await userRepo.update(id, { lastLogin: Date.now() });
+
+      if (user) {
+        return user;
+      }
+      throw null;
+    } catch (error) {
+      throw UnexpectedError("Error while logging in user");
+    }
   };
 }

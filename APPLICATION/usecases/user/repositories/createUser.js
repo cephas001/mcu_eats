@@ -1,6 +1,10 @@
 import User from "../../../domain/User.js";
 import { createUserSchema } from "../../../validators/validateUserData.js";
-import { ValidationError, UserExistenceError } from "../../../domain/Error.js";
+import {
+  ValidationError,
+  UserExistenceError,
+  UnexpectedError,
+} from "../../../domain/Error.js";
 
 export default function createUser(userRepo) {
   return async function (userData) {
@@ -28,8 +32,13 @@ export default function createUser(userRepo) {
       throw new UserExistenceError("User already exists");
     }
 
-    // Create a new user instance
-    const user = new User(validatedData);
-    return await userRepo.create(user);
+    try {
+      // Create a new user instance
+      const user = new User(validatedData);
+      return await userRepo.create(user);
+    } catch (error) {
+      console.log(error);
+      throw new UnexpectedError("An unexpected error occurred");
+    }
   };
 }

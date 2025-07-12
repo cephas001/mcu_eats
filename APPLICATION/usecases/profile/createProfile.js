@@ -18,7 +18,7 @@ export default function createProfile(profileRepo, userRepo) {
     }
 
     // Check if user exists by ID
-    const existingUser = await profileRepo.findUserById(profileData.userId);
+    const existingUser = await userRepo.findById(profileData.userId);
 
     if (!existingUser) {
       throw new UserExistenceError("A user with this ID does not exist");

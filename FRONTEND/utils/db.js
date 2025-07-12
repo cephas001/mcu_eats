@@ -5,7 +5,7 @@ class AppDB extends Dexie {
     super("McuEatsDB");
 
     // Clear -> Cart, Favourite Products and Favourite Vendors when a user Logs Out
-    this.version(4).stores({
+    this.version(6).stores({
       cart: "&_id, vendorId, vendorName, quantity, price, name, type",
       vendors:
         "&_id, name, type, description, category, taking_orders, opening_time, closing_time, products",
@@ -13,7 +13,8 @@ class AppDB extends Dexie {
         "&_id, name, description, type, price, favourited, vendorName, vendorId, vendorOpeningTime, vendorClosingTime, vendorTakingOrders",
       favouriteVendors:
         "&_id, name, type, description, category, taking_orders, opening_time, closing_time, products",
-      user: "&_id, firstName, lastName, username, type, phoneNumber, role, email, verifiedEmail, gender, college, officeNumber, hostel, roomNumber",
+      user: "id, name, email, phoneNumber, role, profiles, status, createdAt, updatedAt, lastLogin",
+      profiles: "id, type, userId, data, createdAt, updatedAt",
     });
   }
 }

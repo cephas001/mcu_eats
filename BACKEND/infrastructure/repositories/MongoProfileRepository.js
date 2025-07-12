@@ -1,15 +1,15 @@
-import Profile from "../../models/profileModel.js";
-import User from "../../models/userModel.js";
 import ProfileRepository from "../../../APPLICATION/interfaces/repositories/ProfileRepository.js";
 
 export default class MongoProfileRepository extends ProfileRepository {
-  constructor() {
+  constructor(userRepo, profileRepo) {
     super();
+    this.userRepo = userRepo;
+    this.profileRepo = profileRepo;
   }
 
   async createProfile(profileData) {
     try {
-      const profile = new Profile(profileData);
+      const profile = new this.profileRepo(profileData);
       const savedProfile = await profile.save();
       return {
         savedProfile,
@@ -22,22 +22,27 @@ export default class MongoProfileRepository extends ProfileRepository {
 
   async existsByUserIdAndType(userId, type) {
     try {
-      return await Profile.findOne({ userId, type });
+      return await this.profileRepo.findOne({ userId, type });
     } catch (error) {
       throw error;
     }
   }
 
-  async findUserById(id) {
-    return await User.findById(id);
-  }
-
-  async update(id, updateData) {
-    return await User.findByIdAndUpdate(id, updateData, { new: true });
-  }
-
-  async delete(id) {
-    const res = await User.deleteOne({ _id: id });
-    return res.deletedCount > 0;
+  async getProfilesData(profileIds) {
+    try {
+      const profilesData = await Promise.all(
+        profileIds.map((profileId) =>
+          this.profileRepo.findById(profileId).lean()
+        )
+      );
+      const idMappedProfilesData = profilesData.map(
+        ({ _id, ...restOfData }) => {
+          return { ...restOfData, id: _id };
+        }
+      );
+      return idMappedProfilesData;
+    } catch (error) {
+      throw error;
+    }
   }
 }

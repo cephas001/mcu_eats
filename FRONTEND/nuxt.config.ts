@@ -17,6 +17,7 @@ export default defineNuxtConfig({
   plugins: [
     "~/plugins/services/firebase.client.js",
     "~/plugins/services/express.client.js",
+    "~/plugins/services/indexedDB.client.js",
   ],
   css: ["~/assets/css/main.css"],
 

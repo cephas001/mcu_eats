@@ -4,6 +4,7 @@
     v-if="loading"
   >
     <img :src="imageSrc" :class />
+    <h1 class="text-xl mt-4" v-if="text">{{ text }}</h1>
   </section>
 </template>
 
@@ -20,6 +21,9 @@ const props = defineProps({
   class: {
     type: String,
     default: "animate-pulse",
+  },
+  text: {
+    type: String,
   },
 });
 </script>

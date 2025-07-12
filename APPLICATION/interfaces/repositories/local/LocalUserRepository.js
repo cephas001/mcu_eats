@@ -3,7 +3,7 @@ export default class LocalUserRepository {
    * @param {Object} userData
    * @returns {Promise<Object>}
    */
-  async saveUser(userData) {
+  async storeUser(userData) {
     throw new Error("Method not implemented.");
   }
 

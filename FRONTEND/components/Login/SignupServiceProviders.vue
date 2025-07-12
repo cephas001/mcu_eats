@@ -24,12 +24,27 @@ import FacebookIcon from "@/assets/images/facebook.e4480188.svg";
 import { useNuxtApp } from "nuxt/app";
 import { defineEmits } from "vue";
 
-const emit = defineEmits(["error"]);
+const router = useRouter();
+
+const emit = defineEmits([
+  "error",
+  "performingLoginSignup",
+  "settingStorage",
+  "showModal",
+]);
 
 const providerSignIn = async (provider) => {
+  // emit("performingLoginSignup", true);
+  emit("error", "");
+  emit("showModal", false);
   try {
-    const { $useSignUpUserWithProviderUseCase, $expressAuthBackendService } =
-      useNuxtApp();
+    const {
+      $useSignUpUserWithProviderUseCase,
+      $expressAuthBackendService,
+      $expressUserBackendService,
+      $useIndexedDBUserRepo,
+      $useIndexedDBProfileRepo,
+    } = useNuxtApp();
 
     const { token } = await $useSignUpUserWithProviderUseCase(provider);
 
@@ -46,10 +61,27 @@ const providerSignIn = async (provider) => {
 
     const user = await $expressAuthBackendService.login(token);
 
-    console.log(user);
+    try {
+      emit("performingLoginSignup", false);
+      emit("settingStorage", true);
 
-    await navigateTo("/");
+      await $useIndexedDBUserRepo.storeUser(user);
+      const profiledIds = user.profiles.map((profile) => profile.profileId);
+
+      const profilesData = await $expressUserBackendService.getProfilesData(
+        profiledIds
+      );
+
+      await $useIndexedDBProfileRepo.storeProfiles(profilesData);
+    } catch (error) {
+      emit("showModal", true);
+      console.log(error);
+    }
+
+    router.back();
   } catch (error) {
+    console.log(error);
+    emit("performingLoginSignup", false);
     if (error.type == "UserExistenceError") {
       return await navigateTo("/auth/register");
     }
@@ -59,6 +91,9 @@ const providerSignIn = async (provider) => {
     }
 
     emit("error", error.message);
+  } finally {
+    emit("performingLoginSignup", false);
+    emit("settingStorage", false);
   }
 };
 </script>

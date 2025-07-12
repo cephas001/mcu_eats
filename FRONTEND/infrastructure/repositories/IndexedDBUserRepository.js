@@ -1,12 +1,19 @@
 import LocalUserRepository from "../../../APPLICATION/interfaces/repositories/local/LocalUserRepository";
-import { db } from "../../utils/db";
+import { stringifyArrays } from "../../utils/stringifyArrays.js";
 
 export default class IndexedDBUserRepository extends LocalUserRepository {
-  constructor() {
+  constructor(db) {
     super();
+    this.db = db;
   }
 
-  async saveUser(userData) {
-    console.log(userData);
+  async storeUser(userData) {
+    try {
+      await this.db.user.clear();
+      await this.db.user.put(stringifyArrays(userData));
+      return this.db.user.toArray();
+    } catch (error) {
+      throw error;
+    }
   }
 }

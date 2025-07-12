@@ -1,10 +1,14 @@
 import AuthService from "../../../APPLICATION/interfaces/services/AuthService.js";
-import admin from "../../firebaseConnection.js";
 
 export default class FirebaseAuthService extends AuthService {
+  constructor(admin) {
+    super();
+    this.admin = admin;
+  }
+
   async login(token) {
     try {
-      const decoded = await admin.auth().verifyIdToken(token);
+      const decoded = await this.admin.auth().verifyIdToken(token);
       return {
         user: decoded,
         id: decoded.uid,
@@ -20,7 +24,7 @@ export default class FirebaseAuthService extends AuthService {
 
   async verifyToken(token) {
     try {
-      const decoded = await admin.auth().verifyIdToken(token);
+      const decoded = await this.admin.auth().verifyIdToken(token);
       return {
         id: decoded.uid,
         email: decoded.email,
@@ -33,7 +37,7 @@ export default class FirebaseAuthService extends AuthService {
 
   async getUser(id) {
     try {
-      const user = await admin.auth().getUser(id);
+      const user = await this.admin.auth().getUser(id);
       return user;
     } catch (error) {
       if (error.code === "auth/user-not-found") {
@@ -46,7 +50,7 @@ export default class FirebaseAuthService extends AuthService {
 
   async deleteUser(id) {
     try {
-      const user = await admin.auth().deleteUser(id);
+      const user = await this.admin.auth().deleteUser(id);
     } catch (error) {
       throw error;
     }
@@ -54,7 +58,7 @@ export default class FirebaseAuthService extends AuthService {
 
   async getUserByEmail(email) {
     try {
-      const userRecord = await admin.auth().getUserByEmail(email);
+      const userRecord = await this.admin.auth().getUserByEmail(email);
       return userRecord;
     } catch (error) {
       if (error.code === "auth/user-not-found") {

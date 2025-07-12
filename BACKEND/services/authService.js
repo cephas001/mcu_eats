@@ -5,8 +5,13 @@ import verifyToken from "../../APPLICATION/usecases/user/services/verifyToken.js
 import deleteUserAuth from "../../APPLICATION/usecases/user/services/deleteUserAuth.js";
 import getUserByEmail from "../../APPLICATION/usecases/user/services/getUserByEmail.js";
 
-const userRepo = new MongoUserRepository();
-const authService = new FirebaseAuthService();
+import Profile from "../models/profileModel.js";
+import User from "../models/userModel.js";
+
+import admin from "../firebaseConnection.js";
+
+const userRepo = new MongoUserRepository(User, Profile);
+const authService = new FirebaseAuthService(admin);
 
 export const createLoginUserUseCase = loginUser(userRepo, authService);
 export const createVerifyTokenUseCase = verifyToken(authService);

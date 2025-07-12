@@ -30,22 +30,22 @@ export default class ExpressUserBackend extends UserBackend {
     }
   }
 
-  async verifyToken(token) {
+  async createProfile(profileData) {
     try {
-      return await this.api.request("/verifyToken", {
+      return await this.api.request("/profile", {
         method: "POST",
-        body: {},
+        body: profileData,
       });
     } catch (error) {
       throw error;
     }
   }
 
-  async createProfile(profileData) {
+  async getProfilesData(profileIds) {
     try {
-      return await this.api.request("/profile", {
+      return await this.api.request("/profile-data", {
         method: "POST",
-        body: profileData,
+        body: { profileIds },
       });
     } catch (error) {
       throw error;
