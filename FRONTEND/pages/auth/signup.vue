@@ -51,7 +51,12 @@
 
     <LoginPolicyService />
 
-    <LoginSignupServiceProviders @error="showProviderError" />
+    <LoginSignupServiceProviders
+      @error="showProviderError"
+      @performingLoginSignup="displayLoginLoader"
+      @settingStorage="displayStorageLoader"
+      @showModal="displayModal"
+    />
 
     <LoginSwitchAction page="SignUpPage" />
 
@@ -63,6 +68,35 @@
     imageSrc="/Pulse@1x-1.0s-200px-200px.svg"
     class="animate-none"
   />
+  <UModal
+    v-model:open="showErrorModal"
+    class="bg-white pb-4"
+    title="An error occurred"
+  >
+    <template #content>
+      <div class="px-5 py-10">
+        <h1 class="mt-2 tracking-wide">
+          Login was successful, but an error occurred while trying to save your
+          data locally. <br />
+          This might result in more frequent network calls.
+        </h1>
+        <div class="mt-3 flex gap-2">
+          <button
+            @click="router.back()"
+            class="bg-black text-white text-sm tracking-wider py-2 px-3 rounded-md"
+          >
+            Proceed
+          </button>
+        </div>
+      </div>
+    </template>
+  </UModal>
+  <LoadingIconLarge
+    :loading="settingLocalStorage"
+    class="animate-none"
+    imageSrc="/Rolling@1x-1.0s-200px-200px.svg"
+    text="Setting up things for you..."
+  />
 </template>
 
 <script setup>
@@ -71,6 +105,8 @@ import { storeToRefs } from "pinia";
 import { navigateTo, useNuxtApp } from "nuxt/app";
 import { onMounted } from "vue";
 
+const router = useRouter();
+
 const logInStore = useLogInStore();
 
 const { signUpForm, displayError, clearError } = useLogInStore();
@@ -78,8 +114,11 @@ const { signUpForm, displayError, clearError } = useLogInStore();
 const { signUpErrors } = storeToRefs(logInStore);
 
 const tryingToSignIn = ref(false);
+const settingLocalStorage = ref(false);
+const showErrorModal = ref(false);
 
 const handleSignUp = async () => {
+  clearError();
   tryingToSignIn.value = true;
   try {
     const { $useSignUpUserWithEmailAndPasswordUseCase } = useNuxtApp();
@@ -133,6 +172,18 @@ const handleSignUp = async () => {
 
 const showProviderError = (message) => {
   signUpErrors.value = message;
+};
+
+const displayLoginLoader = (payload) => {
+  tryingToSignIn.value = payload;
+};
+
+const displayStorageLoader = (payload) => {
+  settingLocalStorage.value = payload;
+};
+
+const displayModal = (payload) => {
+  showErrorModal.value = payload;
 };
 
 onMounted(() => {

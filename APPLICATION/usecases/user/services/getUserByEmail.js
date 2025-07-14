@@ -1,4 +1,5 @@
 import { z } from "zod";
+import { UnexpectedError } from "../../../domain/Error.js";
 
 export default function loginUser(loginService) {
   return async function (email) {
@@ -14,12 +15,14 @@ export default function loginUser(loginService) {
       throw new ValidationError("Invalid Email", "email");
     }
 
-    const user = await loginService.getUserByEmail(email);
-
-    if (!user) {
-      throw new Error("User does not exist");
+    try {
+      const user = await loginService.getUserByEmail(email);
+      if (!user) {
+        return null;
+      }
+      return user;
+    } catch (error) {
+      throw new UnexpectedError("An unexpected error occurred");
     }
-
-    return user;
   };
 }

@@ -21,6 +21,8 @@ export const useLogInStore = defineStore("logIn", () => {
     profileList: ["Consumer", "Delivery Person", "Vendor"],
     profileValue: undefined,
     phoneNumber: undefined,
+    categoryList: ["Student", "Staff", "Visitor"],
+    categoryValue: undefined,
   });
 
   const profileRegistrationForm = reactive({
@@ -79,18 +81,22 @@ export const useLogInStore = defineStore("logIn", () => {
     };
   };
 
-  // Clears any error
-  const clearError = () => {
-    error.value.errorMessage = "";
-    error.value.inputName = "";
-    error.value.errorList = [];
-  };
-
   // Display any errors associated with signup, registration
   const signUpErrors = ref("");
   const registrationErrors = ref("");
   const profileRegistrationErrors = ref("");
   const loginErrors = ref("");
+
+  // Clears any error
+  const clearError = () => {
+    error.value.errorMessage = "";
+    error.value.inputName = "";
+    error.value.errorList = [];
+    loginErrors.value = "";
+    signUpErrors.value = "";
+    registrationErrors.value = "";
+    profileRegistrationErrors.value = "";
+  };
 
   return {
     signUpForm,

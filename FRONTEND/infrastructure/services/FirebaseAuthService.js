@@ -54,10 +54,7 @@ export default class FirebaseAuthService extends AuthService {
   async getUserByEmail(email) {
     try {
       const user = await this.backendService.getUserByEmail(email);
-      if (user) {
-        return user;
-      }
-      return null;
+      return user;
     } catch (err) {
       throw err;
     }

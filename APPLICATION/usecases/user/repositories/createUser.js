@@ -29,15 +29,13 @@ export default function createUser(userRepo) {
     const existingUser = await userRepo.findById(validatedData.id);
 
     if (existingUser) {
-      throw new UserExistenceError("User already exists");
+      throw new UserExistenceError("This user already exists");
     }
 
     try {
-      // Create a new user instance
       const user = new User(validatedData);
       return await userRepo.create(user);
     } catch (error) {
-      console.log(error);
       throw new UnexpectedError("An unexpected error occurred");
     }
   };

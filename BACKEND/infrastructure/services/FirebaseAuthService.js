@@ -64,7 +64,6 @@ export default class FirebaseAuthService extends AuthService {
       if (error.code === "auth/user-not-found") {
         return null;
       } else {
-        console.log("here2");
         throw error;
       }
     }

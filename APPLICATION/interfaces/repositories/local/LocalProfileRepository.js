@@ -3,8 +3,16 @@ export default class LocalProfileRepository {
    * @param {Object} profileData
    * @returns {Promise<Object>}
    */
-  async createProfile(profileData) {
+  async storeProfiles(profileData) {
     throw new Error("Method not implemented.");
+  }
+
+  /**
+   * @param {Object} profileToAdd
+   * @returns {Promise<Object>}
+   */
+  async addProfile(profileToAdd) {
+    throw new Error("Method not implemented");
   }
 
   /**

@@ -35,7 +35,7 @@ router.post("/deleteUserAuth", async (req, res) => {
 
 router.post("/verifyToken", async (req, res) => {
   try {
-    const { auth_token } = req.cookies;
+    const { auth_token } = req.cookies || req.body;
     const token = auth_token;
     const { id, email, verifiedEmail } = await createVerifyTokenUseCase(token);
     res.json({ id, email, verifiedEmail });

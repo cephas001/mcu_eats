@@ -71,10 +71,12 @@
   >
     <template #content>
       <div class="px-5 py-10">
-        <h1 class="mt-2 tracking-wide">
-          Logic was successful, but an error occurred while trying to save your
-          data locally. <br />
-          This might result in more frequent network calls.
+        <h1 class="mt-2 tracking-wide flex flex-col gap-2">
+          <span
+            >Login was successful, but an error occurred while trying to save
+            your data locally.
+          </span>
+          <span>This might result in more frequent network calls.</span>
         </h1>
         <div class="mt-3 flex gap-2">
           <button
@@ -156,12 +158,11 @@ const handleLogin = async () => {
       );
 
       await $useIndexedDBProfileRepo.storeProfiles(profilesData);
+
+      router.back();
     } catch (error) {
       showErrorModal.value = true;
-      console.log(error);
     }
-
-    router.back();
   } catch (error) {
     loginErrors.value = "";
     if (error.type == "ValidationError") {
@@ -200,7 +201,6 @@ const showProviderError = (message) => {
 };
 
 const displayLoginLoader = (payload) => {
-  console.log("here");
   tryingToLogin.value = payload;
 };
 
@@ -214,6 +214,5 @@ const displayModal = (payload) => {
 
 onMounted(() => {
   clearError();
-  loginErrors.value = "";
 });
 </script>

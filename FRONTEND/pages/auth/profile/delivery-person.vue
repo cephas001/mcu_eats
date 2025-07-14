@@ -63,7 +63,7 @@
         name="department"
         type="select"
         :state="profileRegistrationForm"
-        :items="returnDepartmentList"
+        :items="filteredDepartmentList"
         @update="profileRegistrationForm.departmentValue = $event"
         v-if="profileRegistrationForm.collegeValue"
       />
@@ -85,10 +85,42 @@
       </button>
     </UForm>
   </section>
+  <UModal
+    v-model:open="showErrorModal"
+    :dismissible="false"
+    @close:prevent="navigateTo('/')"
+    class="bg-white pb-4"
+    title="An error occurred"
+  >
+    <template #content>
+      <div class="px-5 py-10">
+        <h1 class="mt-2 tracking-wide flex flex-col gap-2">
+          <span
+            >Profile creation was successful, but an error occurred while trying
+            to save your data locally.</span
+          ><span> This might result in more frequent network calls.</span>
+        </h1>
+        <div class="mt-3 flex gap-2">
+          <button
+            @click="navigateTo('/')"
+            class="bg-black text-white text-sm tracking-wider py-2 px-3 rounded-md"
+          >
+            Proceed
+          </button>
+        </div>
+      </div>
+    </template>
+  </UModal>
   <LoadingIconLarge
     :loading="tryingToCreateProfile"
     imageSrc="/Pulse@1x-1.0s-200px-200px.svg"
     class="animate-none"
+  />
+  <LoadingIconLarge
+    :loading="settingLocalStorage"
+    class="animate-none"
+    imageSrc="/Rolling@1x-1.0s-200px-200px.svg"
+    text="Setting up things for you..."
   />
 </template>
 
@@ -103,13 +135,19 @@ const { profileRegistrationForm, displayError, clearError } = logInStore;
 const { profileRegistrationErrors } = storeToRefs(logInStore);
 
 const tryingToCreateProfile = ref(false);
+const settingLocalStorage = ref(false);
+const showErrorModal = ref(false);
 
 const handleFormSubmit = async () => {
   tryingToCreateProfile.value = true;
 
   try {
-    const { $expressUserBackendService, $expressAuthBackendService } =
-      useNuxtApp();
+    const {
+      $expressUserBackendService,
+      $expressAuthBackendService,
+      $useIndexedDBUserRepo,
+      $useIndexedDBProfileRepo,
+    } = useNuxtApp();
 
     const response = await $expressAuthBackendService.verifyToken();
 
@@ -130,12 +168,20 @@ const handleFormSubmit = async () => {
         },
       });
 
-    console.log(savedProfile, updatedUser);
+    try {
+      tryingToCreateProfile.value = false;
+      settingLocalStorage.value = true;
 
-    await navigateTo("/");
+      await $useIndexedDBUserRepo.storeUser(updatedUser);
+
+      await $useIndexedDBProfileRepo.addProfile(savedProfile);
+
+      await navigateTo("/");
+    } catch (error) {
+      showErrorModal.value = true;
+    }
   } catch (error) {
     clearError();
-    profileRegistrationErrors.value = "";
 
     if (error.type == "ValidationError") {
       if (error.errorList) {
@@ -151,7 +197,16 @@ const handleFormSubmit = async () => {
       return await navigateTo("/auth/login");
     }
 
+    if (error.type == "UserExistenceError") {
+      return await navigateTo("/auth/register");
+    }
+
     if (error.type == "ProfileExistenceError") {
+      profileRegistrationErrors.value = error.message;
+      return;
+    }
+
+    if (error.type == "UnauthorizedError") {
       profileRegistrationErrors.value = error.message;
       return;
     }
@@ -162,7 +217,7 @@ const handleFormSubmit = async () => {
   }
 };
 
-const returnDepartmentList = computed(() => {
+const filteredDepartmentList = computed(() => {
   var departments;
   profileRegistrationForm.departmentList.forEach((collegeAndDepartment) => {
     if (collegeAndDepartment.college == profileRegistrationForm.collegeValue) {
@@ -174,6 +229,5 @@ const returnDepartmentList = computed(() => {
 
 onMounted(() => {
   clearError();
-  profileRegistrationErrors.value = "";
 });
 </script>

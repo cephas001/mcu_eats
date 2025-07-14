@@ -47,3 +47,11 @@ export class InvalidTokenError extends Error {
     this.type = "InvalidTokenError";
   }
 }
+
+export class UnauthorizedError extends Error {
+  constructor(message) {
+    super(message);
+    this.name = "UnauthorizedError";
+    this.type = "UnauthorizedError";
+  }
+}

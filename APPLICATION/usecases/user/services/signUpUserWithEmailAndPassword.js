@@ -47,7 +47,6 @@ export default function signUpUserWithEmailAndPassword(signUpService) {
 
       return { user, id, token };
     } catch (error) {
-      console.log(error);
       throw new UnexpectedError("Error while signing up");
     }
   };

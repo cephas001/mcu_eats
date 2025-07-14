@@ -22,7 +22,9 @@
 import GoogleIcon from "@/assets/images/google.73c708cb.svg";
 import FacebookIcon from "@/assets/images/facebook.e4480188.svg";
 import { useNuxtApp } from "nuxt/app";
-import { defineEmits } from "vue";
+import { useLogInStore } from "@/stores/logInStore";
+
+const { clearError } = useLogInStore();
 
 const router = useRouter();
 
@@ -35,7 +37,7 @@ const emit = defineEmits([
 
 const providerSignIn = async (provider) => {
   // emit("performingLoginSignup", true);
-  emit("error", "");
+  clearError();
   emit("showModal", false);
   try {
     const {
@@ -80,7 +82,6 @@ const providerSignIn = async (provider) => {
 
     router.back();
   } catch (error) {
-    console.log(error);
     emit("performingLoginSignup", false);
     if (error.type == "UserExistenceError") {
       return await navigateTo("/auth/register");

@@ -35,6 +35,11 @@ const UserSchema = new mongoose.Schema(
       type: String,
       required: true,
     },
+    category: {
+      type: String,
+      required: true,
+      enum: ["staff", "student", "visitor"],
+    },
     profiles: {
       type: [ProfileRefSchema],
       required: true,

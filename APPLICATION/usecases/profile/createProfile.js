@@ -5,6 +5,7 @@ import {
   UserExistenceError,
   UnexpectedError,
   ProfileExistenceError,
+  UnauthorizedError,
 } from "../../domain/Error.js";
 
 export default function createProfile(profileRepo, userRepo) {
@@ -17,15 +18,15 @@ export default function createProfile(profileRepo, userRepo) {
       throw new ValidationError("User ID is not defined", "userId");
     }
 
+    if (!profileData.type) {
+      throw new ValidationError("Profile type is not defined", null, errorList);
+    }
+
     // Check if user exists by ID
     const existingUser = await userRepo.findById(profileData.userId);
 
     if (!existingUser) {
       throw new UserExistenceError("A user with this ID does not exist");
-    }
-
-    if (!profileData.type) {
-      throw new ValidationError("Validation failed", null, errorList);
     }
 
     // Check if profile already exists
@@ -37,6 +38,20 @@ export default function createProfile(profileRepo, userRepo) {
     if (existingProfile) {
       throw new ProfileExistenceError(
         "This profile already exists for this user"
+      );
+    }
+
+    const isStaffDelivery =
+      existingUser.category === "staff" &&
+      profileData.type === "delivery_person";
+
+    const isVisitorRestricted =
+      existingUser.category === "visitor" &&
+      ["delivery_person", "vendor"].includes(profileData.type);
+
+    if (isStaffDelivery || isVisitorRestricted) {
+      throw new UnauthorizedError(
+        "Access denied: You are not authorized to create this profile."
       );
     }
 

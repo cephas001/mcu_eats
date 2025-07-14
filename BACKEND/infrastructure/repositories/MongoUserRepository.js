@@ -9,12 +9,13 @@ export default class MongoUserRepository extends UserRepository {
 
   async create(userData) {
     try {
-      console.log(userData);
-      userData._id = userData.id;
-      delete userData.id; // Remove id to avoid duplication
-      const user = new this.userRepo(userData);
-      // Set the _id field to user.id if it exists
-      return await user.save();
+      const { id, ...restOfUserData } = userData;
+      const user = new this.userRepo({ _id: id, ...restOfUserData });
+
+      const savedUser = await user.save();
+      const { _id, ...restOfSavedUser } = savedUser.toObject();
+
+      return { id: _id, ...restOfSavedUser };
     } catch (error) {
       console.error("Error creating user:", error);
       throw new Error("Failed to create user");
@@ -22,7 +23,7 @@ export default class MongoUserRepository extends UserRepository {
   }
 
   async findById(id) {
-    return await this.userRepo.findById(id);
+    return await this.userRepo.findById(id).lean();
   }
 
   async linkProfile(userId, profileId) {
@@ -32,18 +33,23 @@ export default class MongoUserRepository extends UserRepository {
         throw new Error("Profile not found");
       }
 
-      return await this.userRepo.findByIdAndUpdate(
-        userId,
-        {
-          $push: {
-            profiles: {
-              profileId: profile._id,
-              type: profile.type,
+      const updatedUser = await this.userRepo
+        .findByIdAndUpdate(
+          userId,
+          {
+            $push: {
+              profiles: {
+                profileId: profile._id,
+                type: profile.type,
+              },
             },
           },
-        },
-        { new: true }
-      );
+          { new: true }
+        )
+        .lean();
+
+      const { _id, ...restOfUpdatedUser } = updatedUser;
+      return { id: _id, ...restOfUpdatedUser };
     } catch (error) {
       throw error;
     }

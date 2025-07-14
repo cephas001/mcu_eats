@@ -37,6 +37,14 @@
         :state="registrationForm"
         @update="registrationForm.phoneNumber = $event"
       />
+      <FormField
+        labelText="Category"
+        name="category"
+        type="select"
+        :state="registrationForm"
+        :items="registrationForm.categoryList"
+        @update="registrationForm.categoryValue = $event"
+      />
       <button
         class="text-white rounded-md p-3 w-full text-center text-md bg-primary"
         @click="handleRegister"
@@ -51,6 +59,32 @@
     imageSrc="/Pulse@1x-1.0s-200px-200px.svg"
     class="animate-none"
   />
+  <UModal
+    v-model:open="showErrorModal"
+    :dismissible="false"
+    @close:prevent="navigateTo('/auth/profile')"
+    class="bg-white pb-4"
+    title="An error occurred"
+  >
+    <template #content>
+      <div class="px-5 py-10">
+        <h1 class="mt-2 tracking-wide flex flex-col gap-2">
+          <span
+            >Login was successful, but an error occurred while trying to save
+            your data locally.</span
+          ><span> This might result in more frequent network calls.</span>
+        </h1>
+        <div class="mt-3 flex gap-2">
+          <button
+            @click="navigateTo('/auth/profile')"
+            class="bg-black text-white text-sm tracking-wider py-2 px-3 rounded-md"
+          >
+            Proceed
+          </button>
+        </div>
+      </div>
+    </template>
+  </UModal>
 </template>
 
 <script setup>
@@ -66,31 +100,45 @@ const { registrationForm, displayError, clearError } = useLogInStore();
 const { registrationErrors } = storeToRefs(logInStore);
 
 const tryingToRegister = ref(false);
+const settingLocalStorage = ref(false);
+const showErrorModal = ref(false);
 
 const handleRegister = async () => {
   tryingToRegister.value = true;
   try {
-    const { $expressAuthBackendService, $expressUserBackendService } =
-      useNuxtApp();
+    const {
+      $expressAuthBackendService,
+      $expressUserBackendService,
+      $useIndexedDBUserRepo,
+    } = useNuxtApp();
 
-    const response = await $expressAuthBackendService.verifyToken();
-
-    const { id, email, verifiedEmail } = response;
+    const { id, email, verifiedEmail } =
+      await $expressAuthBackendService.verifyToken();
 
     if (!id) return;
-
-    await $expressUserBackendService.registerUser({
+    console.log(registrationForm.categoryValue?.toLowerCase());
+    const user = await $expressUserBackendService.registerUser({
       id,
       email,
       name: registrationForm.name,
       verifiedEmail,
       phoneNumber: registrationForm.phoneNumber,
       role: "user",
+      category: registrationForm.categoryValue?.toLowerCase(),
     });
 
-    await navigateTo("/auth/profile");
+    try {
+      tryingToRegister.value = false;
+      settingLocalStorage.value = true;
+
+      await $useIndexedDBUserRepo.storeUser(user);
+
+      await navigateTo(`/auth/profile?category=${user?.category}`);
+    } catch (error) {
+      showErrorModal.value = true;
+    }
   } catch (error) {
-    registrationErrors.value = "";
+    clearError();
 
     if (error.type == "ValidationError") {
       if (error.errorList) {
@@ -103,17 +151,14 @@ const handleRegister = async () => {
       return;
     }
 
-    if (error.type == "UserAlreadyExistsError") {
+    if (error.type == "UserExistenceError") {
       registrationErrors.value = error.message;
-
       return;
     }
 
     if (error.type == "InvalidTokenError") {
       return await navigateTo("/auth/login");
     }
-
-    clearError();
 
     registrationErrors.value = "An unexpected error occurred";
     console.error(error);
@@ -124,6 +169,5 @@ const handleRegister = async () => {
 
 onMounted(() => {
   clearError();
-  registrationErrors.value = "";
 });
 </script>

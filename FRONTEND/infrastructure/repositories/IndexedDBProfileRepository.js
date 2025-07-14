@@ -9,11 +9,22 @@ export default class IndexedDBProfileRepository extends LocalProfileRepository {
 
   async storeProfiles(userProfiles) {
     try {
-      this.db.profiles.clear();
+      await this.db.profiles.clear();
       const stringifiedUserProfiles = userProfiles.map((profileData) => {
         return stringifyArrays(profileData);
       });
-      this.db.profiles.bulkPut(stringifiedUserProfiles);
+      await this.db.profiles.bulkPut(stringifiedUserProfiles);
+    } catch (error) {
+      throw error;
+    }
+  }
+
+  async addProfile(profileData) {
+    try {
+      if (!profileData) {
+        throw new Error("Profile data not defined");
+      }
+      await this.db.profiles.add(stringifyArrays(profileData));
     } catch (error) {
       throw error;
     }

@@ -2,8 +2,11 @@
   <section class="pb-5 pt-15 px-6" v-if="!tryingToCreateProfile">
     <ProfileAuthHeader title="Consumer" text="Set up a consumer profile" />
 
-    <p class="text-center">
-      For {{ showStaffFields ? "students" : "lecturers" }}, please click
+    <p
+      class="text-center"
+      v-if="category !== 'staff' && category !== 'student'"
+    >
+      For {{ showStaffFields ? "students" : "staffs" }}, please click
       <span class="text-primary" @click="showStaffFields = !showStaffFields"
         >here.</span
       >
@@ -89,6 +92,38 @@
     imageSrc="/Pulse@1x-1.0s-200px-200px.svg"
     class="animate-none"
   />
+  <LoadingIconLarge
+    :loading="settingLocalStorage"
+    class="animate-none"
+    imageSrc="/Rolling@1x-1.0s-200px-200px.svg"
+    text="Setting up things for you..."
+  />
+  <UModal
+    v-model:open="showErrorModal"
+    :dismissible="false"
+    @close:prevent="navigateTo('/')"
+    class="bg-white pb-4"
+    title="An error occurred"
+  >
+    <template #content>
+      <div class="px-5 py-10">
+        <h1 class="mt-2 tracking-wide flex flex-col gap-2">
+          <span
+            >Profile creation was successful, but an error occurred while trying
+            to save your data locally.</span
+          ><span> This might result in more frequent network calls.</span>
+        </h1>
+        <div class="mt-3 flex gap-2">
+          <button
+            @click="navigateTo('/')"
+            class="bg-black text-white text-sm tracking-wider py-2 px-3 rounded-md"
+          >
+            Proceed
+          </button>
+        </div>
+      </div>
+    </template>
+  </UModal>
 </template>
 
 <script setup>
@@ -96,6 +131,10 @@ import { useLogInStore } from "@/stores/logInStore";
 import { navigateTo } from "nuxt/app";
 import { storeToRefs } from "pinia";
 import { onMounted } from "vue";
+import { useRoute } from "vue-router";
+
+const route = useRoute();
+const category = ref("");
 
 const logInStore = useLogInStore();
 const { profileRegistrationForm, displayError, clearError } = logInStore;
@@ -103,13 +142,19 @@ const { profileRegistrationErrors } = storeToRefs(logInStore);
 
 const tryingToCreateProfile = ref(false);
 const showStaffFields = ref(false);
+const settingLocalStorage = ref(false);
+const showErrorModal = ref(false);
 
 const handleFormSubmit = async () => {
   tryingToCreateProfile.value = true;
 
   try {
-    const { $expressUserBackendService, $expressAuthBackendService } =
-      useNuxtApp();
+    const {
+      $expressUserBackendService,
+      $expressAuthBackendService,
+      $useIndexedDBUserRepo,
+      $useIndexedDBProfileRepo,
+    } = useNuxtApp();
 
     const response = await $expressAuthBackendService.verifyToken();
 
@@ -139,12 +184,20 @@ const handleFormSubmit = async () => {
         data: showStaffFields ? staffConsumerData : studentConsumerData,
       });
 
-    console.log(savedProfile, updatedUser);
+    try {
+      tryingToCreateProfile.value = false;
+      settingLocalStorage.value = true;
 
-    await navigateTo("/");
+      await $useIndexedDBUserRepo.storeUser(updatedUser);
+
+      await $useIndexedDBProfileRepo.addProfile(savedProfile);
+
+      await navigateTo("/");
+    } catch (error) {
+      showErrorModal.value = true;
+    }
   } catch (error) {
     clearError();
-    profileRegistrationErrors.value = "";
 
     if (error.type == "ValidationError") {
       if (error.errorList) {
@@ -170,6 +223,11 @@ const handleFormSubmit = async () => {
       return;
     }
 
+    if (error.type == "UnauthorizedError") {
+      profileRegistrationErrors.value = error.message;
+      return;
+    }
+
     profileRegistrationErrors.value = "An unexpected error occurred";
   } finally {
     tryingToCreateProfile.value = false;
@@ -178,6 +236,10 @@ const handleFormSubmit = async () => {
 
 onMounted(() => {
   clearError();
-  profileRegistrationErrors.value = "";
+  category.value = route.query?.category;
+
+  if (category.value == "staff") {
+    showStaffFields.value = true;
+  }
 });
 </script>

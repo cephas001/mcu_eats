@@ -9,6 +9,13 @@ import { returnFavouriteProductObject } from "@/utils/returnFavouriteProductObje
 export const useUserStore = defineStore("user", () => {
   const user = ref(null);
   const loggedIn = ref(false);
+  const {
+    $useLoginUserWithEmailAndPasswordUseCase,
+    $expressAuthBackendService,
+    $expressUserBackendService,
+    $useIndexedDBUserRepo,
+    $useIndexedDBProfileRepo,
+  } = useNuxtApp();
 
   const setUser = (newUser) => {
     user.value = newUser;

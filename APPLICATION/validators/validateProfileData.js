@@ -45,7 +45,10 @@ const timeSchema = z.object({
 // End of Shared Schemas
 
 const consumerDataSchema = z.object({
-  username: z.string().min(4, "Username must be at least 4 characters"),
+  username: z
+    .string()
+    .min(4, "Username must be at least 4 characters")
+    .regex(/^[^\d]/, "Username must not start with a number"),
   gender: z.enum(["male", "female"]),
   hostel: z.string().min(1).optional(),
   roomNumber: z.string().min(1).optional(),
@@ -83,7 +86,10 @@ const consumerDataSchema = z.object({
 });
 
 const deliveryPersonDataSchema = z.object({
-  username: z.string().min(4, "Username must be at least 4 characters"),
+  username: z
+    .string()
+    .min(4, "Username must be at least 4 characters")
+    .regex(/^[^\d]/, "Username must not start with a number"),
   gender: z.enum(["male", "female"]),
   hostel: z.string().min(1, "Hostel is required"),
   roomNumber: z
@@ -95,7 +101,8 @@ const deliveryPersonDataSchema = z.object({
   matricNumber: z
     .string()
     .min(5, { message: "Please enter a valid matric number" })
-    .max(10, { message: "Please enter a valid matric number" }),
+    .max(10, { message: "Please enter a valid matric number" })
+    .regex(/^\d+$/, "Matric number must contain only digits"),
   available: z.boolean().default(false),
   penaltyPoints: z.number().int().nonnegative().optional().default(0),
   averageDeliveryTime: z.number().nonnegative().optional().default(1),
@@ -108,14 +115,21 @@ const deliveryPersonDataSchema = z.object({
 
 const productSchema = z.object({
   id: z.string().optional(),
-  name: z.string().min(1, "Product name is required").max(100),
+  name: z
+    .string()
+    .min(1, "Product name is required")
+    .max(100, "Product name must be at most 100 characters")
+    .regex(/^[^0-9]*$/, "Product name must not contain numbers"),
   description: z.string().max(500).optional(),
   price: z.number().positive("Price must be a positive number"),
   productType: z.string().min(1, "Product type is required"),
 });
 
 const vendorDataSchema = z.object({
-  vendorName: z.string().min(1, "Vendor name is required"),
+  vendorName: z
+    .string()
+    .min(1, "Vendor name is required")
+    .regex(/^[^0-9]*$/, "Vendor name must not contain numbers"),
   vendorType: z.enum(["restaurant", "retailer", "shop"]),
   description: z.string().min(1, "Description is required"),
   category: z.enum([

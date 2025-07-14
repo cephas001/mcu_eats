@@ -10,7 +10,7 @@ export default class ExpressAuthBackend extends AuthBackend {
     try {
       return await this.api.request("/verifyToken", {
         method: "POST",
-        body: {},
+        body: token ? { auth_token: token } : {},
       });
     } catch (error) {
       throw error;

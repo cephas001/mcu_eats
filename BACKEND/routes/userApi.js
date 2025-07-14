@@ -18,7 +18,8 @@ import { createUserUseCase } from "../services/index.js";
 
 router.post("/users", async (req, res) => {
   try {
-    const { id, name, email, verifiedEmail, phoneNumber } = req.body;
+    const { id, name, email, verifiedEmail, phoneNumber, role, category } =
+      req.body;
 
     const user = await createUserUseCase({
       id,
@@ -26,9 +27,11 @@ router.post("/users", async (req, res) => {
       email,
       verifiedEmail,
       phoneNumber,
+      role,
+      category,
     });
 
-    res.status(200).json(user);
+    res.json(user);
   } catch (error) {
     throw error;
   }

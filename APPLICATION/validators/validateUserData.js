@@ -11,7 +11,8 @@ export const createUserSchema = z.object({
   name: z
     .string()
     .min(2, "Name must be at least 2 characters")
-    .max(50, "Name must be at most 50 characters"),
+    .max(50, "Name must be at most 50 characters")
+    .regex(/^[^0-9]*$/, "Name must not contain numbers"),
 
   email: z.string().email("Invalid email address"),
 
@@ -27,6 +28,11 @@ export const createUserSchema = z.object({
     })
     .default("user"),
 
+  category: z.enum(["student", "staff", "visitor"], {
+    errorMap: () => ({
+      message: "Category must be student, staff or visitor",
+    }),
+  }),
   profiles: z.array(profileRefSchema).optional().default([]),
 
   status: z.enum(["active", "inactive", "banned"]).optional().default("active"),

@@ -11,8 +11,10 @@ export default class MongoProfileRepository extends ProfileRepository {
     try {
       const profile = new this.profileRepo(profileData);
       const savedProfile = await profile.save();
+      const { _id, ...restOfSavedProfile } = savedProfile.toObject();
+
       return {
-        savedProfile,
+        savedProfile: { id: _id, ...restOfSavedProfile },
         profileId: savedProfile._id,
       };
     } catch (error) {
