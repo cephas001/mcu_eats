@@ -43,7 +43,7 @@ export default function createProfile(profileRepo, userRepo) {
 
     const isStaffDelivery =
       existingUser.category === "staff" &&
-      profileData.type === "delivery_person";
+      ["delivery_person", "vendor"].includes(profileData.type);
 
     const isVisitorRestricted =
       existingUser.category === "visitor" &&
