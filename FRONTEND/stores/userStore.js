@@ -8,25 +8,68 @@ import { returnFavouriteProductObject } from "@/utils/returnFavouriteProductObje
 
 export const useUserStore = defineStore("user", () => {
   const user = ref(null);
+  const profiles = ref(null);
   const loggedIn = ref(false);
+
   const {
     $useLoginUserWithEmailAndPasswordUseCase,
     $expressAuthBackendService,
     $expressUserBackendService,
     $useIndexedDBUserRepo,
     $useIndexedDBProfileRepo,
+    $useIndexedDBMessageRepo,
   } = useNuxtApp();
 
   const setUser = (newUser) => {
     user.value = newUser;
-    if (newUser !== null) return (loggedIn.value = true);
-    loggedIn.value = false;
+  };
+
+  const setProfiles = (profilesData) => {
+    profiles.value = profilesData;
   };
 
   const addressFormState = reactive({
     tag: undefined,
     address: undefined,
   });
+
+  const getUser = async () => {
+    try {
+      const localUser = await $useIndexedDBUserRepo.getUser();
+
+      if (localUser) {
+        setUser(localUser);
+      }
+
+      const profiles = await $useIndexedDBProfileRepo.getProfiles();
+      if (profiles) {
+        setProfiles(profiles);
+        return localUser;
+      }
+
+      const fetchedUser = await $expressAuthBackendService.login();
+
+      if (fetchedUser) {
+        await $useIndexedDBUserRepo.clearUser();
+        await $useIndexedDBProfileRepo.clearProfiles();
+
+        const profiledIds = user.profiles.map((profile) => profile.profileId);
+
+        const profilesData = await $expressUserBackendService.getProfilesData(
+          profiledIds
+        );
+
+        await $useIndexedDBUserRepo.storeUser(fetchedUser);
+        await $useIndexedDBProfileRepo.storeProfiles(profilesData);
+
+        setProfiles(profilesData);
+        setUser(fetchedUser);
+        return fetchedUser;
+      }
+    } catch (error) {
+      throw error;
+    }
+  };
 
   const fetchUserDetails = async (justSearchIndexedDB, redirect) => {
     if (user.value && loggedIn.value) return;
@@ -144,6 +187,7 @@ export const useUserStore = defineStore("user", () => {
     setUser,
     setUserDetailsInIndexDB,
     updateUser,
+    getUser,
     loggedIn,
     user,
     addressFormState,

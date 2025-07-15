@@ -3,6 +3,7 @@ import {
   UserExistenceError,
   ProfileExistenceError,
   UnexpectedError,
+  InvalidTokenError,
 } from "../../../domain/Error.js";
 
 export default function loginUser(userRepo, loginService) {
@@ -11,7 +12,11 @@ export default function loginUser(userRepo, loginService) {
       throw new ValidationError("No token was sent", null);
     }
 
-    const { id } = await loginService.verifyToken(token);
+    try {
+      var { id } = await loginService.verifyToken(token);
+    } catch (error) {
+      throw new InvalidTokenError("Error decoding token");
+    }
 
     const existingUser = await userRepo.findById(id);
 

@@ -16,4 +16,24 @@ export default class IndexedDBUserRepository extends LocalUserRepository {
       throw error;
     }
   }
+
+  async clearUser() {
+    try {
+      await this.db.user.clear();
+    } catch (error) {
+      throw error;
+    }
+  }
+
+  async getUser() {
+    try {
+      const userFromIndexDB = await this.db.user?.toArray();
+      if (userFromIndexDB && userFromIndexDB?.length > 0) {
+        return userFromIndexDB[0];
+      }
+      return null;
+    } catch (error) {
+      throw error;
+    }
+  }
 }

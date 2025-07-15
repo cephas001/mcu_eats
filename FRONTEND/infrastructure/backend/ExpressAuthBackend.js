@@ -21,7 +21,7 @@ export default class ExpressAuthBackend extends AuthBackend {
     try {
       return await this.api.request("/login", {
         method: "POST",
-        body: { token },
+        body: token ? { auth_token: token } : {},
       });
     } catch (error) {
       throw error;

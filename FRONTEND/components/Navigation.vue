@@ -38,11 +38,20 @@ import { ref } from "vue";
 import { useUserStore } from "@/stores/userStore";
 import { useCartStore } from "@/stores/cartStore";
 
+const {
+  $useLoginUserWithEmailAndPasswordUseCase,
+  $expressAuthBackendService,
+  $expressUserBackendService,
+  $useIndexedDBUserRepo,
+  $useIndexedDBProfileRepo,
+  $useIndexedDBMessageRepo,
+} = useNuxtApp();
+
 const cartStore = useCartStore();
 const { cart } = storeToRefs(cartStore);
 
 const userStore = useUserStore();
-const { user, loggedIn } = storeToRefs(userStore);
+const { user } = storeToRefs(userStore);
 
 const navigationItems = ref([]);
 
@@ -58,153 +67,173 @@ const totalCartSize = () => {
   }
 };
 
+const totalMessages = async () => {
+  const messages = await $useIndexedDBMessageRepo.getMessages();
+  const messageToBeReturned = messages.map((message) => {
+    return {
+      label: message.message + " - " + message.createdAt,
+      icon: "i-lucide-mail",
+      disabled: false,
+      color: "info",
+    };
+  });
+  return messageToBeReturned;
+};
+
 const fetchDetails = async () => {
+  const messages = await totalMessages();
   try {
     if (!user.value) {
-      await userStore.fetchUserDetails(true);
+      await userStore.getUser();
     }
-    if (loggedIn?.value) {
-      navigationItems.value = [
-        [
-          {
-            label: `${user?.value?.firstName + " " + user?.value?.lastName}`,
-            avatar: {
-              src: `${
-                user?.value?.picture
-                  ? user?.value?.picture
-                  : "avatars/avatar2.jpg"
-              }`,
-            },
-            to: "/profile",
+    navigationItems.value = [
+      [
+        {
+          label: `${user.value.name}`,
+          avatar: {
+            src: "avatars/avatar2.jpg",
           },
-          {
-            label: `${
-              user?.value?.hostel +
-              ". Room " +
-              user?.value?.roomNumber.toString()
-            }`,
-            icon: "i-material-symbols-pin-drop",
-            type: "label",
-            color: "info",
-          },
-        ],
-        [
-          {
-            label: "Home",
-            icon: "i-material-symbols-house-rounded",
-            to: "/",
-            color: "info",
-          },
-          {
-            label: `View Cart (${totalCartSize()})`,
-            icon: "i-material-symbols-garden-cart-outline-sharp",
-            to: "/cart",
-            color: "info",
-          },
-          {
-            label: "Favourites",
-            icon: "i-material-symbols-favorite",
-            color: "info",
-            to: "/profile/favourites",
-          },
-        ],
-        [
-          {
-            label: "Switch Role",
-            icon: "i-lucide-user",
-            children: [
+          to: "/profile",
+        },
+      ],
+      [
+        {
+          label: "Home",
+          icon: "i-material-symbols-house-rounded",
+          to: "/",
+          color: "info",
+        },
+        {
+          label: `View Cart (${totalCartSize()})`,
+          icon: "i-material-symbols-garden-cart-outline-sharp",
+          to: "/cart",
+          color: "info",
+        },
+        {
+          label: "Favourites",
+          icon: "i-material-symbols-favorite",
+          color: "info",
+          to: "/profile/favourites",
+        },
+      ],
+      [
+        {
+          label: "Switch Profile",
+          icon: "i-lucide-user",
+          children: [
+            [
+              {
+                label: "Consumer",
+                icon: "i-lucide-user",
+                disabled: false,
+                color: "info",
+              },
+              {
+                label: "Delivery",
+                icon: "i-material-symbols-delivery-truck-speed",
+                disabled: false,
+                color: "info",
+              },
+            ],
+          ],
+        },
+        ...(messages.length > 0
+          ? [
               [
                 {
-                  label: "Consumer",
-                  icon: "i-lucide-user",
-                  disabled: Boolean(
-                    `${user?.value?.role == "Consumer" ? true : false}`
-                  ),
-                  color: "info",
-                },
-                {
-                  label: "Delivery",
-                  icon: "i-material-symbols-delivery-truck-speed",
-                  disabled: Boolean(
-                    `${user?.value?.role == "Delivery" ? true : false}`
-                  ),
-                  color: "info",
+                  label: `Messages (${messages.length})`,
+                  icon: "i-lucide-message-square",
+                  children: [messages],
                 },
               ],
-            ],
-          },
-          {
-            label: "Change location",
-            icon: "i-material-symbols-edit-location-sharp",
-            color: "info",
-          },
-        ],
-        [
-          {
-            label: "Support",
-            icon: "i-material-symbols-question-mark-rounded",
-            color: "info",
-            to: "/profile/support",
-          },
-          {
-            label: "Logout",
-            color: "error",
-            icon: "i-lucide-log-out",
-            kbds: ["shift", "meta", "q"],
-            to: "/auth/logout",
-          },
-        ],
-      ];
-    } else {
-      navigationItems.value = [
-        [
-          {
-            label: "Guest",
-            avatar: {
-              src: "avatars/avatar2.jpg",
-            },
-            to: "/",
-          },
-        ],
-        [
-          {
-            label: "Home",
-            icon: "i-material-symbols-house-rounded",
-            to: "/",
-            color: "info",
-          },
-          {
-            label: `View Cart (${totalCartSize()})`,
-            icon: "i-material-symbols-garden-cart-outline-sharp",
-            to: "/cart",
-            color: "info",
-          },
-          {
-            label: "Favourites",
-            icon: "i-material-symbols-favorite",
-            color: "info",
-            to: "/profile/favourites",
-          },
-        ],
-        [
-          {
-            label: "Support",
-            icon: "i-material-symbols-question-mark-rounded",
-            color: "info",
-            to: "/profile/support",
-          },
-          {
-            label: "Login",
-            color: "primary",
-            icon: "i-lucide-log-in",
-            kbds: ["shift", "meta", "q"],
-            to: "/auth/login",
-          },
-        ],
-      ];
-    }
+            ]
+          : []),
+      ],
+      [
+        {
+          label: "Support",
+          icon: "i-material-symbols-question-mark-rounded",
+          color: "info",
+          to: "/profile/support",
+        },
+        {
+          label: "Logout",
+          color: "error",
+          icon: "i-lucide-log-out",
+          kbds: ["shift", "meta", "q"],
+          to: "/auth/logout",
+        },
+      ],
+    ];
   } catch (error) {
-    console.error("Error fetching user:", error);
+    if (error.type == "InvalidTokenError") {
+      await $useIndexedDBMessageRepo.clearMessages();
+      await $useIndexedDBMessageRepo.saveMessage("Please login");
+    }
+
+    if (error.type == "UserExistenceError") {
+      await $useIndexedDBMessageRepo.clearMessages();
+      await $useIndexedDBMessageRepo.saveMessage(
+        "Login to create a user account"
+      );
+    }
+
+    if (error.type == "ProfileExistenceError") {
+      await $useIndexedDBMessageRepo.clearMessages();
+      await $useIndexedDBMessageRepo.saveMessage("Login to create a profile");
+    }
+
+    navigationItems.value = [
+      [
+        {
+          label: "Guest",
+          avatar: {
+            src: "avatars/avatar2.jpg",
+          },
+          to: "/",
+        },
+      ],
+      [
+        {
+          label: "Home",
+          icon: "i-material-symbols-house-rounded",
+          to: "/",
+          color: "info",
+        },
+        {
+          label: `View Cart (${totalCartSize()})`,
+          icon: "i-material-symbols-garden-cart-outline-sharp",
+          to: "/cart",
+          color: "info",
+        },
+      ],
+      ...(messages.length > 0
+        ? [
+            [
+              {
+                label: `Messages (${messages.length})`,
+                icon: "i-lucide-message-square",
+                children: [messages],
+              },
+            ],
+          ]
+        : []),
+      [
+        {
+          label: "Support",
+          icon: "i-material-symbols-question-mark-rounded",
+          color: "info",
+          to: "/profile/support",
+        },
+        {
+          label: "Login",
+          color: "primary",
+          icon: "i-lucide-log-in",
+          kbds: ["shift", "meta", "q"],
+          to: "/auth/login",
+        },
+      ],
+    ];
   }
 };
 </script>

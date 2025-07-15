@@ -13,8 +13,8 @@ import {
 
 router.post("/login", async (req, res) => {
   try {
-    const { token } = req.body;
-    const user = await createLoginUserUseCase(token);
+    const { auth_token } = req.cookies || req.body;
+    const user = await createLoginUserUseCase(auth_token);
     res.json(user);
   } catch (error) {
     throw error;

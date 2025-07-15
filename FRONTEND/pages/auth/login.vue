@@ -144,6 +144,9 @@ const handleLogin = async () => {
       throw new Error("Failed to store auth token in cookie");
     }
 
+    await $useIndexedDBUserRepo.clearUser();
+    await $useIndexedDBProfileRepo.clearProfiles();
+
     const user = await $expressAuthBackendService.login(token);
 
     try {
