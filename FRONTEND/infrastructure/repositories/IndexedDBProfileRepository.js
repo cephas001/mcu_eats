@@ -53,4 +53,25 @@ export default class IndexedDBProfileRepository extends LocalProfileRepository {
       throw error;
     }
   }
+
+  async selectProfile(id) {
+    try {
+      const profiles = await this.getProfiles();
+      if (!profiles) return null;
+      const profile = await profiles.find(profile);
+      await this.db.selectedProfile.clear();
+      return await this.db.selectedProfile.add(stringifyArrays(profile));
+    } catch (error) {
+      throw error;
+    }
+  }
+
+  async getSelectedProfile() {
+    try {
+      const profiles = await this.db.selectedProfile.toArray();
+      return profiles;
+    } catch (error) {
+      throw error;
+    }
+  }
 }

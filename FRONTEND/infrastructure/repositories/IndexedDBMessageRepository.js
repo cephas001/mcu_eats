@@ -6,11 +6,11 @@ export default class IndexedDBMessageRepository extends LocalMessageRepository {
     this.db = db;
   }
 
-  async saveMessage(message) {
+  async saveMessage(message, type) {
     try {
       const existingMessages = await this.checkForExistingMessage(message);
       if (existingMessages.length > 0) return;
-      await this.db.messages.add({ message, createdAt: Date.now() });
+      await this.db.messages.add({ message, createdAt: Date.now(), type });
     } catch (error) {
       throw error;
     }
@@ -24,8 +24,15 @@ export default class IndexedDBMessageRepository extends LocalMessageRepository {
     }
   }
 
-  async getMessages() {
+  async getMessages(type) {
     try {
+      if (type) {
+        const messages = await this.db.messages
+          .where("type")
+          .equals(type)
+          .toArray();
+        return messages;
+      }
       const messages = await this.db.messages.toArray();
       const messagesToBeReturned = messages.map((message) => {
         return {
@@ -43,12 +50,14 @@ export default class IndexedDBMessageRepository extends LocalMessageRepository {
     }
   }
 
-  async clearMessages() {
+  async clearMessages(type) {
     try {
+      if (type) {
+        return await db.messages.where("type").equals(type).delete();
+      }
       return await this.db.messages.clear();
     } catch (error) {
       throw error;
-      s;
     }
   }
 

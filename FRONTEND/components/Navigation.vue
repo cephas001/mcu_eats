@@ -51,7 +51,7 @@ const cartStore = useCartStore();
 const { cart } = storeToRefs(cartStore);
 
 const userStore = useUserStore();
-const { user } = storeToRefs(userStore);
+const { user, isGuest } = storeToRefs(userStore);
 
 const navigationItems = ref([]);
 
@@ -71,7 +71,7 @@ const totalMessages = async () => {
   const messages = await $useIndexedDBMessageRepo.getMessages();
   const messageToBeReturned = messages.map((message) => {
     return {
-      label: message.message + " - " + message.createdAt,
+      label: message.message,
       icon: "i-lucide-mail",
       disabled: false,
       color: "info",
@@ -83,9 +83,8 @@ const totalMessages = async () => {
 const fetchDetails = async () => {
   const messages = await totalMessages();
   try {
-    if (!user.value) {
-      await userStore.getUser();
-    }
+    await userStore.getUser();
+
     navigationItems.value = [
       [
         {
@@ -137,18 +136,18 @@ const fetchDetails = async () => {
             ],
           ],
         },
-        ...(messages.length > 0
-          ? [
-              [
-                {
-                  label: `Messages (${messages.length})`,
-                  icon: "i-lucide-message-square",
-                  children: [messages],
-                },
-              ],
-            ]
-          : []),
       ],
+      ...(messages.length > 0
+        ? [
+            [
+              {
+                label: `Messages (${messages.length})`,
+                icon: "i-lucide-message-square",
+                children: [messages],
+              },
+            ],
+          ]
+        : []),
       [
         {
           label: "Support",
@@ -166,23 +165,6 @@ const fetchDetails = async () => {
       ],
     ];
   } catch (error) {
-    if (error.type == "InvalidTokenError") {
-      await $useIndexedDBMessageRepo.clearMessages();
-      await $useIndexedDBMessageRepo.saveMessage("Please login");
-    }
-
-    if (error.type == "UserExistenceError") {
-      await $useIndexedDBMessageRepo.clearMessages();
-      await $useIndexedDBMessageRepo.saveMessage(
-        "Login to create a user account"
-      );
-    }
-
-    if (error.type == "ProfileExistenceError") {
-      await $useIndexedDBMessageRepo.clearMessages();
-      await $useIndexedDBMessageRepo.saveMessage("Login to create a profile");
-    }
-
     navigationItems.value = [
       [
         {
@@ -190,7 +172,7 @@ const fetchDetails = async () => {
           avatar: {
             src: "avatars/avatar2.jpg",
           },
-          to: "/",
+          to: "#",
         },
       ],
       [

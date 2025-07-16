@@ -10,6 +10,7 @@ export const useUserStore = defineStore("user", () => {
   const user = ref(null);
   const profiles = ref(null);
   const loggedIn = ref(false);
+  const isGuest = ref(false);
 
   const {
     $useLoginUserWithEmailAndPasswordUseCase,
@@ -20,12 +21,35 @@ export const useUserStore = defineStore("user", () => {
     $useIndexedDBMessageRepo,
   } = useNuxtApp();
 
-  const setUser = (newUser) => {
+  const setUser = async (newUser) => {
     user.value = newUser;
+    setGuest(false);
+    await $useIndexedDBMessageRepo.clearMessages("authentication");
+  };
+
+  const clearUser = async () => {
+    user.value = null;
+    await $useIndexedDBUserRepo.clearUser();
+  };
+
+  const clearProfiles = async () => {
+    profiles.value = null;
+    await $useIndexedDBProfileRepo.clearProfiles();
   };
 
   const setProfiles = (profilesData) => {
+    if (!user.value) return;
     profiles.value = profilesData;
+  };
+
+  const addProfile = (profile) => {
+    if (!user.value) return;
+    if (!profiles.value) return;
+    setProfiles([...profiles.value, profile]);
+  };
+
+  const setGuest = (guestOrNot) => {
+    isGuest.value = guestOrNot;
   };
 
   const addressFormState = reactive({
@@ -33,40 +57,112 @@ export const useUserStore = defineStore("user", () => {
     address: undefined,
   });
 
-  const getUser = async () => {
+  const fetchUser = async () => {
     try {
-      const localUser = await $useIndexedDBUserRepo.getUser();
+      if (isGuest.value) return;
 
-      if (localUser) {
-        setUser(localUser);
-      }
-
-      const profiles = await $useIndexedDBProfileRepo.getProfiles();
-      if (profiles) {
-        setProfiles(profiles);
-        return localUser;
-      }
+      const messages = await $useIndexedDBMessageRepo.getMessages(
+        "authentication"
+      );
+      if (messages.length > 0) return;
 
       const fetchedUser = await $expressAuthBackendService.login();
 
       if (fetchedUser) {
-        await $useIndexedDBUserRepo.clearUser();
-        await $useIndexedDBProfileRepo.clearProfiles();
-
-        const profiledIds = user.profiles.map((profile) => profile.profileId);
+        const profiledIds = fetchedUser.profiles.map(
+          (profile) => profile.profileId
+        );
 
         const profilesData = await $expressUserBackendService.getProfilesData(
           profiledIds
         );
 
+        setUser(fetchedUser);
+        setProfiles(profilesData);
+
         await $useIndexedDBUserRepo.storeUser(fetchedUser);
         await $useIndexedDBProfileRepo.storeProfiles(profilesData);
 
-        setProfiles(profilesData);
-        setUser(fetchedUser);
         return fetchedUser;
       }
+
+      return null;
     } catch (error) {
+      if (
+        (error.type == "ValidationError" || error.type == "UnexpectedError") &&
+        !isGuest.value
+      ) {
+        setGuest(true);
+        await clearUser();
+        await clearProfiles();
+        return;
+      }
+
+      if (error.type == "InvalidTokenError") {
+        await clearUser();
+        await clearProfiles();
+
+        await $useIndexedDBMessageRepo.saveMessage(
+          "Please login",
+          "authentication"
+        );
+        return;
+      }
+
+      if (error.type == "UserExistenceError") {
+        await clearUser();
+        await clearProfiles();
+        await $useIndexedDBMessageRepo.saveMessage(
+          "Please login to finish registration",
+          "authentication"
+        );
+        return;
+      }
+
+      if (error.type == "ProfileExistenceError") {
+        await clearUser();
+        await clearProfiles();
+        await $useIndexedDBMessageRepo.saveMessage(
+          "Please login to finish registration",
+          "authentication"
+        );
+        return;
+      }
+
+      if (error.type == "UnexpectedError") {
+        await clearUser();
+        await clearProfiles();
+        await $useIndexedDBMessageRepo.saveMessage(
+          "Please retry login",
+          "authentication"
+        );
+        return;
+      }
+      throw error;
+    }
+  };
+
+  const getUser = async () => {
+    try {
+      if (isGuest.value) return;
+
+      if (user.value && profiles.value) return user.value;
+
+      const localUser = await $useIndexedDBUserRepo.getUser();
+      if (localUser) setUser(localUser);
+
+      const storedProfiles = await $useIndexedDBProfileRepo.getProfiles();
+
+      if (storedProfiles) {
+        setProfiles(storedProfiles);
+        return localUser;
+      }
+
+      const dbUser = await fetchUser();
+
+      return dbUser;
+    } catch (error) {
+      console.log(error);
       throw error;
     }
   };
@@ -185,9 +281,13 @@ export const useUserStore = defineStore("user", () => {
   return {
     fetchUserDetails,
     setUser,
+    fetchUser,
     setUserDetailsInIndexDB,
     updateUser,
     getUser,
+    setGuest,
+    addProfile,
+    setProfiles,
     loggedIn,
     user,
     addressFormState,

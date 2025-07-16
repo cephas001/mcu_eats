@@ -1,19 +1,25 @@
 <template>
-  <section v-if="!loadingUser" class="px-6 pt-20 pb-25">
+  <section v-if="!loadingUser" class="px-6 pt-22 pb-20">
     <div class="w-full text-right">
-      <h1>{{ user.firstName + " " + user.lastName }}</h1>
+      <h1>{{ user?.name }}</h1>
       <p class="text-sm font-semibold">
-        {{ user.username ? "@" + user.username : "no username" }}
+        {{ user?.email }}
       </p>
     </div>
 
-    <div class="mt-10">
+    <div class="mt-15">
       <!-- DETAILS -->
       <ProfileCard
-        text="My details"
+        text="General details"
         url="/profile/details"
-        :verifiedEmail="user.verifiedEmail"
+        :verifiedEmail="user?.verifiedEmail"
         iconName="i-material-symbols-person-2-outline"
+      />
+      <!-- PROFILES -->
+      <ProfileCard
+        text="My profiles"
+        url="/profile/details"
+        iconName="i-material-symbols-person-pin-outline-rounded"
       />
       <!-- ORDERS -->
       <ProfileCard
@@ -21,7 +27,13 @@
         url="/orders"
         iconName="i-material-symbols-shopping-bag-speed-outline"
       />
-      <!-- SAVED ADDRESSES -->
+      <!-- MESSAGES -->
+      <ProfileCard
+        text="Messages"
+        url="/orders"
+        iconName="i-material-symbols-android-messages-outline"
+      />
+      <!-- ADDRESSES -->
       <ProfileCard
         text="Saved addresses"
         url="/profile/addresses"
@@ -66,15 +78,15 @@ const loadingUser = ref(false);
 
 onMounted(async () => {
   try {
+    loadingUser.value = true;
+    const user = await userStore.fetchUser();
     if (!user) {
-      await userStore.fetchUserDetails();
-    } else {
-      loadingUser.value = false;
+      return await navigateTo("/");
     }
   } catch (error) {
-    console.log(error);
-  } finally {
-    loadingUser.value = false;
+    return await navigateTo("/");
   }
+
+  loadingUser.value = false;
 });
 </script>

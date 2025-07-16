@@ -102,6 +102,8 @@ import { useLogInStore } from "@/stores/logInStore";
 import { navigateTo, useNuxtApp } from "nuxt/app";
 import { storeToRefs } from "pinia";
 import { onMounted } from "vue";
+import { useUserStore } from "@/stores/userStore";
+const userStore = useUserStore();
 
 const tryingToLogin = ref(false);
 const settingLocalStorage = ref(false);
@@ -153,17 +155,20 @@ const handleLogin = async () => {
       tryingToLogin.value = false;
       settingLocalStorage.value = true;
 
-      await $useIndexedDBUserRepo.storeUser(user);
       const profiledIds = user.profiles.map((profile) => profile.profileId);
 
       const profilesData = await $expressUserBackendService.getProfilesData(
         profiledIds
       );
 
-      await $useIndexedDBProfileRepo.storeProfiles(profilesData);
+      await userStore.setUser(user);
+      userStore.setProfiles(profilesData);
 
+      await $useIndexedDBUserRepo.storeUser(user);
+      await $useIndexedDBProfileRepo.storeProfiles(profilesData);
       router.back();
     } catch (error) {
+      console.log(error);
       showErrorModal.value = true;
     }
   } catch (error) {

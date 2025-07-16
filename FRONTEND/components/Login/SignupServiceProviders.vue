@@ -23,7 +23,9 @@ import GoogleIcon from "@/assets/images/google.73c708cb.svg";
 import FacebookIcon from "@/assets/images/facebook.e4480188.svg";
 import { useNuxtApp } from "nuxt/app";
 import { useLogInStore } from "@/stores/logInStore";
+import { useUserStore } from "@/stores/userStore";
 
+const userStore = useUserStore();
 const { clearError } = useLogInStore();
 
 const router = useRouter();
@@ -67,16 +69,19 @@ const providerSignIn = async (provider) => {
     const user = await $expressAuthBackendService.login(token);
 
     try {
-      emit("performingLoginSignup", false);
+      // emit("performingLoginSignup", false);
       emit("settingStorage", true);
 
-      await $useIndexedDBUserRepo.storeUser(user);
       const profiledIds = user.profiles.map((profile) => profile.profileId);
 
       const profilesData = await $expressUserBackendService.getProfilesData(
         profiledIds
       );
 
+      await userStore.setUser(user);
+      userStore.setProfiles(profilesData);
+
+      await $useIndexedDBUserRepo.storeUser(user);
       await $useIndexedDBProfileRepo.storeProfiles(profilesData);
     } catch (error) {
       emit("showModal", true);

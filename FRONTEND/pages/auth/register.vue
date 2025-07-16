@@ -89,11 +89,13 @@
 
 <script setup>
 import { useLogInStore } from "@/stores/logInStore";
+import { useUserStore } from "@/stores/userStore";
 import { storeToRefs } from "pinia";
 import { navigateTo, useNuxtApp } from "nuxt/app";
 import { onMounted } from "vue";
 
 const logInStore = useLogInStore();
+const userStore = useUserStore();
 
 const { registrationForm, displayError, clearError } = useLogInStore();
 
@@ -106,11 +108,8 @@ const showErrorModal = ref(false);
 const handleRegister = async () => {
   tryingToRegister.value = true;
   try {
-    const {
-      $expressAuthBackendService,
-      $expressUserBackendService,
-      $useIndexedDBUserRepo,
-    } = useNuxtApp();
+    const { $expressAuthBackendService, $expressUserBackendService } =
+      useNuxtApp();
 
     const { id, email, verifiedEmail } =
       await $expressAuthBackendService.verifyToken();
@@ -130,8 +129,6 @@ const handleRegister = async () => {
     try {
       tryingToRegister.value = false;
       settingLocalStorage.value = true;
-
-      await $useIndexedDBUserRepo.storeUser(user);
 
       await navigateTo(`/auth/profile?category=${user?.category}`);
     } catch (error) {

@@ -132,11 +132,14 @@ import { navigateTo } from "nuxt/app";
 import { storeToRefs } from "pinia";
 import { onMounted } from "vue";
 import { useRoute } from "vue-router";
+import { useUserStore } from "@/stores/userStore";
 
 const route = useRoute();
 const category = ref("");
 
 const logInStore = useLogInStore();
+const userStore = useUserStore();
+
 const { profileRegistrationForm, displayError, clearError } = logInStore;
 const { profileRegistrationErrors } = storeToRefs(logInStore);
 
@@ -188,8 +191,10 @@ const handleFormSubmit = async () => {
       tryingToCreateProfile.value = false;
       settingLocalStorage.value = true;
 
-      await $useIndexedDBUserRepo.storeUser(updatedUser);
+      await userStore.setUser(updatedUser);
+      userStore.addProfile(savedProfile);
 
+      await $useIndexedDBUserRepo.storeUser(updatedUser);
       await $useIndexedDBProfileRepo.addProfile(savedProfile);
 
       await navigateTo("/");
