@@ -1,33 +1,27 @@
 <template>
   <ProfilePageHeader
-    text="My details"
+    text="General details"
     classList="mb-4 px-6 pt-8 pb-4"
-    v-if="!verificationSent"
+    v-if="!loadingUser && !verificationSent && !updatingUser"
   />
 
   <section
     class="relative min-h-[80vh] pb-5"
-    v-if="!loadingUser && !sendingEmail"
+    v-if="!loadingUser && !sendingEmail && !updatingUser"
   >
     <!-- Name -->
     <ProfileDetailsCard
       text="Name"
-      :subtext="user?.firstName + ' ' + user?.lastName"
+      :subtext="user?.name"
       :edit="true"
       iconName="i-material-symbols-light-person-outline"
       @click="expand('name')"
-    />
-    <!-- Username -->
-    <ProfileDetailsCard
-      text="Username"
-      :subtext="user?.username ? '@' + user?.username : 'NOT SET'"
-      iconName="i-material-symbols-light-person-outline"
     />
     <!-- Phone Number -->
     <ProfileDetailsCard
       text="Phone Number"
       :edit="true"
-      :subtext="computedPhoneNumber"
+      :subtext="user?.phoneNumber"
       iconName="i-material-symbols-call"
       @click="expand('phoneNumber')"
     />
@@ -39,12 +33,13 @@
       iconName="i-material-symbols-light-mail-outline"
       @click="expand('verifyEmail')"
     />
-    <!-- Gender -->
+    <!-- Status -->
     <ProfileDetailsCard
-      text="Gender"
-      :subtext="user?.gender"
-      iconName="i-material-symbols-supervisor-account-outline"
+      text="Account status"
+      :subtext="user?.status.toUpperCase()"
+      iconName="i-material-symbols-account-box-outline"
     />
+
     <!-- Verification link success message -->
     <div
       class="bg-white absolute inset-0 px-6 flex text-center justify-center flex-col"
@@ -53,7 +48,7 @@
       <p class="text-sm font-semibold mb-5 tracking-wide">Success</p>
       <p class="text-sm leading-5">
         A verification link has been sent to
-        <span class="font-semibold">{{ formState.email }}</span>
+        <span class="font-semibold">{{ registrationForm.email }}</span>
       </p>
 
       <button
@@ -71,26 +66,17 @@
     :sectionToExpand
     @closeSection="expandSection = false"
     @formSubmitted="submitForm"
+    v-if="!updatingUser"
   >
     <template v-slot:formfields_name>
       <div>
         <FormField
-          labelText="First Name"
+          labelText="Name"
           placeholder="First"
-          name="firstName"
+          name="name"
           type="text"
-          :state="formState"
-          @update="formState.first = $event"
-        />
-      </div>
-      <div>
-        <FormField
-          labelText="Last Name"
-          placeholder="Last"
-          name="lastName"
-          type="text"
-          :state="formState"
-          @update="formState.last = $event"
+          :state="registrationForm"
+          @update="registrationForm.name = $event"
         />
       </div>
     </template>
@@ -103,8 +89,8 @@
           name="phoneNumber"
           inputMode="numeric"
           type="text"
-          :state="formState"
-          @update="formState.phoneNumber = $event"
+          :state="registrationForm"
+          @update="registrationForm.phoneNumber = $event"
         />
       </div>
     </template>
@@ -120,8 +106,8 @@
           placeholder="Email"
           name="email"
           type="email"
-          :state="formState"
-          @update="formState.email = $event"
+          :state="registrationForm"
+          @update="registrationForm.email = $event"
         />
       </div>
     </template>
@@ -132,8 +118,9 @@
     imageSrc="/Pulse@1x-1.0s-200px-200px.svg"
     class="animate-none"
   />
+
   <LoadingIconLarge
-    :loading="sendingEmail"
+    :loading="sendingEmail || updatingUser"
     imageSrc="/Pulse@1x-1.0s-200px-200px.svg"
     class="animate-none"
   />
@@ -144,23 +131,14 @@ import { useUserStore } from "@/stores/userStore";
 import { useCookie } from "nuxt/app";
 import { useLogInStore } from "@/stores/logInStore";
 import { storeToRefs } from "pinia";
-import { useFormValidationMethods } from "@/composables/formValidation";
-import { computed } from "vue";
-
-const {
-  checkFormEmail,
-  checkFormFirstName,
-  checkFormLastName,
-  checkPhoneNumber,
-} = useFormValidationMethods();
 
 const userStore = useUserStore();
-const { user, loggedIn } = storeToRefs(userStore);
+const { user } = storeToRefs(userStore);
 
-const logInStore = useLogInStore();
-const { formState } = useLogInStore();
-const { error } = storeToRefs(logInStore);
+const { clearError, displayError } = useLogInStore();
+const { registrationForm } = useLogInStore();
 const loadingUser = ref(true);
+const updatingUser = ref(false);
 
 const expandSection = ref(false);
 const sectionToExpand = ref("");
@@ -180,78 +158,69 @@ const subSectionsList = ref([
 ]);
 
 const changeName = async () => {
-  checkFormFirstName();
-  checkFormLastName();
-
-  if (error.value.errorMessage !== "") {
-    // If form field validation fails
-    return;
-  } else {
-    await userStore.updateUser({
-      firstName: formState.firstName,
-      lastName: formState.lastName,
+  try {
+    await userStore.updateUser(user.value.id, {
+      ...user.value,
+      name: registrationForm.name,
     });
     expandSection.value = false;
+  } catch (error) {
+    throw error;
   }
 };
-const changeNumber = async () => {
-  checkPhoneNumber();
 
-  if (error.value.errorMessage !== "") {
-    // If form field validation fails
-    return;
-  } else {
-    await userStore.updateUser({ phoneNumber: formState.phoneNumber });
+const changeNumber = async () => {
+  try {
+    await userStore.updateUser(user.value.id, {
+      ...user.value,
+      phoneNumber: registrationForm.phoneNumber,
+    });
     expandSection.value = false;
+  } catch (error) {
+    throw error;
   }
 };
 
 const sendingEmail = ref(false);
 const verificationSent = ref(false);
+
 const verifyEmail = async () => {
-  checkFormEmail();
+  sendingEmail.value = true;
+  expandSection.value = false;
+  try {
+    const token = useCookie("auth_token");
+    const config = useRuntimeConfig();
 
-  if (error.value.errorMessage !== "") {
-    // If form field validation fails
-    return;
-  } else {
-    sendingEmail.value = true;
-    expandSection.value = false;
-    try {
-      const token = useCookie("auth_token");
-      const config = useRuntimeConfig();
+    const fullUrl = route.fullPath;
 
-      const fullUrl = route.fullPath;
-
-      const response = await $fetch(
-        `${config.public.apiBaseUrl}/users/verifyEmail/${user.value._id}`,
-        {
-          method: "POST",
-          body: {
-            email: formState.email,
-            fullName: formState.firstName + " " + formState.lastName,
-            url: fullUrl,
-          },
-          headers: {
-            Authorization: `Bearer ${token.value}`,
-          },
-        }
-      );
-      console.log(response);
-      if (response.sent) {
-        sendingEmail.value = false;
-        verificationSent.value = true;
+    const response = await $fetch(
+      `${config.public.apiBaseUrl}/users/verifyEmail/${user.value._id}`,
+      {
+        method: "POST",
+        body: {
+          email: registrationForm.email,
+          name: registrationForm.name,
+          url: fullUrl,
+        },
+        headers: {
+          Authorization: `Bearer ${token.value}`,
+        },
       }
-    } catch (error) {
-      console.log(error);
-    } finally {
+    );
+    console.log(response);
+    if (response.sent) {
       sendingEmail.value = false;
+      verificationSent.value = true;
     }
+  } catch (error) {
+    console.log(error);
+  } finally {
+    sendingEmail.value = false;
   }
 };
 
 const expand = (sectionToExpandText) => {
-  logInStore.clearError();
+  clearError();
   if (sectionToExpandText == "verifyEmail") {
     if (user?.value.verifiedEmail) {
       return;
@@ -261,49 +230,67 @@ const expand = (sectionToExpandText) => {
   expandSection.value = true;
 };
 
-const computedPhoneNumber = computed(() => {
-  if (user?.value?.phoneNumber) {
-    if (user?.value?.phoneNumber.toString().startsWith("234")) {
-      return "+" + user?.value?.phoneNumber.toString();
-    } else {
-      return "0" + user?.value?.phoneNumber.toString();
-    }
-  } else {
-    return "NOT SET";
-  }
-});
-
 const submitForm = async (event) => {
-  if (event == "name") {
-    await changeName();
-    return;
-  }
-  if (event == "phoneNumber") {
-    await changeNumber();
-    return;
-  }
-  if (event == "verifyEmail") {
-    await verifyEmail();
-    return;
+  try {
+    updatingUser.value = true;
+    if (event == "name") {
+      await changeName();
+      return;
+    }
+    if (event == "phoneNumber") {
+      await changeNumber();
+      return;
+    }
+    if (event == "verifyEmail") {
+      await verifyEmail();
+      return;
+    }
+  } catch (error) {
+    console.log(error);
+    if (error.type == "ValidationError") {
+      if (error.errorList) {
+        const { inputName, errorMessage } = error.errorList[0];
+        displayError(errorMessage, inputName);
+      } else {
+        displayError(error.message, error.inputName);
+      }
+
+      return;
+    }
+
+    if (error.type == "UserExistenceError") {
+      return await navigateTo("/auth/register");
+    }
+
+    if (error.type == "InvalidTokenError") {
+      return await navigateTo("/auth/login");
+    }
+
+    if (error.type == "UnexpectedError") {
+      console.log(error);
+    }
+  } finally {
+    updatingUser.value = false;
   }
 };
 
 onMounted(async () => {
   try {
-    if (!user?.value || !loggedIn?.value) {
-      await userStore.fetchUserDetails(false, true);
-    } else {
-      loadingUser.value = false;
-    }
+    loadingUser.value = true;
+    const user = await userStore.getUser();
 
-    formState.firstName = user?.value?.firstName;
-    formState.lastName = user?.value?.lastName;
-    formState.phoneNumber = user?.value?.phoneNumber;
-    formState.email = user?.value?.email;
+    registrationForm.name = user.name;
+    registrationForm.phoneNumber = user.phoneNumber;
+
+    console.log(user);
+    if (!user) {
+      return await navigateTo("/");
+    }
   } catch (error) {
     console.log(error);
-  } finally {
-    loadingUser.value = false;
+    return await navigateTo("/");
   }
+
+  loadingUser.value = false;
 });
 </script>

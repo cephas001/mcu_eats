@@ -10,7 +10,7 @@ export default class ExpressUserBackend extends UserBackend {
     try {
       return await this.api.request("/users", {
         method: "POST",
-        body: userData,
+        body: { userData },
       });
     } catch (error) {
       throw error;
@@ -34,7 +34,7 @@ export default class ExpressUserBackend extends UserBackend {
     try {
       return await this.api.request("/profile", {
         method: "POST",
-        body: profileData,
+        body: { profileData },
       });
     } catch (error) {
       throw error;
@@ -46,6 +46,17 @@ export default class ExpressUserBackend extends UserBackend {
       return await this.api.request("/profile-data", {
         method: "POST",
         body: { profileIds },
+      });
+    } catch (error) {
+      throw error;
+    }
+  }
+
+  async updateUser(userId, newUserData) {
+    try {
+      return await this.api.request(`/users/${userId}`, {
+        method: "PUT",
+        body: { id: userId, userData: newUserData },
       });
     } catch (error) {
       throw error;

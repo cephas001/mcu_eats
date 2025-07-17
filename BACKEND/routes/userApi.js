@@ -14,28 +14,29 @@ import express from "express";
 const router = express.Router();
 import { getAuth } from "firebase-admin/auth";
 
-import { createUserUseCase } from "../services/index.js";
+import { createUserUseCase, updateUserUseCase } from "../services/index.js";
 
 router.post("/users", async (req, res) => {
   try {
-    const { id, name, email, verifiedEmail, phoneNumber, role, category } =
-      req.body;
-
-    const user = await createUserUseCase({
-      id,
-      name,
-      email,
-      verifiedEmail,
-      phoneNumber,
-      role,
-      category,
-    });
-
+    const user = await createUserUseCase(req.body.userData);
     res.json(user);
   } catch (error) {
     throw error;
   }
 });
+
+router.put("/users/:id", verifyToken, async (req, res) => {
+  try {
+    const { id, userData } = req.body;
+
+    const user = await updateUserUseCase(id, userData);
+    res.json(user);
+  } catch (error) {
+    throw error;
+  }
+});
+
+// NOT REFACTORED
 
 router.get("/users/:id", verifyToken, async (req, res) => {
   const user = await Users.findById({ _id: req.params.id }).lean();
@@ -75,44 +76,6 @@ router.put("/users/favourites/:id", verifyToken, async (req, res) => {
   } catch (error) {
     console.log(error);
     res.json({ update: false, message: "An error occurred" });
-  }
-});
-
-router.put("/users/:id", verifyToken, async (req, res) => {
-  if (req.user.uid !== req.params.id) {
-    return res.json({ update: false, message: "Mismatched credentials" });
-  }
-  try {
-    // Adds an address to the user. Entire list should be sent from frontend as this just resets it
-    if (req.body.addresses) {
-      const { addresses } = req.body;
-      const updatedUser = await Users.findByIdAndUpdate(
-        req.params.id,
-        { addresses },
-        { new: true, runValidators: true }
-      ).populate("favouriteVendors.vendor");
-
-      return res.json({ update: true, user: updatedUser });
-    }
-
-    // Removes an address from the user.
-    if (req.body.removeAddress) {
-      const updatedUser = await Users.findByIdAndUpdate(
-        req.params.id,
-        { $pull: { address: { _id: req.body.addressId } } }, // Removes the entire object
-        { new: true }
-      ).populate("favouriteVendors.vendor");
-      return res.json({ update: true, user: updatedUser });
-    }
-
-    const updatedUser = await Users.findByIdAndUpdate(
-      req.params.id,
-      { $set: req.body },
-      { new: true }
-    ).populate("favouriteVendors.vendor");
-    res.json({ update: true, user: updatedUser });
-  } catch (error) {
-    res.status(500).json({ error: error.message });
   }
 });
 

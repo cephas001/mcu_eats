@@ -31,7 +31,7 @@ export default function loginUser(userRepo, loginService) {
     }
 
     try {
-      const user = await userRepo.update(id, { lastLogin: Date.now() });
+      const user = await userRepo.update(id, { lastLogin: new Date() });
 
       if (user) {
         return user;

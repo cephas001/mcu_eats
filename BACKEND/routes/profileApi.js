@@ -11,7 +11,9 @@ import {
 
 router.post("/profile", async (req, res) => {
   try {
-    const { savedProfile, updatedUser } = await createProfileUseCase(req.body);
+    const { savedProfile, updatedUser } = await createProfileUseCase(
+      req.body.profileData
+    );
     res.status(200).json({ savedProfile, updatedUser });
   } catch (error) {
     throw error;

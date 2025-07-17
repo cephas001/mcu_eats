@@ -8,7 +8,7 @@ const verifyToken = async (req, res, next) => {
     req.user = user;
     next();
   } catch (error) {
-    return res.json({ validToken: false, error: error.message });
+    throw error;
   }
 };
 

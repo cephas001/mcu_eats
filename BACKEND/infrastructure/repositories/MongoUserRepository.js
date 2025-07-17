@@ -11,10 +11,8 @@ export default class MongoUserRepository extends UserRepository {
     try {
       const { id, ...restOfUserData } = userData;
       const user = new this.userRepo({ _id: id, ...restOfUserData });
-
       const savedUser = await user.save();
       const { _id, ...restOfSavedUser } = savedUser.toObject();
-
       return { id: _id, ...restOfSavedUser };
     } catch (error) {
       console.error("Error creating user:", error);
@@ -75,7 +73,7 @@ export default class MongoUserRepository extends UserRepository {
       });
       if (!user) return null;
 
-      const { _id, ...rest } = user.toObject?.() || user; // Ensure it's a plain object
+      const { _id, ...rest } = user.toObject?.() || user;
       return { ...rest, id: _id };
     } catch (error) {
       throw error;

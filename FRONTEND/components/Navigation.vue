@@ -38,22 +38,24 @@ import { ref } from "vue";
 import { useUserStore } from "@/stores/userStore";
 import { useCartStore } from "@/stores/cartStore";
 
-const {
-  $useLoginUserWithEmailAndPasswordUseCase,
-  $expressAuthBackendService,
-  $expressUserBackendService,
-  $useIndexedDBUserRepo,
-  $useIndexedDBProfileRepo,
-  $useIndexedDBMessageRepo,
-} = useNuxtApp();
+const { $useIndexedDBMessageRepo } = useNuxtApp();
 
 const cartStore = useCartStore();
 const { cart } = storeToRefs(cartStore);
 
 const userStore = useUserStore();
-const { user, isGuest } = storeToRefs(userStore);
+const { user } = storeToRefs(userStore);
 
-const navigationItems = ref([]);
+const navigationItems = ref([
+  [
+    {
+      label: "loading details...",
+      to: "#",
+      icon: "i-material-symbols-hourglass-bottom-rounded",
+      color: "info",
+    },
+  ],
+]);
 
 const totalCartSize = () => {
   var total = 0;
@@ -69,7 +71,7 @@ const totalCartSize = () => {
 
 const totalMessages = async () => {
   const messages = await $useIndexedDBMessageRepo.getMessages();
-  const messageToBeReturned = messages.map((message) => {
+  const formattedMessages = messages.map((message) => {
     return {
       label: message.message,
       icon: "i-lucide-mail",
@@ -77,7 +79,7 @@ const totalMessages = async () => {
       color: "info",
     };
   });
-  return messageToBeReturned;
+  return formattedMessages;
 };
 
 const fetchDetails = async () => {
@@ -165,6 +167,7 @@ const fetchDetails = async () => {
       ],
     ];
   } catch (error) {
+    const messages = await totalMessages();
     navigationItems.value = [
       [
         {

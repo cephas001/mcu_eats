@@ -13,24 +13,28 @@ import { db } from "@/utils/db";
 const userStore = useUserStore();
 const router = useRouter();
 const route = useRoute();
+const {
+  $useLoginUserWithEmailAndPasswordUseCase,
+  $expressAuthBackendService,
+  $expressUserBackendService,
+  $useIndexedDBUserRepo,
+  $useIndexedDBProfileRepo,
+  $useIndexedDBMessageRepo,
+} = useNuxtApp();
+
 onMounted(async () => {
   try {
-    const response = await $fetch("/api/logout");
+    await $fetch("/api/logout");
 
-    if (response.message == "Logged out") {
-      userStore.setUser(null);
-      db.user.clear(); // Clear IndexedDB user data
-      db.favouriteVendors.clear(); // Clear IndexedDB favourite vendors
-      db.favouriteProducts.clear(); // Clear IndexedDB favourite products
-      db.cart.clear(); // Clear IndexedDB cart data
+    userStore.clearUser();
+    await $useIndexedDBUserRepo.clearUser();
+    await $useIndexedDBProfileRepo.clearProfiles();
+    await $useIndexedDBMessageRepo.clearMessages();
 
-      if (route.query.redirect) {
-        await navigateTo("/login");
-      } else {
-        await router.back();
-      }
+    if (route.query.redirect) {
+      await navigateTo("/login");
     } else {
-      throw new Error("An error occurred");
+      await router.back();
     }
   } catch (error) {
     console.log(error);

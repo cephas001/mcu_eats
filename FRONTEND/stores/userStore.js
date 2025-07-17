@@ -13,7 +13,6 @@ export const useUserStore = defineStore("user", () => {
   const isGuest = ref(false);
 
   const {
-    $useLoginUserWithEmailAndPasswordUseCase,
     $expressAuthBackendService,
     $expressUserBackendService,
     $useIndexedDBUserRepo,
@@ -24,7 +23,7 @@ export const useUserStore = defineStore("user", () => {
   const setUser = async (newUser) => {
     user.value = newUser;
     setGuest(false);
-    await $useIndexedDBMessageRepo.clearMessages("authentication");
+    await $useIndexedDBMessageRepo.clearMessages("user_authentication");
   };
 
   const clearUser = async () => {
@@ -62,7 +61,7 @@ export const useUserStore = defineStore("user", () => {
       if (isGuest.value) return;
 
       const messages = await $useIndexedDBMessageRepo.getMessages(
-        "authentication"
+        "user_authentication"
       );
       if (messages.length > 0) return;
 
@@ -104,7 +103,7 @@ export const useUserStore = defineStore("user", () => {
 
         await $useIndexedDBMessageRepo.saveMessage(
           "Please login",
-          "authentication"
+          "user_authentication"
         );
         return;
       }
@@ -114,7 +113,7 @@ export const useUserStore = defineStore("user", () => {
         await clearProfiles();
         await $useIndexedDBMessageRepo.saveMessage(
           "Please login to finish registration",
-          "authentication"
+          "user_authentication"
         );
         return;
       }
@@ -124,7 +123,7 @@ export const useUserStore = defineStore("user", () => {
         await clearProfiles();
         await $useIndexedDBMessageRepo.saveMessage(
           "Please login to finish registration",
-          "authentication"
+          "user_authentication"
         );
         return;
       }
@@ -134,7 +133,7 @@ export const useUserStore = defineStore("user", () => {
         await clearProfiles();
         await $useIndexedDBMessageRepo.saveMessage(
           "Please retry login",
-          "authentication"
+          "user_authentication"
         );
         return;
       }
@@ -163,6 +162,22 @@ export const useUserStore = defineStore("user", () => {
       return dbUser;
     } catch (error) {
       console.log(error);
+      throw error;
+    }
+  };
+
+  const updateUser = async (userId, newUserData) => {
+    try {
+      const user = await $expressUserBackendService.updateUser(
+        userId,
+        newUserData
+      );
+
+      setUser(user);
+      await $useIndexedDBUserRepo.storeUser(user);
+
+      return user;
+    } catch (error) {
       throw error;
     }
   };
@@ -258,32 +273,13 @@ export const useUserStore = defineStore("user", () => {
     }
   };
 
-  const updateUser = async (body) => {
-    try {
-      const config = useRuntimeConfig();
-      const response = await $fetch(
-        `${config.public.apiBaseUrl}/users/${user.value._id}`,
-        {
-          method: "PUT",
-          body,
-          credentials: "include",
-        }
-      );
-
-      if (response.user) {
-        setUser(response.user);
-      }
-    } catch (error) {
-      console.log(error);
-    }
-  };
-
   return {
     fetchUserDetails,
     setUser,
     fetchUser,
     setUserDetailsInIndexDB,
     updateUser,
+    clearUser,
     getUser,
     setGuest,
     addProfile,
