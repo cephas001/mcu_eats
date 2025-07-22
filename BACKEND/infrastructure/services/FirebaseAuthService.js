@@ -68,4 +68,21 @@ export default class FirebaseAuthService extends AuthService {
       }
     }
   }
+
+  async generateEmailVerificationLink(email, redirectURL) {
+    try {
+      const actionCodeSettings = {
+        url: redirectURL,
+        handleCodeInApp: false,
+      };
+
+      const link = await this.admin
+        .auth()
+        .generateEmailVerificationLink(email, actionCodeSettings);
+
+      return link;
+    } catch (error) {
+      throw error;
+    }
+  }
 }

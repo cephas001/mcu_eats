@@ -6,7 +6,7 @@ const router = express.Router();
 
 import {
   createProfileUseCase,
-  createGetProfilesDataUseCase,
+  getProfilesDataUseCase,
 } from "../services/index.js";
 
 router.post("/profile", async (req, res) => {
@@ -23,7 +23,7 @@ router.post("/profile", async (req, res) => {
 router.post("/profile-data", async (req, res) => {
   try {
     const { profileIds } = req.body;
-    const profileData = await createGetProfilesDataUseCase(profileIds);
+    const profileData = await getProfilesDataUseCase(profileIds);
 
     res.json(profileData);
   } catch (error) {

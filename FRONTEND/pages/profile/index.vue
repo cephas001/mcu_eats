@@ -65,7 +65,11 @@
       />
     </div>
   </section>
-  <LoadingIconLarge :loading="loadingUser" />
+  <LoadingIconLarge
+    :loading="loadingUser"
+    imageSrc="/Pulse@1x-1.0s-200px-200px.svg"
+    class="animate-none"
+  />
 </template>
 
 <script setup>

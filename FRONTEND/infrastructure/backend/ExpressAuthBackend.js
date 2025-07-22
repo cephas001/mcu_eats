@@ -27,4 +27,19 @@ export default class ExpressAuthBackend extends AuthBackend {
       throw error;
     }
   }
+
+  async verifyEmail(urlFrom, userId) {
+    try {
+      return await this.api.request(`/users/verifyEmail`, {
+        method: "POST",
+        body: {
+          urlFrom,
+          userId,
+        },
+      });
+    } catch (error) {
+      console.log(error);
+      throw error;
+    }
+  }
 }

@@ -3,7 +3,14 @@
     class="flex flex-col justify-center py-5 px-6 min-h-[70vh]"
     v-if="!tryingToRegister"
   >
-    <div class="text-center mt-10 mb-5">
+    <div class="px-3 mt-7">
+      Step 2 of
+      <span
+        class="border-b-primary_light border-l-primary_light border-r-primary border-t-primary border-2 px-2 py-1 rounded-full ml-[0.5px]"
+        >3</span
+      >
+    </div>
+    <div class="text-center mt-7 mb-5">
       <h1 class="font-bold text-2xl mb-3">Almost There</h1>
       <p class="text-md font-manrope tracking-tight">
         We need just a few more details from you

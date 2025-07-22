@@ -2,7 +2,9 @@
   <ProfilePageHeader
     text="General details"
     classList="mb-4 px-6 pt-8 pb-4"
-    v-if="!loadingUser && !verificationSent && !updatingUser"
+    v-if="
+      !loadingUser && !verificationSent && !updatingUser && !verificationNotSent
+    "
   />
 
   <section
@@ -46,14 +48,35 @@
       v-if="verificationSent"
     >
       <p class="text-sm font-semibold mb-5 tracking-wide">Success</p>
-      <p class="text-sm leading-5">
+      <div class="text-sm leading-5">
         A verification link has been sent to
-        <span class="font-semibold">{{ registrationForm.email }}</span>
+        <span class="font-semibold">{{ loginForm.email }}</span>
+        <p class="mt-2">Please click the link to verify your email address</p>
+      </div>
+
+      <button
+        class="px-7 py-3 tracking-wide text-sm bg-primary rounded-2xl w-fit mx-auto mt-3 text-white"
+        @click="verificationSent = false"
+      >
+        Ok
+      </button>
+    </div>
+
+    <!-- Verification link failure -->
+    <div
+      class="bg-white absolute inset-0 px-6 flex text-center justify-center flex-col"
+      v-if="verificationNotSent"
+    >
+      <p class="text-sm font-semibold mb-5 tracking-wide text-red-700">
+        Failure
+      </p>
+      <p class="text-sm leading-5 px-4">
+        Failed to send verification link. Please try again later.
       </p>
 
       <button
-        class="px-7 py-3 tracking-wide text-sm bg-primary rounded-2xl w-fit mx-auto mt-5 text-white"
-        @click="verificationSent = false"
+        class="px-5 py-3 tracking-wide text-sm bg-primary rounded-2xl w-fit mx-auto mt-3 text-white"
+        @click="verificationNotSent = false"
       >
         Ok
       </button>
@@ -97,17 +120,13 @@
 
     <template v-slot:formfields_verifyEmail>
       <div>
-        <div class="mb-4">
-          <label for="verifyEmail">Verify email address</label>
-        </div>
-
         <FormField
           labelText="Email"
           placeholder="Email"
           name="email"
           type="email"
-          :state="registrationForm"
-          @update="registrationForm.email = $event"
+          :state="loginForm"
+          @update="loginForm.email = $event"
         />
       </div>
     </template>
@@ -128,15 +147,18 @@
 
 <script setup>
 import { useUserStore } from "@/stores/userStore";
-import { useCookie } from "nuxt/app";
 import { useLogInStore } from "@/stores/logInStore";
 import { storeToRefs } from "pinia";
+
+const { $expressAuthBackendService } = useNuxtApp();
+
+const route = useRoute();
 
 const userStore = useUserStore();
 const { user } = storeToRefs(userStore);
 
 const { clearError, displayError } = useLogInStore();
-const { registrationForm } = useLogInStore();
+const { registrationForm, loginForm } = useLogInStore();
 const loadingUser = ref(true);
 const updatingUser = ref(false);
 
@@ -146,14 +168,17 @@ const subSectionsList = ref([
   {
     title: "Edit name",
     name: "name",
+    buttonText: "Change Name",
   },
   {
     title: "Phone Number",
     name: "phoneNumber",
+    buttonText: "Change Phone Number",
   },
   {
     title: "Verify email",
     name: "verifyEmail",
+    buttonText: "Send verification link",
   },
 ]);
 
@@ -183,35 +208,19 @@ const changeNumber = async () => {
 
 const sendingEmail = ref(false);
 const verificationSent = ref(false);
-
+const verificationNotSent = ref(false);
 const verifyEmail = async () => {
   sendingEmail.value = true;
   expandSection.value = false;
   try {
-    const token = useCookie("auth_token");
-    const config = useRuntimeConfig();
-
-    const fullUrl = route.fullPath;
-
-    const response = await $fetch(
-      `${config.public.apiBaseUrl}/users/verifyEmail/${user.value._id}`,
-      {
-        method: "POST",
-        body: {
-          email: registrationForm.email,
-          name: registrationForm.name,
-          url: fullUrl,
-        },
-        headers: {
-          Authorization: `Bearer ${token.value}`,
-        },
-      }
-    );
-    console.log(response);
-    if (response.sent) {
-      sendingEmail.value = false;
-      verificationSent.value = true;
+    const urlFrom = route.fullPath;
+    const userId = user.value.id;
+    const sent = await $expressAuthBackendService.verifyEmail(urlFrom, userId);
+    if (!sent) {
+      verificationNotSent.value = true;
+      return;
     }
+    verificationSent.value = true;
   } catch (error) {
     console.log(error);
   } finally {
@@ -281,6 +290,7 @@ onMounted(async () => {
 
     registrationForm.name = user.name;
     registrationForm.phoneNumber = user.phoneNumber;
+    loginForm.email = user.email;
 
     console.log(user);
     if (!user) {

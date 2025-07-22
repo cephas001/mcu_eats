@@ -1,6 +1,13 @@
 <template>
   <section class="py-5 px-6" v-if="!tryingToSignIn">
-    <div class="text-center mt-10 mb-5">
+    <div class="px-3 mt-7">
+      Step 1 of
+      <span
+        class="border-b-primary_light border-x-primary_light border-t-primary border-2 px-2 py-1 rounded-full ml-[0.5px]"
+        >3</span
+      >
+    </div>
+    <div class="text-center mt-8 mb-5">
       <h1 class="font-bold text-2xl mb-3">Welcome</h1>
       <p class="text-md font-manrope tracking-tight">
         Continue with one of the following options

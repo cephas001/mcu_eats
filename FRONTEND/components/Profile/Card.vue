@@ -9,7 +9,7 @@
       {{ text }}
       <span
         class="bg-primary text-white px-4 py-1 rounded-full text-[10px] tracking-wide"
-        v-if="text == 'My details' && !verifiedEmail"
+        v-if="text == 'General details' && !verifiedEmail"
         >Verify email</span
       >
     </h1>

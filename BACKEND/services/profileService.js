@@ -10,4 +10,4 @@ const profileRepo = new MongoProfileRepository(User, Profile);
 const userRepo = new MongoUserRepository(User, Profile);
 
 export const createProfileUseCase = createProfile(profileRepo, userRepo);
-export const createGetProfilesDataUseCase = getProfilesData(profileRepo);
+export const getProfilesDataUseCase = getProfilesData(profileRepo);
