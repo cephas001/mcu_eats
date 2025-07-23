@@ -34,7 +34,7 @@
   </section>
 </template>
 
-<script setup lang="ts">
+<script setup>
 definePageMeta({
   layout: "blank",
 });

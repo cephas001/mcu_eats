@@ -38,9 +38,7 @@ const emit = defineEmits([
 ]);
 
 const providerSignIn = async (provider) => {
-  // emit("performingLoginSignup", true);
   clearError();
-  emit("showModal", false);
   try {
     const {
       $useSignUpUserWithProviderUseCase,
@@ -69,9 +67,6 @@ const providerSignIn = async (provider) => {
     const user = await $expressAuthBackendService.login(token);
 
     try {
-      // emit("performingLoginSignup", false);
-      emit("settingStorage", true);
-
       const profiledIds = user.profiles.map((profile) => profile.profileId);
 
       const profilesData = await $expressUserBackendService.getProfilesData(
@@ -87,10 +82,9 @@ const providerSignIn = async (provider) => {
       emit("showModal", true);
       console.log(error);
     }
-
+    return;
     router.back();
   } catch (error) {
-    emit("performingLoginSignup", false);
     if (error.type == "UserExistenceError") {
       return await navigateTo("/auth/register");
     }
@@ -100,9 +94,6 @@ const providerSignIn = async (provider) => {
     }
 
     emit("error", error.message);
-  } finally {
-    emit("performingLoginSignup", false);
-    emit("settingStorage", false);
   }
 };
 </script>

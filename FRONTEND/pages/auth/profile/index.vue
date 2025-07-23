@@ -1,6 +1,6 @@
 <template>
   <section class="flex flex-col justify-center py-5 px-6 min-h-[70vh]">
-    <div class="text-center mt-10 mb-5">
+    <div class="text-center mt-8 mb-5">
       <h1 class="font-bold text-2xl mb-3">Profile</h1>
       <p class="text-md font-manrope tracking-tight">
         Select a profile to continue. <br />

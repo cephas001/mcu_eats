@@ -1,15 +1,10 @@
 import { defineStore } from "pinia";
-import { $fetch } from "ofetch";
-import { navigateTo } from "nuxt/app";
-import { db } from "@/utils/db";
-import { stringifyArrays } from "@/utils/stringifyArrays";
-import { useVendorStore } from "@/stores/vendorStore";
-import { returnFavouriteProductObject } from "@/utils/returnFavouriteProductObject";
+import { useMessagesStore } from "./messagesStore";
 
 export const useUserStore = defineStore("user", () => {
   const user = ref(null);
   const profiles = ref(null);
-  const loggedIn = ref(false);
+  const selectedProfile = ref(null);
   const isGuest = ref(false);
 
   const {
@@ -20,30 +15,37 @@ export const useUserStore = defineStore("user", () => {
     $useIndexedDBMessageRepo,
   } = useNuxtApp();
 
-  const setUser = async (newUser) => {
+  const messagesStore = useMessagesStore();
+
+  const setUser = (newUser) => {
     user.value = newUser;
     setGuest(false);
-    await $useIndexedDBMessageRepo.clearMessages("user_authentication");
+    // await $useIndexedDBMessageRepo.clearMessages("user_authentication");
   };
 
-  const clearUser = async () => {
+  const clearUser = () => {
     user.value = null;
-    await $useIndexedDBUserRepo.clearUser();
+    // await $useIndexedDBUserRepo.clearUser();
   };
 
-  const clearProfiles = async () => {
+  const clearProfiles = () => {
     profiles.value = null;
-    await $useIndexedDBProfileRepo.clearProfiles();
+    // await $useIndexedDBProfileRepo.clearProfiles();
   };
 
   const setProfiles = (profilesData) => {
-    if (!user.value) return;
+    // if (!user.value) return;
     profiles.value = profilesData;
   };
 
+  const setSelectedProfile = (profile) => {
+    // if (!user.value) return;
+    selectedProfile.value = profile;
+  };
+
   const addProfile = (profile) => {
-    if (!user.value) return;
-    if (!profiles.value) return;
+    // if (!user.value) return;
+    // if (!profiles.value) return;
     setProfiles([...profiles.value, profile]);
   };
 
@@ -51,99 +53,116 @@ export const useUserStore = defineStore("user", () => {
     isGuest.value = guestOrNot;
   };
 
-  const addressFormState = reactive({
-    tag: undefined,
-    address: undefined,
-  });
+  const storeUser = async (userData) => {
+    try {
+      await $useIndexedDBUserRepo.storeUser(userData);
+    } catch (error) {
+      throw error;
+    }
+  };
+
+  const storeProfiles = async (profilesData) => {
+    try {
+      await $useIndexedDBProfileRepo.storeProfiles(profilesData);
+    } catch (error) {
+      throw error;
+    }
+  };
 
   const fetchUser = async () => {
     try {
-      if (isGuest.value) return;
+      if (isGuest.value) return null;
 
-      const messages = await $useIndexedDBMessageRepo.getMessages(
-        "user_authentication"
-      );
-      if (messages.length > 0) return;
+      // const messages = await $useIndexedDBMessageRepo.getMessages(
+      //   "user_authentication"
+      // );
+      const messages = messagesStore.getMessages("user_authentication");
+
+      if (messages.length > 0) return null;
 
       const fetchedUser = await $expressAuthBackendService.login();
 
-      if (fetchedUser) {
-        const profiledIds = fetchedUser.profiles.map(
-          (profile) => profile.profileId
-        );
+      if (!fetchedUser) return null;
 
-        const profilesData = await $expressUserBackendService.getProfilesData(
-          profiledIds
-        );
+      const profiledIds = fetchedUser.profiles.map(
+        (profile) => profile.profileId
+      );
 
-        setUser(fetchedUser);
-        setProfiles(profilesData);
+      const profilesData = await $expressUserBackendService.getProfilesData(
+        profiledIds
+      );
 
-        await $useIndexedDBUserRepo.storeUser(fetchedUser);
-        await $useIndexedDBProfileRepo.storeProfiles(profilesData);
+      setUser(fetchedUser);
+      setProfiles(profilesData);
 
-        return fetchedUser;
-      }
-
-      return null;
+      return { user: fetchedUser, profiles: profilesData };
     } catch (error) {
+      clearUser();
+      clearProfiles();
+
       if (
         (error.type == "ValidationError" || error.type == "UnexpectedError") &&
         !isGuest.value
       ) {
         setGuest(true);
-        await clearUser();
-        await clearProfiles();
         return;
       }
 
       if (error.type == "InvalidTokenError") {
-        await clearUser();
-        await clearProfiles();
-
-        await $useIndexedDBMessageRepo.saveMessage(
-          "Please login",
-          "user_authentication"
-        );
+        messagesStore.addMessage({
+          type: "user_authentication",
+          text: "Please login",
+        });
+        // await $useIndexedDBMessageRepo.saveMessage(
+        //   "Please login",
+        //   "user_authentication"
+        // );
         return;
       }
 
       if (error.type == "UserExistenceError") {
-        await clearUser();
-        await clearProfiles();
-        await $useIndexedDBMessageRepo.saveMessage(
-          "Please login to finish registration",
-          "user_authentication"
-        );
+        messagesStore.addMessage({
+          type: "user_authentication",
+          text: "Please login to finish registration",
+        });
+        // await $useIndexedDBMessageRepo.saveMessage(
+        //   "Please login to finish registration",
+        //   "user_authentication"
+        // );
         return;
       }
 
       if (error.type == "ProfileExistenceError") {
-        await clearUser();
-        await clearProfiles();
-        await $useIndexedDBMessageRepo.saveMessage(
-          "Please login to finish registration",
-          "user_authentication"
-        );
+        messagesStore.addMessage({
+          type: "user_authentication",
+          text: "Please login to finish registration",
+        });
+        // await $useIndexedDBMessageRepo.saveMessage(
+        //   "Please login to finish registration",
+        //   "user_authentication"
+        // );
         return;
       }
 
       if (error.type == "UnexpectedError") {
-        await clearUser();
-        await clearProfiles();
-        await $useIndexedDBMessageRepo.saveMessage(
-          "Please retry login",
-          "user_authentication"
-        );
+        messagesStore.addMessage({
+          type: "user_authentication",
+          text: "Please retry login",
+        });
+        // await $useIndexedDBMessageRepo.saveMessage(
+        //   "Please retry login",
+        //   "user_authentication"
+        // );
         return;
       }
+
       throw error;
     }
   };
 
   const getUser = async () => {
     try {
-      if (isGuest.value) return;
+      if (isGuest.value) return null;
 
       if (user.value && profiles.value) return user.value;
 
@@ -157,9 +176,14 @@ export const useUserStore = defineStore("user", () => {
         return localUser;
       }
 
-      const dbUser = await fetchUser();
-
-      return dbUser;
+      try {
+        const data = await fetchUser();
+        if (!data) return null;
+        const { user, profiles } = data;
+        return { user, profiles };
+      } catch (error) {
+        throw error;
+      }
     } catch (error) {
       console.log(error);
       throw error;
@@ -182,110 +206,54 @@ export const useUserStore = defineStore("user", () => {
     }
   };
 
-  const fetchUserDetails = async (justSearchIndexedDB, redirect) => {
-    if (user.value && loggedIn.value) return;
+  const getSelectedProfile = async () => {
+    if (isGuest.value) return null;
+    if (selectedProfile.value) return selectedProfile.value;
 
-    try {
-      // Check if user details are already stored in IndexedDB
-      const userFromIndexDB = await db.user.toArray();
-      if (userFromIndexDB.length > 0) {
-        setUser(userFromIndexDB[0]);
-        return;
-      }
+    const selectedProfileIndexedDB =
+      await $useIndexedDBProfileRepo.getSelectedProfile();
 
-      if (justSearchIndexedDB) {
-        return;
-      }
-
-      // If not found in IndexedDB, fetch from API
-      const config = useRuntimeConfig();
-      const response = await $fetch(
-        `${config.public.apiBaseUrl}/loggedInUser`,
-        {
-          credentials: "include",
-        }
-      );
-
-      if (!response.user) {
-        setUser(null);
-        if (redirect) {
-          return await navigateTo({
-            path: "/logout",
-            query: { redirect: true },
-          });
-        }
-        return await navigateTo("/logout");
-      }
-
-      setUserDetailsInIndexDB(response.user);
-      setUser(response.user);
-    } catch (error) {
-      console.error("Error fetching user details:", error);
-      throw new Error("Error fetching user details: " + error);
+    if (selectedProfileIndexedDB) {
+      setSelectedProfile(selectedProfileIndexedDB);
     }
+
+    return selectedProfileIndexedDB;
   };
 
-  const setUserDetailsInIndexDB = async (user) => {
+  const selectProfile = async (profileType) => {
     try {
-      const vendorStore = useVendorStore();
-      const { vendors } = storeToRefs(vendorStore);
+      const existingProfile = profiles.value.find(
+        (profile) => profile.type === profileType
+      );
+      if (!existingProfile) return null;
 
-      if (!vendors.value) {
-        await vendorStore.fetchVendors();
-      }
+      setSelectedProfile(existingProfile);
 
-      const favouriteVendorsToBeStored = user.favouriteVendors.map(
-        (vendorFav) => {
-          const vendor = vendors.value.find(
-            (storedVendor) => storedVendor._id === vendorFav.vendor
-          );
-          return stringifyArrays(vendor);
-        }
+      const selectedProfile = await $useIndexedDBProfileRepo.selectProfile(
+        profileType
       );
 
-      // Clear existing favourite products and store new ones
-      await db.favouriteProducts.clear();
-
-      user.favouriteProducts.forEach(async (product) => {
-        const foundProduct = await returnFavouriteProductObject(product);
-
-        await db.favouriteProducts.add(foundProduct);
-      });
-
-      const { favouriteVendors, favouriteProducts, ...restOfTheUserObject } =
-        user;
-
-      // Clear existing data and store new user data
-      await db.user.clear();
-      await db.user.put(stringifyArrays(restOfTheUserObject));
-
-      // Clear existing data and store new favourite vendors
-      await db.favouriteVendors.clear();
-      await db.favouriteVendors.bulkPut(favouriteVendorsToBeStored);
-
-      // Clear existing cart if user has no cart
-      if (!user.cart) {
-        await db.cart.clear();
+      if (selectedProfile) {
+        return selectedProfile;
+      } else {
+        return existingProfile;
       }
     } catch (error) {
-      console.log("Error saving user data locally:", error);
-      throw new Error("Error saving user data locally: " + error);
+      throw error;
     }
   };
 
   return {
-    fetchUserDetails,
     setUser,
     fetchUser,
-    setUserDetailsInIndexDB,
     updateUser,
     clearUser,
     getUser,
     setGuest,
     addProfile,
     setProfiles,
-    loggedIn,
+    getSelectedProfile,
+    selectProfile,
     user,
-    addressFormState,
   };
 });

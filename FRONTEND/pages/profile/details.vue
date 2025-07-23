@@ -292,7 +292,6 @@ onMounted(async () => {
     registrationForm.phoneNumber = user.phoneNumber;
     loginForm.email = user.email;
 
-    console.log(user);
     if (!user) {
       return await navigateTo("/");
     }

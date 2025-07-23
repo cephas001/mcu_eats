@@ -1,5 +1,5 @@
 <template>
-  <section class="pb-5 pt-15 px-6" v-if="!tryingToCreateProfile">
+  <section class="pb-5 pt-10 px-6" v-if="!tryingToCreateProfile">
     <ProfileAuthHeader
       title="Delivery Person"
       text="Set up a delivery person profile."
@@ -85,42 +85,27 @@
       </button>
     </UForm>
   </section>
-  <UModal
-    v-model:open="showErrorModal"
-    :dismissible="false"
-    @close:prevent="navigateTo('/')"
-    class="bg-white pb-4"
-    title="An error occurred"
-  >
-    <template #content>
-      <div class="px-5 py-10">
-        <h1 class="mt-2 tracking-wide flex flex-col gap-2">
-          <span
-            >Profile creation was successful, but an error occurred while trying
-            to save your data locally.</span
-          ><span> This might result in more frequent network calls.</span>
-        </h1>
-        <div class="mt-3 flex gap-2">
-          <button
-            @click="navigateTo('/')"
-            class="bg-black text-white text-sm tracking-wider py-2 px-3 rounded-md"
-          >
-            Proceed
-          </button>
-        </div>
-      </div>
-    </template>
-  </UModal>
-  <LoadingIconLarge
-    :loading="tryingToCreateProfile"
-    imageSrc="/Pulse@1x-1.0s-200px-200px.svg"
-    class="animate-none"
-  />
+
   <LoadingIconLarge
     :loading="settingLocalStorage"
     class="animate-none"
     imageSrc="/Rolling@1x-1.0s-200px-200px.svg"
     text="Setting up things for you..."
+  />
+
+  <LocalSaveError
+    v-if="showErrorModal"
+    action="Profile creation"
+    @firstButtonClick="navigateTo('/delivery-person')"
+    :dismissible="false"
+    @modalCloseAttempt="navigateTo('/delivery-person')"
+    :showSecondButton="false"
+  />
+
+  <LoadingIconLarge
+    :loading="tryingToCreateProfile"
+    imageSrc="/Pulse@1x-1.0s-200px-200px.svg"
+    class="animate-none"
   />
 </template>
 
@@ -180,7 +165,7 @@ const handleFormSubmit = async () => {
       await $useIndexedDBUserRepo.storeUser(updatedUser);
       await $useIndexedDBProfileRepo.addProfile(savedProfile);
 
-      await navigateTo("/");
+      await navigateTo("/delivery-person");
     } catch (error) {
       showErrorModal.value = true;
     }

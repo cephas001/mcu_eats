@@ -36,12 +36,15 @@ export default class FirebaseAuthService extends AuthService {
 
   async signUpUserWithProvider(provider) {
     try {
-      var serviceProvider;
+      var serviceProvider = null;
       if (provider == "google") {
         serviceProvider = new GoogleAuthProvider();
       }
       if (provider == "facebook") {
         serviceProvider = new FacebookAuthProvider();
+      }
+      if (!serviceProvider) {
+        throw new Error("Unsupported provider");
       }
       const result = await signInWithPopup(this.auth, serviceProvider);
       const user = result.user;

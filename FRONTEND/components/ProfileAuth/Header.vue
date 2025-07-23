@@ -1,5 +1,5 @@
 <template>
-  <div class="px-5 mb-10 flex justify-between items-center">
+  <div class="px-1 mb-10 flex justify-between items-center">
     <div>
       Step 3 of
       <span class="border-primary border-2 px-2 py-1 rounded-full ml-[0.5px]"
@@ -14,7 +14,7 @@
       <span>Back</span>
     </div>
   </div>
-  <div class="text-center mb-5 mt-5">
+  <div class="text-center mb-5 mt-7">
     <h1 class="font-bold text-2xl mb-3">{{ title }}</h1>
     <p class="text-md font-manrope tracking-tight">
       {{ text }}

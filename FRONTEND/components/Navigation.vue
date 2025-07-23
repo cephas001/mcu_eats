@@ -121,22 +121,8 @@ const fetchDetails = async () => {
         {
           label: "Switch Profile",
           icon: "i-lucide-user",
-          children: [
-            [
-              {
-                label: "Consumer",
-                icon: "i-lucide-user",
-                disabled: false,
-                color: "info",
-              },
-              {
-                label: "Delivery",
-                icon: "i-material-symbols-delivery-truck-speed",
-                disabled: false,
-                color: "info",
-              },
-            ],
-          ],
+          color: "info",
+          to: "/general/select-profile",
         },
       ],
       ...(messages.length > 0

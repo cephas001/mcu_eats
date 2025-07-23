@@ -42,7 +42,7 @@ export default class IndexedDBProfileRepository extends LocalProfileRepository {
   async getProfiles() {
     try {
       const profiles = await this.db.profiles.toArray();
-      if (profiles && profiles.length > 1) {
+      if (profiles && profiles.length > 0) {
         const profilesToReturn = profiles.map((profile) =>
           parseArrays(profile)
         );
@@ -54,13 +54,15 @@ export default class IndexedDBProfileRepository extends LocalProfileRepository {
     }
   }
 
-  async selectProfile(id) {
+  async selectProfile(type) {
     try {
       const profiles = await this.getProfiles();
-      if (!profiles) return null;
-      const profile = await profiles.find(profile);
+      if (!profiles) throw new Error("No profiles found");
+      const profile = await profiles.find((profile) => profile.type === type);
+      if (!profile) throw new Error("Profile not found");
       await this.db.selectedProfile.clear();
-      return await this.db.selectedProfile.add(stringifyArrays(profile));
+      await this.db.selectedProfile.add(stringifyArrays(profile));
+      return parseArrays(profile);
     } catch (error) {
       throw error;
     }
@@ -68,8 +70,14 @@ export default class IndexedDBProfileRepository extends LocalProfileRepository {
 
   async getSelectedProfile() {
     try {
-      const profiles = await this.db.selectedProfile.toArray();
-      return profiles;
+      const profiles = await this.getProfiles();
+      if (!profiles || profiles.length === 0) {
+        this.db.selectedProfile.clear();
+        return null;
+      }
+      const selectedProfile = await this.db.selectedProfile.toArray();
+      if (!selectedProfile || selectedProfile.length === 0) return null;
+      return parseArrays(selectedProfile[0]);
     } catch (error) {
       throw error;
     }

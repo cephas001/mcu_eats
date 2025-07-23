@@ -9,6 +9,8 @@ export default class IndexedDBUserRepository extends LocalUserRepository {
 
   async storeUser(userData) {
     try {
+      throw new Error("Method not implemented.");
+      return;
       await this.db.user.clear();
       await this.db.user.put(stringifyArrays(userData));
       return this.db.user.toArray();

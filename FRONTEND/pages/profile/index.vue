@@ -83,14 +83,17 @@ const loadingUser = ref(false);
 onMounted(async () => {
   try {
     loadingUser.value = true;
-    const user = await userStore.fetchUser();
+    const { user } = await userStore.getUser();
+    console.log(user);
+    return;
     if (!user) {
       return await navigateTo("/");
     }
   } catch (error) {
-    return await navigateTo("/");
+    console.log(error);
+    // return await navigateTo("/");
+  } finally {
+    loadingUser.value = false;
   }
-
-  loadingUser.value = false;
 });
 </script>

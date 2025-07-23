@@ -1,13 +1,14 @@
 <template>
   <section class="py-5 px-6" v-if="!tryingToSignIn">
-    <div class="px-3 mt-7">
+    <div class="px-1 mt-7">
       Step 1 of
       <span
         class="border-b-primary_light border-x-primary_light border-t-primary border-2 px-2 py-1 rounded-full ml-[0.5px]"
         >3</span
       >
     </div>
-    <div class="text-center mt-8 mb-5">
+
+    <div class="text-center mt-9 mb-5">
       <h1 class="font-bold text-2xl mb-3">Welcome</h1>
       <p class="text-md font-manrope tracking-tight">
         Continue with one of the following options
@@ -18,6 +19,7 @@
       :errorMessage="signUpErrors"
       classList="text-center mb-4"
     />
+
     <!-- Signup -->
     <UForm
       class="mb-5 flex flex-col gap-3"
@@ -59,10 +61,8 @@
     <LoginPolicyService />
 
     <LoginSignupServiceProviders
-      @error="showProviderError"
-      @performingLoginSignup="displayLoginLoader"
-      @settingStorage="displayStorageLoader"
-      @showModal="displayModal"
+      @error="signUpErrors = $event"
+      @showModal="showErrorModal = $event"
     />
 
     <LoginSwitchAction page="SignUpPage" />
@@ -71,38 +71,23 @@
   </section>
 
   <LoadingIconLarge
-    :loading="tryingToSignIn"
-    imageSrc="/Pulse@1x-1.0s-200px-200px.svg"
-    class="animate-none"
-  />
-  <UModal
-    v-model:open="showErrorModal"
-    class="bg-white pb-4"
-    title="An error occurred"
-  >
-    <template #content>
-      <div class="px-5 py-10">
-        <h1 class="mt-2 tracking-wide">
-          Login was successful, but an error occurred while trying to save your
-          data locally. <br />
-          This might result in more frequent network calls.
-        </h1>
-        <div class="mt-3 flex gap-2">
-          <button
-            @click="router.back()"
-            class="bg-black text-white text-sm tracking-wider py-2 px-3 rounded-md"
-          >
-            Proceed
-          </button>
-        </div>
-      </div>
-    </template>
-  </UModal>
-  <LoadingIconLarge
     :loading="settingLocalStorage"
     class="animate-none"
     imageSrc="/Rolling@1x-1.0s-200px-200px.svg"
     text="Setting up things for you..."
+  />
+
+  <LoadingIconLarge
+    :loading="tryingToSignIn"
+    imageSrc="/Pulse@1x-1.0s-200px-200px.svg"
+    class="animate-none"
+  />
+
+  <LocalSaveError
+    v-if="showErrorModal"
+    action="Login"
+    @firstButtonClick="navigateTo('/')"
+    :showSecondButton="false"
   />
 </template>
 
@@ -184,24 +169,7 @@ const handleSignUp = async () => {
   }
 };
 
-const showProviderError = (message) => {
-  signUpErrors.value = message;
-};
-
-const displayLoginLoader = (payload) => {
-  tryingToSignIn.value = payload;
-};
-
-const displayStorageLoader = (payload) => {
-  settingLocalStorage.value = payload;
-};
-
-const displayModal = (payload) => {
-  showErrorModal.value = payload;
-};
-
 onMounted(() => {
   clearError();
-  signUpErrors.value = "";
 });
 </script>
