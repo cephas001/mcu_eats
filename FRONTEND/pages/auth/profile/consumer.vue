@@ -1,4 +1,4 @@
-<template>
+npm run dev<template>
   <section class="pb-5 pt-15 px-6" v-if="!tryingToCreateProfile">
     <ProfileAuthHeader title="Consumer" text="Set up a consumer profile" />
 
