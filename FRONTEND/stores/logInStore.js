@@ -35,11 +35,10 @@ export const useLogInStore = defineStore("logIn", () => {
     matricNumber: undefined,
     vendorName: undefined,
     vendorTypeList: ["Restaurant", "Retailer", "Shop"],
-    vendorTypeValue: undefined, // PAUL USED AS VENDORTYPE
-    description: undefined,
-    vendorNumber: undefined,
-    vendorEmail: undefined,
-    vendorAddress: undefined,
+    vendorTypeValue: undefined,
+    vendorDescription: undefined,
+    businessNumber: undefined,
+    businessEmail: undefined,
     hostelList: ["Atuwase Hall", "Glenn Borris", "Jehovah Shammah"],
     hostelValue: undefined,
     categoryList: [
@@ -91,6 +90,8 @@ export const useLogInStore = defineStore("logIn", () => {
       },
     ],
     departmentValue: undefined,
+    openingTime: undefined,
+    closingTime: undefined,
   });
 
   // Gets passed dowm to Form Field component and displays the errors if any

@@ -95,13 +95,14 @@ const handleLogin = async () => {
   tryingToLogin.value = true;
   showErrorModal.value = false;
 
+  var userToStore = null;
+  var profiles = null;
+
   try {
     const {
       $useLoginUserWithEmailAndPasswordUseCase,
       $expressAuthBackendService,
       $expressUserBackendService,
-      $useIndexedDBUserRepo,
-      $useIndexedDBProfileRepo,
     } = useNuxtApp();
 
     const token = await $useLoginUserWithEmailAndPasswordUseCase({
@@ -109,42 +110,26 @@ const handleLogin = async () => {
       password: loginForm.password?.trim(),
     });
 
-    const response = await $fetch("/api/login", {
+    await $fetch("/api/login", {
       method: "POST",
       body: {
         token,
       },
     });
 
-    if (response.message !== "Success") {
-      throw new Error("Failed to store auth token in cookie");
-    }
-
-    await $useIndexedDBUserRepo.clearUser();
-    await $useIndexedDBProfileRepo.clearProfiles();
-
     const user = await $expressAuthBackendService.login(token);
 
-    try {
-      tryingToLogin.value = false;
-      settingLocalStorage.value = true;
+    const profiledIds = user.profiles.map((profile) => profile.profileId);
 
-      const profiledIds = user.profiles.map((profile) => profile.profileId);
+    const profilesData = await $expressUserBackendService.getProfilesData(
+      profiledIds
+    );
 
-      const profilesData = await $expressUserBackendService.getProfilesData(
-        profiledIds
-      );
+    userToStore = user;
+    profiles = profilesData;
 
-      await userStore.setUser(user);
-      userStore.setProfiles(profilesData);
-
-      await $useIndexedDBUserRepo.storeUser(user);
-      await $useIndexedDBProfileRepo.storeProfiles(profilesData);
-      router.back();
-    } catch (error) {
-      console.log(error);
-      showErrorModal.value = true;
-    }
+    userStore.setUser(user);
+    userStore.setProfiles(profilesData);
   } catch (error) {
     clearError();
 
@@ -173,8 +158,27 @@ const handleLogin = async () => {
     if (error.type == "UnexpectedError") {
       loginErrors.value = "An unexpected error occurred";
     }
+
+    return;
   } finally {
     tryingToLogin.value = false;
+  }
+
+  try {
+    settingLocalStorage.value = true;
+
+    const { $useIndexedDBUserRepo, $useIndexedDBProfileRepo } = useNuxtApp();
+
+    await $useIndexedDBUserRepo.clearUser();
+    await $useIndexedDBProfileRepo.clearProfiles();
+
+    await $useIndexedDBUserRepo.storeUser(userToStore);
+    await $useIndexedDBProfileRepo.storeProfiles(profiles);
+
+    await navigateTo("/");
+  } catch (error) {
+    showErrorModal.value = true;
+  } finally {
     settingLocalStorage.value = false;
   }
 };

@@ -128,13 +128,12 @@ const showErrorModal = ref(false);
 const handleFormSubmit = async () => {
   tryingToCreateProfile.value = true;
 
+  var user = null;
+  var profile = null;
+
   try {
-    const {
-      $expressUserBackendService,
-      $expressAuthBackendService,
-      $useIndexedDBUserRepo,
-      $useIndexedDBProfileRepo,
-    } = useNuxtApp();
+    const { $expressUserBackendService, $expressAuthBackendService } =
+      useNuxtApp();
 
     const response = await $expressAuthBackendService.verifyToken();
 
@@ -155,20 +154,10 @@ const handleFormSubmit = async () => {
         },
       });
 
-    try {
-      tryingToCreateProfile.value = false;
-      settingLocalStorage.value = true;
-
-      await userStore.setUser(updatedUser);
-      userStore.addProfile(savedProfile);
-
-      await $useIndexedDBUserRepo.storeUser(updatedUser);
-      await $useIndexedDBProfileRepo.addProfile(savedProfile);
-
-      await navigateTo("/delivery-person");
-    } catch (error) {
-      showErrorModal.value = true;
-    }
+    user = updatedUser;
+    profile = savedProfile;
+    userStore.setUser(updatedUser);
+    userStore.addProfile(savedProfile);
   } catch (error) {
     clearError();
 
@@ -201,8 +190,25 @@ const handleFormSubmit = async () => {
     }
 
     profileRegistrationErrors.value = "An unexpected error occurred";
+
+    return;
   } finally {
     tryingToCreateProfile.value = false;
+  }
+
+  try {
+    settingLocalStorage.value = true;
+
+    const { $useIndexedDBUserRepo, $useIndexedDBProfileRepo } = useNuxtApp();
+
+    await $useIndexedDBUserRepo.storeUser(user);
+    await $useIndexedDBProfileRepo.addProfile(profile);
+
+    await navigateTo("/delivery-person");
+  } catch (error) {
+    showErrorModal.value = true;
+  } finally {
+    settingLocalStorage.value = false;
   }
 };
 

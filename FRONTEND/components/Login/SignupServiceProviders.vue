@@ -39,13 +39,14 @@ const emit = defineEmits([
 
 const providerSignIn = async (provider) => {
   clearError();
+  var userToStore = null;
+  var profiles = null;
+
   try {
     const {
       $useSignUpUserWithProviderUseCase,
       $expressAuthBackendService,
       $expressUserBackendService,
-      $useIndexedDBUserRepo,
-      $useIndexedDBProfileRepo,
     } = useNuxtApp();
 
     const { token } = await $useSignUpUserWithProviderUseCase(provider);
@@ -61,29 +62,19 @@ const providerSignIn = async (provider) => {
       throw new Error("Failed to store auth token in cookie");
     }
 
-    await $useIndexedDBUserRepo.clearUser();
-    await $useIndexedDBProfileRepo.clearProfiles();
-
     const user = await $expressAuthBackendService.login(token);
 
-    try {
-      const profiledIds = user.profiles.map((profile) => profile.profileId);
+    const profiledIds = user.profiles.map((profile) => profile.profileId);
 
-      const profilesData = await $expressUserBackendService.getProfilesData(
-        profiledIds
-      );
+    const profilesData = await $expressUserBackendService.getProfilesData(
+      profiledIds
+    );
 
-      await userStore.setUser(user);
-      userStore.setProfiles(profilesData);
+    userToStore = user;
+    profiles = profilesData;
 
-      await $useIndexedDBUserRepo.storeUser(user);
-      await $useIndexedDBProfileRepo.storeProfiles(profilesData);
-    } catch (error) {
-      emit("showModal", true);
-      console.log(error);
-    }
-    return;
-    router.back();
+    userStore.setUser(user);
+    userStore.setProfiles(profilesData);
   } catch (error) {
     if (error.type == "UserExistenceError") {
       return await navigateTo("/auth/register");
@@ -94,6 +85,20 @@ const providerSignIn = async (provider) => {
     }
 
     emit("error", error.message);
+
+    return;
+  }
+
+  try {
+    const { $useIndexedDBUserRepo, $useIndexedDBProfileRepo } = useNuxtApp();
+
+    await $useIndexedDBUserRepo.clearUser();
+    await $useIndexedDBProfileRepo.clearProfiles();
+
+    await $useIndexedDBUserRepo.storeUser(userToStore);
+    await $useIndexedDBProfileRepo.storeProfiles(profiles);
+  } catch (error) {
+    emit("showModal", true);
   }
 };
 </script>

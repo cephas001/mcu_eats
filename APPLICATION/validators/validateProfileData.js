@@ -30,13 +30,13 @@ const completedOrderSchema = orderRefSchema.extend({
 
 const timeSchema = z.object({
   hour: z
-    .number()
+    .number({ invalid_type_error: "Time must be a number" })
     .int()
     .min(0, "Hour must be between 0 and 23")
     .max(23, "Hour must be between 0 and 23"),
 
   minute: z
-    .number()
+    .number({ invalid_type_error: "Time must be a number" })
     .int()
     .min(0, "Minute must be between 0 and 59")
     .max(59, "Minute must be between 0 and 59"),
@@ -132,6 +132,10 @@ const vendorDataSchema = z.object({
     .regex(/^[^0-9]*$/, "Vendor name must not contain numbers"),
   vendorType: z.enum(["restaurant", "retailer", "shop"]),
   description: z.string().min(1, "Description is required"),
+  businessNumber: z
+    .string()
+    .regex(/^0[789][01]\d{8}$/, "Phone number must be a valid Nigerian number"),
+  businessEmail: z.string().email("Invalid email address").optional(),
   category: z.enum([
     "pastries",
     "snacks and grills",

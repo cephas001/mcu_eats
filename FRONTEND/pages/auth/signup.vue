@@ -113,11 +113,7 @@ const handleSignUp = async () => {
   clearError();
   tryingToSignIn.value = true;
   try {
-    const {
-      $useSignUpUserWithEmailAndPasswordUseCase,
-      $useIndexedDBUserRepo,
-      $useIndexedDBProfileRepo,
-    } = useNuxtApp();
+    const { $useSignUpUserWithEmailAndPasswordUseCase } = useNuxtApp();
 
     // Sign User Up
     const { token } = await $useSignUpUserWithEmailAndPasswordUseCase({
@@ -136,9 +132,6 @@ const handleSignUp = async () => {
     if (response.message !== "Success") {
       throw new Error("Failed to store auth token in cookie");
     }
-
-    await $useIndexedDBUserRepo.clearUser();
-    await $useIndexedDBProfileRepo.clearProfiles();
 
     await navigateTo("/auth/register");
   } catch (error) {
