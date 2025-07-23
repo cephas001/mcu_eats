@@ -35,8 +35,11 @@ export const useLogInStore = defineStore("logIn", () => {
     matricNumber: undefined,
     vendorName: undefined,
     vendorTypeList: ["Restaurant", "Retailer", "Shop"],
-    vendorTypeValue: undefined,
+    vendorTypeValue: undefined, // PAUL USED AS VENDORTYPE
     description: undefined,
+    vendorNumber: undefined,
+    vendorEmail: undefined,
+    vendorAddress: undefined,
     hostelList: ["Atuwase Hall", "Glenn Borris", "Jehovah Shammah"],
     hostelValue: undefined,
     categoryList: [
@@ -48,19 +51,43 @@ export const useLogInStore = defineStore("logIn", () => {
       "Electronics",
     ],
     categoryValue: undefined,
-    collegeList: ["COLNAS", "COLCOM"],
+    collegeList: ["COLHAS", "COLCOM"],
     collegeValue: undefined,
     openingTime: undefined,
     closingTime: undefined,
     address: undefined,
     departmentList: [
       {
-        college: "COLNAS",
-        departments: ["Computer Science", "Software Engineering"],
+        college: "COLCOM",
+        departments: [
+          "Computer Science",
+          "Software Engineering",
+          "Cyber Security",
+        ],
       },
       {
-        college: "COLCOM",
-        departments: ["Nursing Science"],
+        college: "COLHAS",
+        departments: [
+          "Nursing Science",
+          "Medical Laboratory Sciences",
+          "Public Health",
+        ],
+      },
+      {
+        college: "COLNAS",
+        departments: ["Biochemistry", "Microbiology"],
+      },
+      {
+        college: "COLHUM",
+        departments: [
+          "History and diplomatic studies",
+          "English Language",
+          "International Relations",
+        ],
+      },
+      {
+        college: "COSMAS",
+        departments: ["Accounting", "Business Administration"],
       },
     ],
     departmentValue: undefined,
