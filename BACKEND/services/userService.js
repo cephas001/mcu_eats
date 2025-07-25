@@ -1,7 +1,8 @@
 import MongoUserRepository from "../infrastructure/repositories/MongoUserRepository.js";
-import createUser from "../../APPLICATION/usecases/user/repositories/createUser.js";
-import updateUser from "../../APPLICATION/usecases/user/repositories/updateUser.js";
-import getUser from "../../APPLICATION/usecases/user/repositories/getUser.js";
+
+import createUser from "../../APPLICATION/usecases/user/repositories/database/createUser.js";
+import updateUser from "../../APPLICATION/usecases/user/repositories/database/updateUser.js";
+import getUser from "../../APPLICATION/usecases/user/repositories/database/getUser.js";
 
 import Profile from "../models/profileModel.js";
 import User from "../models/userModel.js";

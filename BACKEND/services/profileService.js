@@ -1,7 +1,8 @@
 import MongoProfileRepository from "../infrastructure/repositories/MongoProfileRepository.js";
 import MongoUserRepository from "../infrastructure/repositories/MongoUserRepository.js";
-import createProfile from "../../APPLICATION/usecases/profile/createProfile.js";
-import getProfilesData from "../../APPLICATION/usecases/profile/getProfilesData.js";
+
+import createProfile from "../../APPLICATION/usecases/profile/repositories/database/createProfile.js";
+import getProfilesData from "../../APPLICATION/usecases/profile/repositories/database/getProfilesData.js";
 
 import Profile from "../models/profileModel.js";
 import User from "../models/userModel.js";

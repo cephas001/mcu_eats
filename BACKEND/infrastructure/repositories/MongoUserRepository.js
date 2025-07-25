@@ -1,4 +1,4 @@
-import UserRepository from "../../../APPLICATION/interfaces/repositories/UserRepository.js";
+import UserRepository from "../../../APPLICATION/interfaces/repositories/database/UserRepository.js";
 
 export default class MongoUserRepository extends UserRepository {
   constructor(userRepo, profileRepo) {
