@@ -1,12 +1,12 @@
-import Profile from "../../domain/Profile.js";
-import { createProfileSchema } from "../../validators/validateProfileData.js";
+import Profile from "../../../../domain/Profile.js";
+import { createProfileSchema } from "../../../../validators/profile/validateProfileData.js";
 import {
   ValidationError,
   UserExistenceError,
   UnexpectedError,
   ProfileExistenceError,
   UnauthorizedError,
-} from "../../domain/Error.js";
+} from "../../../../domain/Error.js";
 
 export default function createProfile(profileRepo, userRepo) {
   return async function (profileData) {

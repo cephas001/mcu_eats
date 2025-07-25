@@ -1,6 +1,6 @@
-import LocalMessageRepository from "../../../APPLICATION/interfaces/repositories/local/LocalMessageRepository.js";
+import MessageRepository from "../../../APPLICATION/interfaces/repositories/local/MessageRepository.js";
 
-export default class IndexedDBMessageRepository extends LocalMessageRepository {
+export default class IndexedDBMessageRepository extends MessageRepository {
   constructor(db) {
     super();
     this.db = db;

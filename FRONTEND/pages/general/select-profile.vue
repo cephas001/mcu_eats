@@ -1,7 +1,7 @@
 <template>
   <section class="flex flex-col justify-center py-5 px-6 min-h-[70vh]">
     <div class="text-center mt-10 mb-5">
-      <h1 class="font-bold text-2xl mb-3">Switch Profile</h1>
+      <h1 class="font-bold text-2xl mb-3">Select Default Profile</h1>
       <p class="text-md font-manrope tracking-tight">
         Select one of your profiles to continue.
       </p>
@@ -19,7 +19,7 @@
       />
       <button
         class="text-white rounded-md p-3 w-full text-center text-md bg-primary"
-        @click="handleRegister"
+        @click="handleSelectProfile"
       >
         Continue
       </button>
@@ -33,7 +33,10 @@ import { navigateTo } from "nuxt/app";
 import { onMounted } from "vue";
 import { useRoute } from "vue-router";
 import { useUserStore } from "@/stores/userStore";
+import { storeToRefs } from "pinia";
+
 const userStore = useUserStore();
+const { user, profiles } = storeToRefs(userStore);
 
 const { registrationForm, displayError } = useLogInStore();
 
@@ -41,44 +44,57 @@ const route = useRoute();
 const category = ref("");
 const profileList = ref([]);
 
-const handleRegister = async () => {
+const handleSelectProfile = async () => {
+  // EXTRA CHECK LATER, CHECK INDEXEDDB FIRST
+  if (!profiles.value || !user.value) return await navigateTo("/auth/login");
+
+  if (!registrationForm.profileValue) {
+    displayError("Please select a profile", "profile");
+    return;
+  }
+
   try {
-    if (!registrationForm.profileValue) {
-      displayError("Please select a profile", "profile");
-      return;
-    }
-
-    if (registrationForm.profileValue == "Consumer") {
-      const selectedProfile = await userStore.selectProfile("consumer");
-      if (!selectedProfile) {
-        displayError("Failed to select profile", "profile");
+    switch (registrationForm.profileValue) {
+      case "Consumer":
+        const consumer_profile = userStore.getProfile("consumer");
+        userStore.setSelectedProfile(consumer_profile);
+        break;
+      case "Delivery Person":
+        const delivery_profile = userStore.getProfile("delivery_person");
+        userStore.setSelectedProfile(delivery_profile);
+        break;
+      case "Vendor":
+        const vendor_profile = userStore.getProfile("vendor");
+        userStore.setSelectedProfile(vendor_profile);
+        break;
+      default:
+        displayError("Invalid profile selected", "profile");
         return;
-      }
-      await navigateTo(`/consumer`);
-      return;
     }
+  } catch (error) {
+    console.log(error);
+  }
 
-    if (registrationForm.profileValue == "Delivery Person") {
-      const selectedProfile = await userStore.selectProfile("delivery_person");
-      if (!selectedProfile) {
-        displayError("Failed to select profile", "profile");
+  try {
+    const { $selectProfileUseCase } = useNuxtApp();
+
+    switch (registrationForm.profileValue) {
+      case "Consumer":
+        await $selectProfileUseCase("consumer");
+        await navigateTo("/consumer");
+        break;
+      case "Delivery Person":
+        await $selectProfileUseCase("delivery_person");
+        await navigateTo("/delivery-person");
+        break;
+      case "Vendor":
+        await $selectProfileUseCase("vendor");
+        await navigateTo("/vendor");
+        break;
+      default:
+        displayError("Invalid profile selected", "profile");
         return;
-      }
-      await navigateTo(`/delivery-person`);
-      return;
     }
-
-    if (registrationForm.profileValue == "Vendor") {
-      const selectedProfile = await userStore.selectProfile("vendor");
-      if (!selectedProfile) {
-        displayError("Failed to select profile", "profile");
-        return;
-      }
-      await navigateTo(`/vendor`);
-      return;
-    }
-
-    displayError("Please select the right profile", "profile");
   } catch (error) {
     await navigateTo("/");
   }

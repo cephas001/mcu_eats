@@ -1,5 +1,8 @@
 <template>
-  <section class="pb-5 pt-10 px-6" v-if="!tryingToCreateProfile">
+  <section
+    class="pb-5 pt-10 px-6"
+    v-if="!tryingToCreateProfile && !settingLocalStorage"
+  >
     <ProfileAuthHeader
       title="Delivery Person"
       text="Set up a delivery person profile."
@@ -117,6 +120,7 @@ import { useUserStore } from "@/stores/userStore";
 
 const logInStore = useLogInStore();
 const userStore = useUserStore();
+const { user } = storeToRefs(userStore);
 
 const { profileRegistrationForm, displayError, clearError } = logInStore;
 const { profileRegistrationErrors } = storeToRefs(logInStore);
@@ -128,7 +132,6 @@ const showErrorModal = ref(false);
 const handleFormSubmit = async () => {
   tryingToCreateProfile.value = true;
 
-  var user = null;
   var profile = null;
 
   try {
@@ -154,8 +157,8 @@ const handleFormSubmit = async () => {
         },
       });
 
-    user = updatedUser;
     profile = savedProfile;
+
     userStore.setUser(updatedUser);
     userStore.addProfile(savedProfile);
   } catch (error) {
@@ -197,15 +200,20 @@ const handleFormSubmit = async () => {
   }
 
   try {
+    if (!user?.value) return;
+
     settingLocalStorage.value = true;
 
-    const { $useIndexedDBUserRepo, $useIndexedDBProfileRepo } = useNuxtApp();
+    const { $storeUserUseCase, $addProfileUseCase, $selectProfileUseCase } =
+      useNuxtApp();
 
-    await $useIndexedDBUserRepo.storeUser(user);
-    await $useIndexedDBProfileRepo.addProfile(profile);
+    await $storeUserUseCase(user.value);
+    await $addProfileUseCase(profile);
+    await $selectProfileUseCase(profile.type);
 
     await navigateTo("/delivery-person");
   } catch (error) {
+    console.log(error);
     showErrorModal.value = true;
   } finally {
     settingLocalStorage.value = false;

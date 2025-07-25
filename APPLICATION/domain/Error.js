@@ -55,3 +55,11 @@ export class UnauthorizedError extends Error {
     this.type = "UnauthorizedError";
   }
 }
+
+export class LocalStorageError extends Error {
+  constructor(message) {
+    super(message);
+    this.name = "LocalStorageError";
+    this.type = "LocalStorageError";
+  }
+}

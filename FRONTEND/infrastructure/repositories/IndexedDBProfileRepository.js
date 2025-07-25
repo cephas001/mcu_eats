@@ -1,8 +1,8 @@
-import LocalProfileRepository from "../../../APPLICATION/interfaces/repositories/local/LocalProfileRepository";
+import ProfileRepository from "../../../APPLICATION/interfaces/repositories/local/ProfileRepository";
 import { stringifyArrays } from "../../utils/stringifyArrays.js";
 import { parseArrays } from "../../utils/parseArrays.js";
 
-export default class IndexedDBProfileRepository extends LocalProfileRepository {
+export default class IndexedDBProfileRepository extends ProfileRepository {
   constructor(db) {
     super();
     this.db = db;
@@ -10,11 +10,13 @@ export default class IndexedDBProfileRepository extends LocalProfileRepository {
 
   async storeProfiles(userProfiles) {
     try {
-      await this.db.profiles.clear();
       const stringifiedUserProfiles = userProfiles.map((profileData) =>
         stringifyArrays(profileData)
       );
+
       await this.db.profiles.bulkPut(stringifiedUserProfiles);
+
+      return parseArrays(await this.db.profiles.toArray());
     } catch (error) {
       throw error;
     }
@@ -22,10 +24,20 @@ export default class IndexedDBProfileRepository extends LocalProfileRepository {
 
   async addProfile(profileData) {
     try {
-      if (!profileData) {
-        throw new Error("Profile data not defined");
-      }
       await this.db.profiles.add(stringifyArrays(profileData));
+      return {
+        savedProfile: profileData,
+        profileId: profileData.id,
+      };
+    } catch (error) {
+      throw error;
+    }
+  }
+
+  async existsByUserIdAndType(userId, type) {
+    try {
+      const profile = await this.db.profiles.where({ userId, type }).toArray();
+      return profile.length > 0;
     } catch (error) {
       throw error;
     }
@@ -54,15 +66,35 @@ export default class IndexedDBProfileRepository extends LocalProfileRepository {
     }
   }
 
-  async selectProfile(type) {
+  async getProfile(profileId) {
     try {
-      const profiles = await this.getProfiles();
-      if (!profiles) throw new Error("No profiles found");
-      const profile = await profiles.find((profile) => profile.type === type);
-      if (!profile) throw new Error("Profile not found");
+      const profile = await this.db.profiles.get(profileId);
+      return profile ? parseArrays(profile) : null;
+    } catch (error) {
+      throw error;
+    }
+  }
+
+  async getProfileByType(type) {
+    try {
+      const profile = await this.db.profiles.where({ type }).toArray();
+      return profile?.length > 0 ? parseArrays(profile[0]) : null;
+    } catch (error) {
+      throw error;
+    }
+  }
+
+  async selectProfile(profileData) {
+    try {
+      await this.db.selectedProfile.put(stringifyArrays(profileData));
+    } catch (error) {
+      throw error;
+    }
+  }
+
+  async clearSelectedProfile() {
+    try {
       await this.db.selectedProfile.clear();
-      await this.db.selectedProfile.add(stringifyArrays(profile));
-      return parseArrays(profile);
     } catch (error) {
       throw error;
     }
@@ -70,14 +102,8 @@ export default class IndexedDBProfileRepository extends LocalProfileRepository {
 
   async getSelectedProfile() {
     try {
-      const profiles = await this.getProfiles();
-      if (!profiles || profiles.length === 0) {
-        this.db.selectedProfile.clear();
-        return null;
-      }
-      const selectedProfile = await this.db.selectedProfile.toArray();
-      if (!selectedProfile || selectedProfile.length === 0) return null;
-      return parseArrays(selectedProfile[0]);
+      const selectedProfile = await this.db.selectedProfile.toArray()[0];
+      return selectedProfile ? parseArrays(selectedProfile) : null;
     } catch (error) {
       throw error;
     }

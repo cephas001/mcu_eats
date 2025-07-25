@@ -1,3 +1,4 @@
+import AuthService from "../../../APPLICATION/interfaces/services/AuthService.js";
 import {
   createUserWithEmailAndPassword,
   signInWithEmailAndPassword,
@@ -5,7 +6,6 @@ import {
   GoogleAuthProvider,
   FacebookAuthProvider,
 } from "firebase/auth";
-import AuthService from "../../../APPLICATION/interfaces/services/AuthService.js";
 
 export default class FirebaseAuthService extends AuthService {
   constructor(auth, backendService) {

@@ -1,1 +1,1 @@
-<template></template>
+<template>Vendor page</template>

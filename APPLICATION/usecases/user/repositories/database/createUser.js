@@ -1,26 +1,15 @@
-import User from "../../../domain/User.js";
-import { createUserSchema } from "../../../validators/validateUserData.js";
+import User from "../../../../domain/User.js";
+import { createUserSchema } from "../../../../validators/user/validateUserData.js";
 import {
   ValidationError,
   UserExistenceError,
   UnexpectedError,
-} from "../../../domain/Error.js";
+} from "../../../../domain/Error.js";
 
 export default function createUser(userRepo) {
-  return async function (userId, userData) {
-    if (!userId) {
-      throw new ValidationError("User Id is not defined", null);
-    }
-
+  return async function (userData) {
     if (!userData) {
       throw new ValidationError("User data is not defined", null);
-    }
-
-    // Check if user does not exist
-    const existingUser = await userRepo.findById(userId);
-
-    if (!existingUser) {
-      throw new UserExistenceError("This user does not exists");
     }
 
     const validationResult = createUserSchema.safeParse(userData);
@@ -36,9 +25,16 @@ export default function createUser(userRepo) {
 
     const validatedData = validationResult.data;
 
+    // Check if user already exists
+    const existingUser = await userRepo.findById(validatedData.id);
+
+    if (existingUser) {
+      throw new UserExistenceError("This user already exists");
+    }
+
     try {
       const user = new User(validatedData);
-      return await userRepo.update(userId, user);
+      return await userRepo.create(user);
     } catch (error) {
       throw new UnexpectedError("An unexpected error occurred");
     }

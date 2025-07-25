@@ -1,4 +1,4 @@
-export default class LocalMessageRepository {
+export default class MessageRepository {
   /**
    * @param {String} Message
    * @returns {Promise<Object>}

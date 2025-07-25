@@ -128,6 +128,10 @@
 import { useLogInStore } from "@/stores/logInStore";
 import { navigateTo } from "nuxt/app";
 import { storeToRefs } from "pinia";
+import { useUserStore } from "@/stores/userStore";
+
+const userStore = useUserStore();
+const { user } = storeToRefs(userStore);
 
 const logInStore = useLogInStore();
 
@@ -142,7 +146,6 @@ const handleFormSubmit = async () => {
   tryingToCreateProfile.value = true;
 
   var profile = null;
-  var user = null;
 
   // Sends data to backend
   try {
@@ -179,7 +182,9 @@ const handleFormSubmit = async () => {
       });
 
     profile = savedProfile;
-    user = updatedUser;
+
+    userStore.setUser(updatedUser);
+    userStore.addProfile(savedProfile);
   } catch (error) {
     clearError();
 
@@ -220,13 +225,16 @@ const handleFormSubmit = async () => {
 
   // Try to save user and profile data to IndexedDB
   try {
+    if (!user?.value) return;
+
     settingLocalStorage.value = true;
 
-    const { $useIndexedDBUserRepo, $useIndexedDBProfileRepo } = useNuxtApp();
+    const { $storeUserUseCase, $addProfileUseCase, $selectProfileUseCase } =
+      useNuxtApp();
 
-    await $useIndexedDBUserRepo.storeUser(user);
-
-    await $useIndexedDBProfileRepo.addProfile(profile);
+    await $storeUserUseCase(user.value);
+    await $addProfileUseCase(profile);
+    await $selectProfileUseCase(profile.type);
 
     await navigateTo("/vendor");
   } catch (error) {

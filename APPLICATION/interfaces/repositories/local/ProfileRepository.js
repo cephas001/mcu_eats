@@ -1,10 +1,18 @@
-export default class LocalUserRepository {
+export default class ProfileRepository {
   /**
-   * @param {Object} userData
+   * @param {Object} profileData
    * @returns {Promise<Object>}
    */
-  async storeUser(userData) {
+  async storeProfiles(profileData) {
     throw new Error("Method not implemented.");
+  }
+
+  /**
+   * @param {Object} profileToAdd
+   * @returns {Promise<Object>}
+   */
+  async addProfile(profileToAdd) {
+    throw new Error("Method not implemented");
   }
 
   /**
@@ -16,20 +24,20 @@ export default class LocalUserRepository {
   }
 
   /**
-   * @param {String} profileId
    * @param {String} userId
+   * @param {String} type
    * @returns {Promise<Object|null>}
    */
-  async linkProfile(userId, profileId) {
+  async checkProfileByUserId(userId, type) {
     throw new Error("Method not implemented.");
   }
 
   /**
    * @param {String} id
-   * @param {Object} updateData
+   * @param {Object} updateProfileData
    * @returns {Promise<Object>}
    */
-  async update(id, updateData) {
+  async update(id, updateProfileData) {
     throw new Error("Method not implemented.");
   }
 
@@ -40,12 +48,5 @@ export default class LocalUserRepository {
   async delete(id) {
     throw new Error("Method not implemented.");
   }
-
-  /**
-   * @param {Object} user
-   * @returns {Promise<Boolean>}
-   */
-  async userHasProfile(user) {
-    throw new Error("Method not implemented.");
-  }
 }
+// This file defines the UserRepository interface, which outlines the methods for managing user profiles in the application.

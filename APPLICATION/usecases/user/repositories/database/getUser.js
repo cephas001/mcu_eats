@@ -1,4 +1,7 @@
-import { ValidationError, UserExistenceError } from "../../../domain/Error.js";
+import {
+  ValidationError,
+  UserExistenceError,
+} from "../../../../domain/Error.js";
 
 export default function getUser(userRepo) {
   return async function (userId) {

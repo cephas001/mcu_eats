@@ -1,4 +1,4 @@
-import { createSignUpUserSchema } from "../../../validators/validateSignUpUserData.js";
+import { createSignUpUserSchema } from "../../../validators/user/validateSignUpUserData.js";
 import {
   ValidationError,
   UserExistenceError,

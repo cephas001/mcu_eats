@@ -21,11 +21,12 @@
 <script setup>
 import GoogleIcon from "@/assets/images/google.73c708cb.svg";
 import FacebookIcon from "@/assets/images/facebook.e4480188.svg";
-import { useNuxtApp } from "nuxt/app";
+import { navigateTo, useNuxtApp } from "nuxt/app";
 import { useLogInStore } from "@/stores/logInStore";
 import { useUserStore } from "@/stores/userStore";
 
 const userStore = useUserStore();
+const { user, profiles } = storeToRefs(userStore);
 const { clearError } = useLogInStore();
 
 const router = useRouter();
@@ -39,17 +40,15 @@ const emit = defineEmits([
 
 const providerSignIn = async (provider) => {
   clearError();
-  var userToStore = null;
-  var profiles = null;
 
   try {
     const {
-      $useSignUpUserWithProviderUseCase,
+      $signUpUserWithProviderUseCase,
       $expressAuthBackendService,
       $expressUserBackendService,
     } = useNuxtApp();
 
-    const { token } = await $useSignUpUserWithProviderUseCase(provider);
+    const { token } = await $signUpUserWithProviderUseCase(provider);
 
     const response = await $fetch("/api/login", {
       method: "POST",
@@ -70,11 +69,9 @@ const providerSignIn = async (provider) => {
       profiledIds
     );
 
-    userToStore = user;
-    profiles = profilesData;
-
     userStore.setUser(user);
     userStore.setProfiles(profilesData);
+    userStore.setSelectedProfile(profilesData[0]);
   } catch (error) {
     if (error.type == "UserExistenceError") {
       return await navigateTo("/auth/register");
@@ -90,15 +87,36 @@ const providerSignIn = async (provider) => {
   }
 
   try {
-    const { $useIndexedDBUserRepo, $useIndexedDBProfileRepo } = useNuxtApp();
+    if (!user?.value || !profiles?.value) return;
 
-    await $useIndexedDBUserRepo.clearUser();
-    await $useIndexedDBProfileRepo.clearProfiles();
+    const { $storeUserUseCase, $storeProfilesUseCase } = useNuxtApp();
 
-    await $useIndexedDBUserRepo.storeUser(userToStore);
-    await $useIndexedDBProfileRepo.storeProfiles(profiles);
+    await $storeUserUseCase(user.value);
+    await $storeProfilesUseCase(profiles.value);
   } catch (error) {
     emit("showModal", true);
+  }
+
+  try {
+    const { $getSelectedProfileUseCase } = useNuxtApp();
+
+    const selectedProfile = await $getSelectedProfileUseCase();
+
+    userStore.setSelectedProfile(selectedProfile);
+
+    await navigateTo("/");
+  } catch (error) {
+    if (error.type === "ProfileExistenceError") {
+      return await navigateTo("/general/select-profile");
+    }
+
+    if (error.type === "LocalStorageError") {
+      return await navigateTo("/");
+    }
+
+    if (error.type === "ValidationError") {
+      return await navigateTo("auth/logout");
+    }
   }
 };
 </script>

@@ -14,9 +14,6 @@ const userStore = useUserStore();
 const router = useRouter();
 const route = useRoute();
 const {
-  $useLoginUserWithEmailAndPasswordUseCase,
-  $expressAuthBackendService,
-  $expressUserBackendService,
   $useIndexedDBUserRepo,
   $useIndexedDBProfileRepo,
   $useIndexedDBMessageRepo,

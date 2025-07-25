@@ -6,6 +6,7 @@ export default defineNuxtPlugin(() => {
   const api = createApiClient();
   const expressUserBackendService = new ExpressUserBackend(api);
   const expressAuthBackendService = new ExpressAuthBackend(api);
+
   return {
     provide: {
       expressUserBackendService,

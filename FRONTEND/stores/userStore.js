@@ -33,6 +33,10 @@ export const useUserStore = defineStore("user", () => {
     // await $useIndexedDBProfileRepo.clearProfiles();
   };
 
+  const getProfile = (type) => {
+    return profiles?.value.find((profile) => profile.type === type);
+  };
+
   const setProfiles = (profilesData) => {
     // if (!user.value) return;
     profiles.value = profilesData;
@@ -46,27 +50,12 @@ export const useUserStore = defineStore("user", () => {
   const addProfile = (profile) => {
     // if (!user.value) return;
     // if (!profiles.value) return;
+    if (!profiles.value) profiles.value = [];
     setProfiles([...profiles.value, profile]);
   };
 
   const setGuest = (guestOrNot) => {
     isGuest.value = guestOrNot;
-  };
-
-  const storeUser = async (userData) => {
-    try {
-      await $useIndexedDBUserRepo.storeUser(userData);
-    } catch (error) {
-      throw error;
-    }
-  };
-
-  const storeProfiles = async (profilesData) => {
-    try {
-      await $useIndexedDBProfileRepo.storeProfiles(profilesData);
-    } catch (error) {
-      throw error;
-    }
   };
 
   const fetchUser = async () => {
@@ -254,6 +243,9 @@ export const useUserStore = defineStore("user", () => {
     setProfiles,
     getSelectedProfile,
     selectProfile,
+    setSelectedProfile,
+    getProfile,
     user,
+    profiles,
   };
 });

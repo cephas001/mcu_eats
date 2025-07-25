@@ -1,4 +1,4 @@
-import { createLoginUserSchema } from "../../../validators/validateLoginUserData.js";
+import { createLoginUserSchema } from "../../../validators/user/validateLoginUserData.js";
 import {
   ValidationError,
   InvalidCredentialsError,

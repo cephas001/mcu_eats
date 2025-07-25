@@ -1,4 +1,4 @@
-import { ValidationError, UnexpectedError } from "../../domain/Error.js";
+import { ValidationError, UnexpectedError } from "../../../../domain/Error.js";
 
 export default function createProfile(profileRepo) {
   return async function (profileIds) {

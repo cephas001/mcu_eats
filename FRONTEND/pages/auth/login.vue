@@ -50,6 +50,7 @@
 
     <LoginSwitchAction page="LoginPage" />
   </section>
+
   <LoadingIconLarge
     :loading="tryingToLogin"
     imageSrc="/Pulse@1x-1.0s-200px-200px.svg"
@@ -77,35 +78,31 @@ import { navigateTo, useNuxtApp } from "nuxt/app";
 import { storeToRefs } from "pinia";
 import { onMounted } from "vue";
 import { useUserStore } from "@/stores/userStore";
-const userStore = useUserStore();
 
 const tryingToLogin = ref(false);
 const settingLocalStorage = ref(false);
 const showErrorModal = ref(false);
 
 const logInStore = useLogInStore();
-
 const { loginForm, displayError, clearError } = useLogInStore();
-
 const { loginErrors } = storeToRefs(logInStore);
-const router = useRouter();
+
+const userStore = useUserStore();
+const { user, profiles } = storeToRefs(userStore);
 
 const handleLogin = async () => {
   clearError();
   tryingToLogin.value = true;
   showErrorModal.value = false;
 
-  var userToStore = null;
-  var profiles = null;
-
   try {
     const {
-      $useLoginUserWithEmailAndPasswordUseCase,
+      $loginUserWithEmailAndPasswordUseCase,
       $expressAuthBackendService,
       $expressUserBackendService,
     } = useNuxtApp();
 
-    const token = await $useLoginUserWithEmailAndPasswordUseCase({
+    const token = await $loginUserWithEmailAndPasswordUseCase({
       email: loginForm.email?.trim(),
       password: loginForm.password?.trim(),
     });
@@ -125,11 +122,9 @@ const handleLogin = async () => {
       profiledIds
     );
 
-    userToStore = user;
-    profiles = profilesData;
-
     userStore.setUser(user);
     userStore.setProfiles(profilesData);
+    userStore.setSelectedProfile(profilesData[0]);
   } catch (error) {
     clearError();
 
@@ -165,18 +160,36 @@ const handleLogin = async () => {
   }
 
   try {
+    if (!user?.value || !profiles?.value) return;
+
     settingLocalStorage.value = true;
 
-    const { $useIndexedDBUserRepo, $useIndexedDBProfileRepo } = useNuxtApp();
+    const {
+      $storeUserUseCase,
+      $storeProfilesUseCase,
+      $getSelectedProfileUseCase,
+    } = useNuxtApp();
 
-    await $useIndexedDBUserRepo.clearUser();
-    await $useIndexedDBProfileRepo.clearProfiles();
+    await $storeUserUseCase(user.value);
+    await $storeProfilesUseCase(profiles.value);
 
-    await $useIndexedDBUserRepo.storeUser(userToStore);
-    await $useIndexedDBProfileRepo.storeProfiles(profiles);
+    const selectedProfile = await $getSelectedProfileUseCase();
 
+    userStore.setSelectedProfile(selectedProfile);
     await navigateTo("/");
   } catch (error) {
+    if (error.type === "ProfileExistenceError") {
+      return await navigateTo("/general/select-profile");
+    }
+
+    if (error.type === "LocalStorageError") {
+      return await navigateTo("/");
+    }
+
+    if (error.type === "ValidationError") {
+      return await navigateTo("auth/logout");
+    }
+
     showErrorModal.value = true;
   } finally {
     settingLocalStorage.value = false;
