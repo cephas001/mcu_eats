@@ -92,17 +92,15 @@
 </template>
 
 <script setup>
-import { useLogInStore } from "@/stores/logInStore";
-import { storeToRefs } from "pinia";
 import { navigateTo, useNuxtApp } from "nuxt/app";
 import { onMounted } from "vue";
 
-const router = useRouter();
+import { useLogInStore } from "@/stores/logInStore";
+
+import { storeToRefs } from "pinia";
 
 const logInStore = useLogInStore();
-
 const { signUpForm, displayError, clearError } = useLogInStore();
-
 const { signUpErrors } = storeToRefs(logInStore);
 
 const tryingToSignIn = ref(false);
@@ -156,7 +154,6 @@ const handleSignUp = async () => {
     }
 
     signUpErrors.value = "An unexpected error occurred";
-    console.error("Unexpected error:", error);
   } finally {
     tryingToSignIn.value = false;
   }

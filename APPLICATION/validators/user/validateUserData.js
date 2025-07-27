@@ -5,6 +5,16 @@ const profileRefSchema = z.object({
   profileId: z.string().min(1, "Profile ID is required"),
 });
 
+const dateSchema = z.string().refine(
+  (val) => {
+    const date = new Date(val);
+    return !isNaN(date.getTime());
+  },
+  {
+    message: "Invalid date string",
+  }
+);
+
 export const createUserSchema = z.object({
   id: z.string().min(1, "ID is required"),
 
@@ -37,15 +47,9 @@ export const createUserSchema = z.object({
 
   status: z.enum(["active", "inactive", "banned"]).optional().default("active"),
 
-  createdAt: z.coerce
-    .date()
-    .optional()
-    .default(() => new Date()),
+  createdAt: dateSchema,
 
-  updatedAt: z.coerce
-    .date()
-    .optional()
-    .default(() => new Date()),
+  updatedAt: dateSchema,
 
-  lastLogin: z.coerce.date().nullable().optional(),
+  lastLogin: dateSchema,
 });

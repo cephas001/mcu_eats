@@ -1,26 +1,23 @@
-import { defineStore } from "pinia";
+import { defineStore, storeToRefs } from "pinia";
 import { useMessagesStore } from "./messagesStore";
 
 export const useUserStore = defineStore("user", () => {
   const user = ref(null);
-  const profiles = ref(null);
-  const selectedProfile = ref(null);
   const isGuest = ref(false);
 
   const {
     $expressAuthBackendService,
     $expressUserBackendService,
     $useIndexedDBUserRepo,
-    $useIndexedDBProfileRepo,
-    $useIndexedDBMessageRepo,
   } = useNuxtApp();
 
   const messagesStore = useMessagesStore();
+  const { messagesTypes } = storeToRefs(messagesStore);
 
   const setUser = (newUser) => {
     user.value = newUser;
+    messagesStore.clearMessages(messagesTypes.value[0]);
     setGuest(false);
-    // await $useIndexedDBMessageRepo.clearMessages("user_authentication");
   };
 
   const clearUser = () => {
@@ -28,34 +25,17 @@ export const useUserStore = defineStore("user", () => {
     // await $useIndexedDBUserRepo.clearUser();
   };
 
-  const clearProfiles = () => {
-    profiles.value = null;
-    // await $useIndexedDBProfileRepo.clearProfiles();
-  };
-
-  const getProfile = (type) => {
-    return profiles?.value.find((profile) => profile.type === type);
-  };
-
   const setProfiles = (profilesData) => {
     // if (!user.value) return;
     profiles.value = profilesData;
   };
 
-  const setSelectedProfile = (profile) => {
-    // if (!user.value) return;
-    selectedProfile.value = profile;
-  };
-
-  const addProfile = (profile) => {
-    // if (!user.value) return;
-    // if (!profiles.value) return;
-    if (!profiles.value) profiles.value = [];
-    setProfiles([...profiles.value, profile]);
-  };
-
   const setGuest = (guestOrNot) => {
     isGuest.value = guestOrNot;
+  };
+
+  const checkGuest = () => {
+    return isGuest.value;
   };
 
   const fetchUser = async () => {
@@ -149,32 +129,11 @@ export const useUserStore = defineStore("user", () => {
     }
   };
 
-  const getUser = async () => {
+  const getUser = () => {
     try {
       if (isGuest.value) return null;
-
-      if (user.value && profiles.value) return user.value;
-
-      const localUser = await $useIndexedDBUserRepo.getUser();
-      if (localUser) setUser(localUser);
-
-      const storedProfiles = await $useIndexedDBProfileRepo.getProfiles();
-
-      if (storedProfiles) {
-        setProfiles(storedProfiles);
-        return localUser;
-      }
-
-      try {
-        const data = await fetchUser();
-        if (!data) return null;
-        const { user, profiles } = data;
-        return { user, profiles };
-      } catch (error) {
-        throw error;
-      }
+      return user.value;
     } catch (error) {
-      console.log(error);
       throw error;
     }
   };
@@ -195,43 +154,6 @@ export const useUserStore = defineStore("user", () => {
     }
   };
 
-  const getSelectedProfile = async () => {
-    if (isGuest.value) return null;
-    if (selectedProfile.value) return selectedProfile.value;
-
-    const selectedProfileIndexedDB =
-      await $useIndexedDBProfileRepo.getSelectedProfile();
-
-    if (selectedProfileIndexedDB) {
-      setSelectedProfile(selectedProfileIndexedDB);
-    }
-
-    return selectedProfileIndexedDB;
-  };
-
-  const selectProfile = async (profileType) => {
-    try {
-      const existingProfile = profiles.value.find(
-        (profile) => profile.type === profileType
-      );
-      if (!existingProfile) return null;
-
-      setSelectedProfile(existingProfile);
-
-      const selectedProfile = await $useIndexedDBProfileRepo.selectProfile(
-        profileType
-      );
-
-      if (selectedProfile) {
-        return selectedProfile;
-      } else {
-        return existingProfile;
-      }
-    } catch (error) {
-      throw error;
-    }
-  };
-
   return {
     setUser,
     fetchUser,
@@ -239,13 +161,7 @@ export const useUserStore = defineStore("user", () => {
     clearUser,
     getUser,
     setGuest,
-    addProfile,
-    setProfiles,
-    getSelectedProfile,
-    selectProfile,
-    setSelectedProfile,
-    getProfile,
+    checkGuest,
     user,
-    profiles,
   };
 });

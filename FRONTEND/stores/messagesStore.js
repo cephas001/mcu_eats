@@ -3,15 +3,17 @@ import { defineStore } from "pinia";
 export const useMessagesStore = defineStore("messages", () => {
   const messages = ref(null);
 
+  const messagesTypes = ref(["user_authentication"]);
+
   const setMessages = (newMessages) => {
     messages.value = newMessages;
   };
 
-  const addMessage = (message, type) => {
+  const addMessage = (messageObject) => {
     if (!messages.value) {
       messages.value = [];
     }
-    messages.value.push({ message, type });
+    messages.value.push(messageObject);
   };
 
   const clearMessages = (type) => {
@@ -19,7 +21,8 @@ export const useMessagesStore = defineStore("messages", () => {
       messages.value = [];
       return;
     }
-    messages.value = messages.value.filter((message) => message.type !== type);
+    if (!messages.value) return;
+    messages.value = messages.value?.filter((message) => message.type !== type);
   };
 
   const getMessages = (type) => {
@@ -34,6 +37,7 @@ export const useMessagesStore = defineStore("messages", () => {
 
   return {
     messages,
+    messagesTypes,
     setMessages,
     addMessage,
     clearMessages,

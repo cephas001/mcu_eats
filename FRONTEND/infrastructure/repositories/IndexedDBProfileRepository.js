@@ -102,8 +102,8 @@ export default class IndexedDBProfileRepository extends ProfileRepository {
 
   async getSelectedProfile() {
     try {
-      const selectedProfile = await this.db.selectedProfile.toArray()[0];
-      return selectedProfile ? parseArrays(selectedProfile) : null;
+      const selectedProfile = await this.db.selectedProfile.toArray();
+      return selectedProfile ? parseArrays(selectedProfile[0]) : null;
     } catch (error) {
       throw error;
     }

@@ -21,15 +21,22 @@
 <script setup>
 import GoogleIcon from "@/assets/images/google.73c708cb.svg";
 import FacebookIcon from "@/assets/images/facebook.e4480188.svg";
+
 import { navigateTo, useNuxtApp } from "nuxt/app";
+
 import { useLogInStore } from "@/stores/logInStore";
 import { useUserStore } from "@/stores/userStore";
+import { useProfileStore } from "@/stores/profileStore";
+
+import { storeToRefs } from "pinia";
 
 const userStore = useUserStore();
-const { user, profiles } = storeToRefs(userStore);
+const { user } = storeToRefs(userStore);
+
 const { clearError } = useLogInStore();
 
-const router = useRouter();
+const profileStore = useProfileStore();
+const { profiles } = storeToRefs(profileStore);
 
 const emit = defineEmits([
   "error",
@@ -70,8 +77,8 @@ const providerSignIn = async (provider) => {
     );
 
     userStore.setUser(user);
-    userStore.setProfiles(profilesData);
-    userStore.setSelectedProfile(profilesData[0]);
+    profileStore.setProfiles(profilesData);
+    profileStore.setSelectedProfile(profilesData[0]);
   } catch (error) {
     if (error.type == "UserExistenceError") {
       return await navigateTo("/auth/register");
@@ -102,7 +109,7 @@ const providerSignIn = async (provider) => {
 
     const selectedProfile = await $getSelectedProfileUseCase();
 
-    userStore.setSelectedProfile(selectedProfile);
+    profileStore.setSelectedProfile(selectedProfile);
 
     await navigateTo("/");
   } catch (error) {

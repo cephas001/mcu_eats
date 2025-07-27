@@ -60,7 +60,7 @@
   <LoadingIconLarge
     :loading="settingLocalStorage"
     class="animate-none"
-    imageSrc="/Rolling@1x-1.0s-200px-200px.svg"
+    imageSrc="/Pulse@1x-1.0s-200px-200px.svg"
     text="Setting up things for you..."
   />
 
@@ -73,22 +73,28 @@
 </template>
 
 <script setup>
-import { useLogInStore } from "@/stores/logInStore";
 import { navigateTo, useNuxtApp } from "nuxt/app";
-import { storeToRefs } from "pinia";
 import { onMounted } from "vue";
-import { useUserStore } from "@/stores/userStore";
 
-const tryingToLogin = ref(false);
-const settingLocalStorage = ref(false);
-const showErrorModal = ref(false);
+import { useLogInStore } from "@/stores/logInStore";
+import { useUserStore } from "@/stores/userStore";
+import { useProfileStore } from "@/stores/profileStore";
+
+import { storeToRefs } from "pinia";
 
 const logInStore = useLogInStore();
 const { loginForm, displayError, clearError } = useLogInStore();
 const { loginErrors } = storeToRefs(logInStore);
 
 const userStore = useUserStore();
-const { user, profiles } = storeToRefs(userStore);
+const { user } = storeToRefs(userStore);
+
+const profileStore = useProfileStore();
+const { profiles } = storeToRefs(profileStore);
+
+const tryingToLogin = ref(false);
+const settingLocalStorage = ref(false);
+const showErrorModal = ref(false);
 
 const handleLogin = async () => {
   clearError();
@@ -115,19 +121,16 @@ const handleLogin = async () => {
     });
 
     const user = await $expressAuthBackendService.login(token);
-
     const profiledIds = user.profiles.map((profile) => profile.profileId);
 
     const profilesData = await $expressUserBackendService.getProfilesData(
       profiledIds
     );
-
     userStore.setUser(user);
-    userStore.setProfiles(profilesData);
-    userStore.setSelectedProfile(profilesData[0]);
+    profileStore.setProfiles(profilesData);
+    profileStore.setSelectedProfile(profilesData[0]);
   } catch (error) {
     clearError();
-
     if (error.type == "ValidationError") {
       if (error.errorList) {
         const { inputName, errorMessage } = error.errorList[0];
@@ -161,7 +164,6 @@ const handleLogin = async () => {
 
   try {
     if (!user?.value || !profiles?.value) return;
-
     settingLocalStorage.value = true;
 
     const {
@@ -175,9 +177,11 @@ const handleLogin = async () => {
 
     const selectedProfile = await $getSelectedProfileUseCase();
 
-    userStore.setSelectedProfile(selectedProfile);
+    profileStore.setSelectedProfile(selectedProfile);
+
     await navigateTo("/");
   } catch (error) {
+    console.log(error);
     if (error.type === "ProfileExistenceError") {
       return await navigateTo("/general/select-profile");
     }

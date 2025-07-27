@@ -74,26 +74,53 @@
 
 <script setup>
 import { useUserStore } from "@/stores/userStore";
-import { navigateTo } from "nuxt/app";
+import { navigateTo, useNuxtApp } from "nuxt/app";
 const userStore = useUserStore();
 const { user } = storeToRefs(userStore);
 
 const loadingUser = ref(false);
 
+const {
+  $getUserUseCase,
+  $expressAuthBackendService,
+  $expressUserBackendService,
+} = useNuxtApp();
+
 onMounted(async () => {
+  loadingUser.value = true;
   try {
-    loadingUser.value = true;
-    const { user } = await userStore.getUser();
-    console.log(user);
-    return;
-    if (!user) {
-      return await navigateTo("/");
+    const user = await userStore.getUser();
+
+    if (user) return;
+  } catch (error) {
+    return await navigateTo("/");
+  }
+
+  try {
+    const user = await $getUserUseCase();
+    if (user) {
+      userStore.setUser(user);
+      return;
     }
   } catch (error) {
     console.log(error);
-    // return await navigateTo("/");
-  } finally {
-    loadingUser.value = false;
   }
+
+  try {
+    const fetchedUser = await $expressAuthBackendService.login();
+
+    if (!fetchedUser) return navigateTo("/");
+
+    const profiledIds = fetchedUser.profiles.map(
+      (profile) => profile.profileId
+    );
+
+    const profilesData = await $expressUserBackendService.getProfilesData(
+      profiledIds
+    );
+
+    setUser(fetchedUser);
+    setProfiles(profilesData);
+  } catch (error) {}
 });
 </script>

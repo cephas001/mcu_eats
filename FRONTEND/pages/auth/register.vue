@@ -10,6 +10,7 @@
         >3</span
       >
     </div>
+
     <div class="text-center mt-9 mb-5">
       <h1 class="font-bold text-2xl mb-3">Almost There</h1>
       <p class="text-md font-manrope tracking-tight">
@@ -69,29 +70,28 @@
 </template>
 
 <script setup>
-import { useLogInStore } from "@/stores/logInStore";
-import { storeToRefs } from "pinia";
 import { navigateTo, useNuxtApp } from "nuxt/app";
 import { onMounted } from "vue";
 
+import { useLogInStore } from "@/stores/logInStore";
+
+import { storeToRefs } from "pinia";
+
 const logInStore = useLogInStore();
-
 const { registrationForm, displayError, clearError } = useLogInStore();
-
 const { registrationErrors } = storeToRefs(logInStore);
 
 const tryingToRegister = ref(false);
 
 const handleRegister = async () => {
   tryingToRegister.value = true;
+
   try {
     const { $expressAuthBackendService, $expressUserBackendService } =
       useNuxtApp();
 
     const { id, email, verifiedEmail } =
       await $expressAuthBackendService.verifyToken();
-
-    if (!id) return;
 
     const user = await $expressUserBackendService.registerUser({
       id,
@@ -103,13 +103,7 @@ const handleRegister = async () => {
       category: registrationForm.categoryValue?.toLowerCase(),
     });
 
-    try {
-      tryingToRegister.value = false;
-
-      await navigateTo(`/auth/profile?category=${user?.category}`);
-    } catch (error) {
-      showErrorModal.value = true;
-    }
+    await navigateTo(`/auth/profile?category=${user?.category}`);
   } catch (error) {
     clearError();
 

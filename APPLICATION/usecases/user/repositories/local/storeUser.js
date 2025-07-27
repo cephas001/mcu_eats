@@ -25,10 +25,9 @@ export default function (localUserRepo) {
     const validatedData = validationResult.data;
 
     try {
-      const user = new User(validatedData);
       await localUserRepo.clearUser();
 
-      return await localUserRepo.storeUser(user);
+      return await localUserRepo.storeUser(validatedData);
     } catch (error) {
       throw new LocalStorageError("An error occurred while storing user data");
     }

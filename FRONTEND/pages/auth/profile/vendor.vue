@@ -125,18 +125,22 @@
 </template>
 
 <script setup>
-import { useLogInStore } from "@/stores/logInStore";
 import { navigateTo } from "nuxt/app";
-import { storeToRefs } from "pinia";
+
 import { useUserStore } from "@/stores/userStore";
+import { useLogInStore } from "@/stores/logInStore";
+import { useProfileStore } from "@/stores/profileStore";
+
+import { storeToRefs } from "pinia";
 
 const userStore = useUserStore();
 const { user } = storeToRefs(userStore);
 
 const logInStore = useLogInStore();
-
 const { profileRegistrationForm, displayError, clearError } = logInStore;
 const { profileRegistrationErrors } = storeToRefs(logInStore);
+
+const profileStore = useProfileStore();
 
 const tryingToCreateProfile = ref(false);
 const settingLocalStorage = ref(false);
@@ -147,7 +151,6 @@ const handleFormSubmit = async () => {
 
   var profile = null;
 
-  // Sends data to backend
   try {
     const { $expressUserBackendService, $expressAuthBackendService } =
       useNuxtApp();
@@ -184,7 +187,8 @@ const handleFormSubmit = async () => {
     profile = savedProfile;
 
     userStore.setUser(updatedUser);
-    userStore.addProfile(savedProfile);
+    profileStore.addProfile(savedProfile);
+    profileStore.selectProfile(savedProfile.type);
   } catch (error) {
     clearError();
 
@@ -223,7 +227,6 @@ const handleFormSubmit = async () => {
     tryingToCreateProfile.value = false;
   }
 
-  // Try to save user and profile data to IndexedDB
   try {
     if (!user?.value) return;
 

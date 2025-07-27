@@ -16,12 +16,13 @@ export default function (localUserRepo) {
     }
 
     if (!userData) {
-      throw new UserExistenceError("User is not stored in local storage");
+      throw new UserExistenceError("User is not stored locally");
     }
 
     const validationResult = createUserSchema.safeParse(userData);
 
     if (!validationResult.success) {
+      console.log(validationResult.error);
       const errorList = validationResult.error.errors.map((e) => ({
         inputName: e.path.join(".") || "unknown",
         errorMessage: e.message,

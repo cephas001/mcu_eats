@@ -113,14 +113,20 @@
 </template>
 
 <script setup>
-import { useLogInStore } from "@/stores/logInStore";
 import { navigateTo } from "nuxt/app";
-import { storeToRefs } from "pinia";
+
+import { useLogInStore } from "@/stores/logInStore";
 import { useUserStore } from "@/stores/userStore";
+import { useProfileStore } from "@/stores/profileStore";
+
+import { storeToRefs } from "pinia";
 
 const logInStore = useLogInStore();
+
 const userStore = useUserStore();
 const { user } = storeToRefs(userStore);
+
+const profileStore = useProfileStore();
 
 const { profileRegistrationForm, displayError, clearError } = logInStore;
 const { profileRegistrationErrors } = storeToRefs(logInStore);
@@ -160,7 +166,8 @@ const handleFormSubmit = async () => {
     profile = savedProfile;
 
     userStore.setUser(updatedUser);
-    userStore.addProfile(savedProfile);
+    profileStore.addProfile(savedProfile);
+    profileStore.selectProfile(savedProfile.type);
   } catch (error) {
     clearError();
 

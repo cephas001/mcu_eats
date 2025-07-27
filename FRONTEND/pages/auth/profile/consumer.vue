@@ -115,12 +115,14 @@
 </template>
 
 <script setup>
-import { useLogInStore } from "@/stores/logInStore";
 import { navigateTo } from "nuxt/app";
-import { storeToRefs } from "pinia";
 import { onMounted } from "vue";
 import { useRoute } from "vue-router";
+
+import { useLogInStore } from "@/stores/logInStore";
 import { useUserStore } from "@/stores/userStore";
+import { useProfileStore } from "@/stores/profileStore";
+import { storeToRefs } from "pinia";
 
 const route = useRoute();
 const category = ref("");
@@ -131,6 +133,8 @@ const { user } = storeToRefs(userStore);
 const logInStore = useLogInStore();
 const { profileRegistrationForm, displayError, clearError } = logInStore;
 const { profileRegistrationErrors } = storeToRefs(logInStore);
+
+const profileStore = useProfileStore();
 
 const tryingToCreateProfile = ref(false);
 const showStaffFields = ref(false);
@@ -177,7 +181,8 @@ const handleFormSubmit = async () => {
     profile = savedProfile;
 
     userStore.setUser(updatedUser);
-    userStore.addProfile(savedProfile);
+    profileStore.addProfile(savedProfile);
+    profileStore.selectProfile(savedProfile.type);
   } catch (error) {
     clearError();
 
@@ -209,7 +214,7 @@ const handleFormSubmit = async () => {
       profileRegistrationErrors.value = error.message;
       return;
     }
-    console.log(error);
+
     profileRegistrationErrors.value = "An unexpected error occurred";
 
     return;
