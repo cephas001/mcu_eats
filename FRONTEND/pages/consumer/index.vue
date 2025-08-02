@@ -58,6 +58,11 @@ import { useVendorStore } from "@/stores/vendorStore";
 import { storeToRefs } from "pinia";
 import { returnFavouriteVendorIds } from "@/composables/returnFavouriteIds";
 
+definePageMeta({
+  middleware: ["check-user-and-profiles", "check-selected-profile"],
+  allowAnonymous: true,
+});
+
 const favouriteIds = ref([]);
 
 const fetchingData = ref(true);

@@ -126,6 +126,11 @@ import { useCartStore } from "@/stores/cartStore";
 import { useUserStore } from "@/stores/userStore";
 import { navigateTo } from "nuxt/app";
 
+definePageMeta({
+  middleware: ["check-user-and-profiles"],
+  allowAnonymous: true,
+});
+
 const userStore = useUserStore();
 const { user } = storeToRefs(userStore);
 

@@ -4,17 +4,6 @@ import { useMessagesStore } from "./messagesStore";
 export const useProfileStore = defineStore("profile", () => {
   const profiles = ref(null);
   const selectedProfile = ref(null);
-  const isGuest = ref(false);
-
-  const {
-    $expressAuthBackendService,
-    $expressUserBackendService,
-    $useIndexedDBUserRepo,
-    $useIndexedDBProfileRepo,
-    $useIndexedDBMessageRepo,
-  } = useNuxtApp();
-
-  const messagesStore = useMessagesStore();
 
   const clearProfiles = () => {
     profiles.value = null;
@@ -38,17 +27,20 @@ export const useProfileStore = defineStore("profile", () => {
   };
 
   const addProfile = (profile) => {
-    if (!profiles.value) profiles.value = [];
+    if (!profiles.value) profiles.value = [profile];
     setProfiles([...profiles.value, profile]);
   };
 
   const getSelectedProfile = () => {
-    if (isGuest.value) return null;
     return selectedProfile.value;
   };
 
   const selectProfile = (profileType) => {
     try {
+      if (!profiles.value || profiles.value?.length == 0) {
+        return null;
+      }
+
       const existingProfile = profiles.value.find(
         (profile) => profile.type === profileType
       );
@@ -56,6 +48,8 @@ export const useProfileStore = defineStore("profile", () => {
       if (!existingProfile) return null;
 
       setSelectedProfile(existingProfile);
+
+      return existingProfile;
     } catch (error) {
       throw error;
     }
@@ -71,5 +65,6 @@ export const useProfileStore = defineStore("profile", () => {
     getProfiles,
     clearProfiles,
     profiles,
+    selectedProfile,
   };
 });

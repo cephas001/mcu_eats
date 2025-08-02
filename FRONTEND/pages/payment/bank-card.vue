@@ -75,10 +75,15 @@
     </div>
   </section>
 </template>
+
 <script setup>
 import { useCardStore } from "@/stores/cardStore";
 import { useCartStore } from "@/stores/cartStore";
 import { storeToRefs } from "pinia";
+
+definePageMeta({
+  middleware: ["check-user-and-profiles"],
+});
 
 const cartStore = useCartStore();
 const { totalOrderAmount } = storeToRefs(cartStore);

@@ -150,6 +150,10 @@ import { useUserStore } from "@/stores/userStore";
 import { useLogInStore } from "@/stores/logInStore";
 import { storeToRefs } from "pinia";
 
+definePageMeta({
+  middleware: ["check-user-and-profiles"],
+});
+
 const { $expressAuthBackendService } = useNuxtApp();
 
 const route = useRoute();

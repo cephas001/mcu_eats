@@ -6,7 +6,7 @@ import {
 } from "../../../../domain/Error.js";
 
 export default function (localProfileRepo) {
-  return async function () {
+  return async function (userId) {
     try {
       var profilesData = await localProfileRepo.getProfiles();
     } catch (error) {
@@ -21,12 +21,19 @@ export default function (localProfileRepo) {
 
     for (const profileData of profilesData) {
       const validationResult = createProfileSchema.safeParse(profileData);
+
       if (!validationResult.success) {
         const errorList = validationResult.error.errors.map((e) => ({
           inputName: e.path.join(".") || "unknown",
           errorMessage: e.message,
         }));
         throw new ValidationError("Validation failed", null, errorList);
+      }
+
+      if (profileData.userId !== userId) {
+        throw new ValidationError(
+          "The profiles stored do not belong to the user"
+        );
       }
     }
 

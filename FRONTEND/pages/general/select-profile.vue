@@ -14,7 +14,7 @@
         name="profile"
         type="select"
         :state="registrationForm"
-        :items="profileList"
+        :items="registrationForm.profileList"
         @update="registrationForm.profileValue = $event"
       />
       <button
@@ -28,25 +28,25 @@
 </template>
 
 <script setup>
-import { useLogInStore } from "@/stores/logInStore";
 import { navigateTo } from "nuxt/app";
 import { onMounted } from "vue";
-import { useRoute } from "vue-router";
+
 import { useUserStore } from "@/stores/userStore";
+import { useProfileStore } from "@/stores/profileStore";
+import { useLogInStore } from "@/stores/logInStore";
+
 import { storeToRefs } from "pinia";
 
 const userStore = useUserStore();
-const { user, profiles } = storeToRefs(userStore);
+const { user } = storeToRefs(userStore);
+
+const profileStore = useProfileStore();
+const { profiles } = storeToRefs(profileStore);
 
 const { registrationForm, displayError } = useLogInStore();
 
-const route = useRoute();
-const category = ref("");
-const profileList = ref([]);
-
 const handleSelectProfile = async () => {
-  // EXTRA CHECK LATER, CHECK INDEXEDDB FIRST
-  if (!profiles.value || !user.value) return await navigateTo("/auth/login");
+  if (!profiles.value || !user.value) return await navigateTo("/");
 
   if (!registrationForm.profileValue) {
     displayError("Please select a profile", "profile");
@@ -56,16 +56,25 @@ const handleSelectProfile = async () => {
   try {
     switch (registrationForm.profileValue) {
       case "Consumer":
-        const consumer_profile = userStore.getProfile("consumer");
-        userStore.setSelectedProfile(consumer_profile);
+        const consumer_profile = profileStore.selectProfile("consumer");
+        if (!consumer_profile) {
+          displayError("Profile does not exists", "profile");
+          return;
+        }
         break;
       case "Delivery Person":
-        const delivery_profile = userStore.getProfile("delivery_person");
-        userStore.setSelectedProfile(delivery_profile);
+        const delivery_profile = profileStore.selectProfile("delivery_person");
+        if (!delivery_profile) {
+          displayError("Profile does not exists", "profile");
+          return;
+        }
         break;
       case "Vendor":
-        const vendor_profile = userStore.getProfile("vendor");
-        userStore.setSelectedProfile(vendor_profile);
+        const vendor_profile = profileStore.selectProfile("vendor");
+        if (!vendor_profile) {
+          displayError("Profile does not exists", "profile");
+          return;
+        }
         break;
       default:
         displayError("Invalid profile selected", "profile");
@@ -77,10 +86,10 @@ const handleSelectProfile = async () => {
 
   try {
     const { $selectProfileUseCase } = useNuxtApp();
-
     switch (registrationForm.profileValue) {
       case "Consumer":
         await $selectProfileUseCase("consumer");
+        // console.log("here");
         await navigateTo("/consumer");
         break;
       case "Delivery Person":
@@ -96,27 +105,28 @@ const handleSelectProfile = async () => {
         return;
     }
   } catch (error) {
-    await navigateTo("/");
+    await navigateTo("/consumer");
   }
 };
 
-onMounted(async () => {
+onMounted(() => {
   try {
-    const user = await userStore.fetchUser();
+    const user = userStore.getUser();
+    console.log(user);
 
     if (!user) {
-      return await navigateTo("/");
+      registrationForm.profileList = [];
+      return;
     }
 
-    profileList.value = user.profiles.map((profile) => {
+    registrationForm.profileList = user.profiles.map((profile) => {
       if (profile.type == "delivery_person") {
         return "Delivery Person";
       }
       return profile.type.charAt(0).toUpperCase() + profile.type.slice(1);
     });
-    console.log(profileList.value);
   } catch (error) {
-    return await navigateTo("/");
+    console.log(error);
   }
 });
 </script>

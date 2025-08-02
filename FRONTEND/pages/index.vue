@@ -7,7 +7,13 @@
 </template>
 
 <script setup>
-definePageMeta({
-  middleware: ["check-selected-profile"],
+import { onMounted } from "vue";
+import { useRoute } from "vue-router";
+import { checkUserAndProfiles } from "@/composables/checkUserAndProfiles";
+
+const route = useRoute();
+
+onMounted(async () => {
+  await checkUserAndProfiles(route.query?.redirectTo);
 });
 </script>

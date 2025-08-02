@@ -1,9 +1,9 @@
-import { InvalidTokenError } from "../../../domain/Error.js";
+import { InvalidTokenError, ValidationError } from "../../../domain/Error.js";
 
 export default function verifyToken(loginService) {
   return async function (token) {
     if (!token) {
-      throw new InvalidTokenError("Unauthorized: No token provided");
+      throw new ValidationError("Unauthorized: No token provided");
     }
 
     try {

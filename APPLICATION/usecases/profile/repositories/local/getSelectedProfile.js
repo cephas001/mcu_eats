@@ -6,7 +6,7 @@ import {
 } from "../../../../domain/Error.js";
 
 export default function getSelectedProfile(localProfileRepo) {
-  return async function () {
+  return async function (userId) {
     const profileData = await localProfileRepo.getSelectedProfile();
 
     if (!profileData) {
@@ -32,6 +32,12 @@ export default function getSelectedProfile(localProfileRepo) {
         "Profile data has been tampered with",
         null,
         errorList
+      );
+    }
+
+    if (profileData.userId !== userId) {
+      throw new ValidationError(
+        "The stored selected profile does not belong to the user"
       );
     }
 

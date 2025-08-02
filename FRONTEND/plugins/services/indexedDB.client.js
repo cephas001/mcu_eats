@@ -30,7 +30,7 @@ export default defineNuxtPlugin(() => {
       // Profile Use Cases
       addProfileUseCase: addProfile(indexedDBProfileRepo, indexedDBUserRepo),
       getProfilesUseCase: getProfiles(indexedDBProfileRepo),
-      clearProfileUseCase: clearProfiles(indexedDBProfileRepo),
+      clearProfilesUseCase: clearProfiles(indexedDBProfileRepo),
       getSelectedProfileUseCase: getSelectedProfile(indexedDBProfileRepo),
       selectProfileUseCase: selectProfile(indexedDBProfileRepo),
       storeProfilesUseCase: storeProfiles(

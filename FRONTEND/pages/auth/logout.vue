@@ -8,33 +8,51 @@
 
 <script setup>
 import { useUserStore } from "@/stores/userStore";
+import { useMessagesStore } from "@/stores/messagesStore";
 import { db } from "@/utils/db";
 
 const userStore = useUserStore();
+
+const messagesStore = useMessagesStore();
+const { messagesTypes } = storeToRefs(messagesStore);
+
 const router = useRouter();
 const route = useRoute();
-const {
-  $useIndexedDBUserRepo,
-  $useIndexedDBProfileRepo,
-  $useIndexedDBMessageRepo,
-} = useNuxtApp();
+const { $clearUserUseCase, $clearProfilesUseCase } = useNuxtApp();
 
 onMounted(async () => {
+  const messageType = messagesTypes.value[0];
+
   try {
     await $fetch("/api/logout");
+  } catch (error) {
+    messagesStore.addMessage({
+      type: messageType,
+      message: "Error during logout. Refresh page.",
+    });
+  }
 
-    userStore.clearUser();
-    await $useIndexedDBUserRepo.clearUser();
-    await $useIndexedDBProfileRepo.clearProfiles();
-    await $useIndexedDBMessageRepo.clearMessages();
-
-    if (route.query.redirect) {
-      await navigateTo("/login");
-    } else {
-      await router.back();
-    }
+  try {
+    await $clearUserUseCase();
+    await $clearProfilesUseCase();
   } catch (error) {
     console.log(error);
+  }
+
+  try {
+    userStore.clearUser();
+    userStore.setGuest(true);
+  } catch (error) {
+    messagesStore.addMessage({
+      type: messageType,
+      message: "Error during logout. Refresh page.",
+    });
+  }
+
+  if (route.query.redirect) {
+    await navigateTo("/login");
+  } else {
+    await router.back();
   }
 });
 </script>

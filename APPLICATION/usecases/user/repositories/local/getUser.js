@@ -6,9 +6,9 @@ import {
 } from "../../../../domain/Error.js";
 
 export default function (localUserRepo) {
-  return async function () {
+  return async function (id) {
     try {
-      var userData = await localUserRepo.getUser();
+      var userData = await localUserRepo.getUser(id);
     } catch (error) {
       throw new LocalStorageError(
         "An error occurred while trying to get user data"

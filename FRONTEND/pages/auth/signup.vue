@@ -99,6 +99,8 @@ import { useLogInStore } from "@/stores/logInStore";
 
 import { storeToRefs } from "pinia";
 
+import { processToken } from "@/composables/processToken";
+
 const logInStore = useLogInStore();
 const { signUpForm, displayError, clearError } = useLogInStore();
 const { signUpErrors } = storeToRefs(logInStore);
@@ -120,18 +122,9 @@ const handleSignUp = async () => {
       confirmPassword: signUpForm.confirmPassword,
     });
 
-    const response = await $fetch("/api/login", {
-      method: "POST",
-      body: {
-        token,
-      },
+    await processToken(token, async () => {
+      await navigateTo("/auth/register");
     });
-
-    if (response.message !== "Success") {
-      throw new Error("Failed to store auth token in cookie");
-    }
-
-    await navigateTo("/auth/register");
   } catch (error) {
     if (error.type == "ValidationError") {
       if (error.errorList) {

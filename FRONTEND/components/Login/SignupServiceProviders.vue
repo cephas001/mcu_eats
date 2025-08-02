@@ -30,6 +30,8 @@ import { useProfileStore } from "@/stores/profileStore";
 
 import { storeToRefs } from "pinia";
 
+import { processToken } from "@/composables/processToken";
+
 const userStore = useUserStore();
 const { user } = storeToRefs(userStore);
 
@@ -49,36 +51,11 @@ const providerSignIn = async (provider) => {
   clearError();
 
   try {
-    const {
-      $signUpUserWithProviderUseCase,
-      $expressAuthBackendService,
-      $expressUserBackendService,
-    } = useNuxtApp();
+    const { $signUpUserWithProviderUseCase } = useNuxtApp();
 
     const { token } = await $signUpUserWithProviderUseCase(provider);
 
-    const response = await $fetch("/api/login", {
-      method: "POST",
-      body: {
-        token,
-      },
-    });
-
-    if (response.message !== "Success") {
-      throw new Error("Failed to store auth token in cookie");
-    }
-
-    const user = await $expressAuthBackendService.login(token);
-
-    const profiledIds = user.profiles.map((profile) => profile.profileId);
-
-    const profilesData = await $expressUserBackendService.getProfilesData(
-      profiledIds
-    );
-
-    userStore.setUser(user);
-    profileStore.setProfiles(profilesData);
-    profileStore.setSelectedProfile(profilesData[0]);
+    await processToken(token);
   } catch (error) {
     if (error.type == "UserExistenceError") {
       return await navigateTo("/auth/register");

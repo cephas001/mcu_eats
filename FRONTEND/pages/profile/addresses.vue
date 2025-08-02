@@ -155,6 +155,10 @@ import { onMounted } from "vue";
 import { useLogInStore } from "@/stores/logInStore";
 import { useFormValidationMethods } from "@/composables/formValidation";
 
+definePageMeta({
+  middleware: ["check-user-and-profiles"],
+});
+
 const userStore = useUserStore();
 const { addressFormState } = userStore;
 const { user, loggedIn } = storeToRefs(userStore);

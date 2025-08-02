@@ -1,5 +1,5 @@
 <template>
-  <section v-if="!loadingUser" class="px-6 pt-22 pb-20">
+  <section class="px-6 pt-22 pb-20">
     <div class="w-full text-right">
       <h1>{{ user?.name }}</h1>
       <p class="text-sm font-semibold">
@@ -18,7 +18,7 @@
       <!-- PROFILES -->
       <ProfileCard
         text="My profiles"
-        url="/profile/details"
+        url="/profile/my-profiles"
         iconName="i-material-symbols-person-pin-outline-rounded"
       />
       <!-- ORDERS -->
@@ -26,6 +26,7 @@
         text="My orders"
         url="/orders"
         iconName="i-material-symbols-shopping-bag-speed-outline"
+        v-if="selectedProfile?.type == 'consumer'"
       />
       <!-- MESSAGES -->
       <ProfileCard
@@ -38,24 +39,28 @@
         text="Saved addresses"
         url="/profile/addresses"
         iconName="i-material-symbols-light-location-on-outline-rounded"
+        v-if="selectedProfile?.type == 'consumer'"
       />
       <!-- FAVOURITES -->
       <ProfileCard
         text="Favourites"
         url="/profile/favourites"
         iconName="i-material-symbols-favorite-outline"
+        v-if="selectedProfile?.type == 'consumer'"
       />
       <!-- ITEM SUGGESTIONS -->
       <ProfileCard
         text="Item suggestions"
         iconName="i-material-symbols-garden-cart-outline-sharp"
         url=""
+        v-if="selectedProfile?.type == 'consumer'"
       />
       <!-- SAVED NOTES -->
       <ProfileCard
         text="Saved notes"
         url="/profile/notes"
         iconName="i-material-symbols-light-chat-outline-rounded"
+        v-if="selectedProfile?.type == 'consumer'"
       />
       <!-- HELP/FEEDBACK -->
       <ProfileCard
@@ -65,62 +70,20 @@
       />
     </div>
   </section>
-  <LoadingIconLarge
-    :loading="loadingUser"
-    imageSrc="/Pulse@1x-1.0s-200px-200px.svg"
-    class="animate-none"
-  />
 </template>
 
 <script setup>
 import { useUserStore } from "@/stores/userStore";
-import { navigateTo, useNuxtApp } from "nuxt/app";
+import { useProfileStore } from "@/stores/profileStore";
+import { storeToRefs } from "pinia";
+
+definePageMeta({
+  middleware: ["check-user-and-profiles"],
+});
+
 const userStore = useUserStore();
 const { user } = storeToRefs(userStore);
 
-const loadingUser = ref(false);
-
-const {
-  $getUserUseCase,
-  $expressAuthBackendService,
-  $expressUserBackendService,
-} = useNuxtApp();
-
-onMounted(async () => {
-  loadingUser.value = true;
-  try {
-    const user = await userStore.getUser();
-
-    if (user) return;
-  } catch (error) {
-    return await navigateTo("/");
-  }
-
-  try {
-    const user = await $getUserUseCase();
-    if (user) {
-      userStore.setUser(user);
-      return;
-    }
-  } catch (error) {
-    console.log(error);
-  }
-
-  try {
-    const fetchedUser = await $expressAuthBackendService.login();
-
-    if (!fetchedUser) return navigateTo("/");
-
-    const profiledIds = fetchedUser.profiles.map(
-      (profile) => profile.profileId
-    );
-
-    const profilesData = await $expressUserBackendService.getProfilesData(
-      profiledIds
-    );
-
-    setUser(fetchedUser);
-    setProfiles(profilesData);
-  } catch (error) {}
-});
+const profileStore = useProfileStore();
+const { selectedProfile } = storeToRefs(profileStore);
 </script>

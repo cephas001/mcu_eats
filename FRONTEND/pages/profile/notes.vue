@@ -48,4 +48,8 @@
 
 <script setup>
 const selectedOption = ref("Order Notes");
+
+definePageMeta({
+  middleware: ["check-user-and-profiles"],
+});
 </script>

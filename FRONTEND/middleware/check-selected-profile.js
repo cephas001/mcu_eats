@@ -1,58 +1,55 @@
+import { useProfileStore } from "@/stores/profileStore";
 import { useUserStore } from "@/stores/userStore";
 import { navigateTo } from "nuxt/app";
 
-export default defineNuxtRouteMiddleware(async (to, from) => {
-  if (process.client) {
-    const userStore = useUserStore();
+export default defineNuxtRouteMiddleware((to, from) => {
+  const profileStore = useProfileStore();
+  const userStore = useUserStore();
 
-    try {
-      const selectedProfile = userStore.getSelectedProfile();
+  const navigationRoutes = {
+    select_profile: "/general/select-profile",
+    unathorized_route: "/general/unauthorized",
+    logout_route: "/auth/logout",
+    login_route: "/auth/login",
+    register_route: "/auth/register",
+    profile_register_route: "/auth/profile",
+    consumer_route: "/consumer",
+    delivery_route: "/delivery-person",
+    vendor_route: "/vendor",
+  };
 
-      const type = selectedProfile?.type;
+  if (userStore.isGuest !== null && userStore.isGuest) {
+    if (to.meta.allowAnonymous) {
+      return;
+    } else {
+      return navigateTo("/general/unauthorized");
+    }
+  }
 
-      if (type === "consumer") {
-        return navigateTo("/consumer");
-      }
-      if (type === "delivery_person") {
-        return navigateTo("/delivery-person");
-      }
-      if (type === "vendor") {
-        return navigateTo("/vendor");
-      }
-    } catch (error) {
-      return navigateTo("/consumer");
+  // Early exit if data exists
+  if (userStore.user && profileStore.profiles) {
+    if (!profileStore.selectedProfile?.type) {
+      return navigateTo("/general/select-profile");
     }
 
-    try {
-      const { $getSelectedProfileUseCase } = useNuxtApp();
-
-      const selectedProfile = await $getSelectedProfileUseCase();
-      userStore.setSelectedProfile(selectedProfile);
-
-      const type = selectedProfile?.type;
-
-      if (!type) {
-        return navigateTo("/consumer");
-      }
-      if (type === "consumer") {
-        return navigateTo("/consumer");
-      }
-      if (type === "delivery_person") {
-        return navigateTo("/delivery-person");
-      }
-      if (type === "vendor") {
-        return navigateTo("/vendor");
-      }
-    } catch (error) {
-      if (error.type === "ProfileExistenceError") {
-        return navigateTo("/general/select-profile");
-      }
-
-      if (error.type === "ValidationError") {
-        return navigateTo("auth/logout");
-      }
-
-      return navigateTo("/consumer");
+    switch (profileStore.selectedProfile.type) {
+      case "consumer":
+        if (!to.fullPath.startsWith("/consumer")) {
+          return navigateTo(navigationRoutes["consumer_route"]);
+        }
+        break;
+      case "delivery_person":
+        if (!to.fullPath.startsWith("/delivery-person")) {
+          return navigateTo(navigationRoutes["delivery_route"]);
+        }
+        break;
+      case "vendor":
+        if (!to.fullPath.startsWith("/vendor")) {
+          return navigateTo(navigationRoutes["vendor_route"]);
+        }
+        break;
     }
+  } else {
+    return navigateTo(`/?redirectTo=${to.fullPath}`);
   }
 });

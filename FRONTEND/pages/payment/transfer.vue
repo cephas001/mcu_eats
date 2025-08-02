@@ -74,6 +74,10 @@ import { onMounted, ref, watch } from "vue";
 import { useOrderStore } from "@/stores/orderStore";
 import { navigateTo } from "nuxt/app";
 
+definePageMeta({
+  middleware: ["check-user-and-profiles"],
+});
+
 // Default selected option
 const selectedOption = ref("delivery");
 

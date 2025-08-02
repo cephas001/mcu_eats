@@ -5,15 +5,19 @@ const profileRefSchema = z.object({
   profileId: z.string().min(1, "Profile ID is required"),
 });
 
-const dateSchema = z.string().refine(
-  (val) => {
-    const date = new Date(val);
-    return !isNaN(date.getTime());
-  },
-  {
-    message: "Invalid date string",
-  }
-);
+const dateSchema = z
+  .string()
+  .refine(
+    (val) => {
+      const date = new Date(val);
+      return !isNaN(date.getTime());
+    },
+    {
+      message: "Invalid date string",
+    }
+  )
+  .optional()
+  .default(() => new Date().toISOString());
 
 export const createUserSchema = z.object({
   id: z.string().min(1, "ID is required"),

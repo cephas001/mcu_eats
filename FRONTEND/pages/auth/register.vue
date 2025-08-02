@@ -11,12 +11,10 @@
       >
     </div>
 
-    <div class="text-center mt-9 mb-5">
-      <h1 class="font-bold text-2xl mb-3">Almost There</h1>
-      <p class="text-md font-manrope tracking-tight">
-        We need just a few more details from you
-      </p>
-    </div>
+    <AuthFlowHeader
+      mainText="Almost There"
+      subText=" We just need a few more details from you"
+    />
 
     <FormErrorMessage
       :errorMessage="registrationErrors"

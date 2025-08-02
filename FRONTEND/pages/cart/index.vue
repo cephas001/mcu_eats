@@ -178,6 +178,11 @@ import { onMounted, ref } from "vue";
 import { useCartStore } from "@/stores/cartStore";
 import { useUserStore } from "@/stores/userStore";
 
+definePageMeta({
+  middleware: ["check-user-and-profiles"],
+  allowAnonymous: true,
+});
+
 const userStore = useUserStore();
 const { user } = storeToRefs(userStore);
 

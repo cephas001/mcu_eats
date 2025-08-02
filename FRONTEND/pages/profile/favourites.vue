@@ -134,6 +134,11 @@ import { useVendorStore } from "@/stores/vendorStore";
 import { onMounted } from "vue";
 import { parseArrays } from "@/utils/parseArrays";
 
+definePageMeta({
+  middleware: ["check-user-and-profiles"],
+  allowAnonymous: true,
+});
+
 const fetchingData = ref(true);
 
 const vendorStore = useVendorStore();

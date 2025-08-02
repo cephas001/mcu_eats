@@ -27,16 +27,8 @@ export default class IndexedDBUserRepository extends UserRepository {
 
   async getUser(id) {
     try {
-      if (id) {
-        const user = await this.db.user.get(id);
-        return user ? parseArrays(user) : null;
-      }
-      const userFromIndexDB = await this.db.user.toArray();
-
-      if (userFromIndexDB?.length > 0) {
-        return parseArrays(userFromIndexDB[0]);
-      }
-      return null;
+      const user = await this.db.user.get(id);
+      return user ? parseArrays(user) : null;
     } catch (error) {
       throw error;
     }

@@ -25,7 +25,7 @@
           variant="ghost"
           size="xl"
           class="cursor-pointer bg-primary/15 text-primary_light"
-          @click="fetchDetails"
+          @click="setNavigationItems"
         />
       </UDropdownMenu>
     </div>
@@ -33,7 +33,7 @@
 </template>
 
 <script setup>
-import { navigateTo, useNuxtApp } from "nuxt/app";
+import { navigateTo } from "nuxt/app";
 import { ref } from "vue";
 
 import { useUserStore } from "@/stores/userStore";
@@ -41,6 +41,7 @@ import { useProfileStore } from "@/stores/profileStore";
 import { useCartStore } from "@/stores/cartStore";
 import { useMessagesStore } from "@/stores/messagesStore";
 import { storeToRefs } from "pinia";
+import { getRedirectUrl } from "@/utils/getRedirectUrl";
 
 const cartStore = useCartStore();
 const { cart } = storeToRefs(cartStore);
@@ -50,7 +51,6 @@ const userStore = useUserStore();
 const profileStore = useProfileStore();
 
 const messagesStore = useMessagesStore();
-const { messages, messagesTypes } = storeToRefs(messagesStore);
 
 const navigationItems = ref([
   [
@@ -87,7 +87,11 @@ const refineMessages = (messages) => {
   return formattedMessages;
 };
 
-const setUserNavigationItems = (user) => {
+const setUserNavigationItems = (user, selectedProfile) => {
+  const redirectTo = getRedirectUrl(selectedProfile);
+
+  const messages = messagesStore.getMessages();
+
   navigationItems.value = [
     [
       {
@@ -102,13 +106,7 @@ const setUserNavigationItems = (user) => {
       {
         label: "Home",
         icon: "i-material-symbols-house-rounded",
-        to: "/",
-        color: "info",
-      },
-      {
-        label: `View Cart (${totalCartSize()})`,
-        icon: "i-material-symbols-garden-cart-outline-sharp",
-        to: "/cart",
+        to: `/?redirectTo=${redirectTo}`,
         color: "info",
       },
       {
@@ -121,18 +119,18 @@ const setUserNavigationItems = (user) => {
     [
       {
         label: "Switch Profile",
-        icon: "i-lucide-user",
+        icon: "i-material-symbols-published-with-changes",
         color: "info",
         to: "/general/select-profile",
       },
     ],
-    ...(messages.value?.length > 0
+    ...(messages?.length > 0
       ? [
           [
             {
-              label: `Messages (${messages.length})`,
+              label: `Messages (${messages?.length})`,
               icon: "i-lucide-message-square",
-              children: [refineMessages(messages.value)],
+              children: [refineMessages(messages)],
             },
           ],
         ]
@@ -155,7 +153,56 @@ const setUserNavigationItems = (user) => {
   ];
 };
 
+const addToNavigationItems = (position, items) => {
+  if (position > navigationItems?.value?.length - 1) {
+    if (Array.isArray(items)) {
+      navigationItems.value = [...navigationItems.value, items];
+      return;
+    }
+    navigationItems.value = [...navigationItems.value, [items]];
+
+    return;
+  }
+
+  navigationItems.value = navigationItems.value.map((array, index) => {
+    if (index == position) {
+      if (Array.isArray(items)) {
+        return [...array, ...items];
+      }
+      return [...array, items];
+    }
+    return array;
+  });
+};
+
+const appendProfileSpecificRoutes = (selectedProfile) => {
+  if (selectedProfile?.type == "consumer") {
+    addToNavigationItems(1, [
+      {
+        label: `View Cart (${totalCartSize()})`,
+        icon: "i-material-symbols-garden-cart-outline-sharp",
+        to: "/cart",
+        color: "info",
+      },
+      {
+        label: "Orders",
+        icon: "i-material-symbols-quick-reorder",
+        to: "/orders",
+        color: "info",
+      },
+    ]);
+    return;
+  }
+
+  if (selectedProfile?.type == "vendor") {
+  }
+
+  if (selectedProfile?.type == "delivery_person") {
+  }
+};
+
 const setGuestNavigationItems = () => {
+  const messages = messagesStore.getMessages();
   navigationItems.value = [
     [
       {
@@ -170,7 +217,7 @@ const setGuestNavigationItems = () => {
       {
         label: "Home",
         icon: "i-material-symbols-house-rounded",
-        to: "/",
+        to: `/consumer`,
         color: "info",
       },
       {
@@ -180,13 +227,13 @@ const setGuestNavigationItems = () => {
         color: "info",
       },
     ],
-    ...(messages.value?.length > 0
+    ...(messages?.length > 0
       ? [
           [
             {
-              label: `Messages (${messages.value.length})`,
+              label: `Messages (${messages?.length})`,
               icon: "i-lucide-message-square",
-              children: [refineMessages(messages.value)],
+              children: [refineMessages(messages)],
             },
           ],
         ]
@@ -209,122 +256,22 @@ const setGuestNavigationItems = () => {
   ];
 };
 
-const fetchDetails = async () => {
-  const messageType = messagesTypes.value[0];
-
-  const {
-    $getUserUseCase,
-    $getProfilesUseCase,
-    $storeUserUseCase,
-    $storeProfilesUseCase,
-    $expressAuthBackendService,
-    $expressUserBackendService,
-  } = useNuxtApp();
-
-  const authenticationMessages = messagesStore.getMessages(messageType);
-
-  if (authenticationMessages.length > 0) return;
-
-  if (userStore.checkGuest()) {
-    setGuestNavigationItems();
-    return;
-  }
-
+const setNavigationItems = () => {
   try {
     const user = userStore.getUser();
     const profiles = profileStore.getProfiles();
 
-    if (user && profiles) {
-      setUserNavigationItems(user);
-      return;
+    const selectedProfile = profileStore.getSelectedProfile();
+
+    if (user && profiles && selectedProfile) {
+      setUserNavigationItems(user, selectedProfile);
+
+      appendProfileSpecificRoutes(selectedProfile);
+    } else {
+      setGuestNavigationItems();
     }
   } catch (error) {
     console.log(error);
   }
-
-  try {
-    const user = await $getUserUseCase();
-    const profiles = await $getProfilesUseCase();
-
-    if (user && profiles) {
-      userStore.setUser(user);
-      profileStore.setProfiles(profiles);
-      setUserNavigationItems(user);
-      return;
-    }
-  } catch (error) {
-    console.log(error);
-  }
-
-  var fetchedUser = null;
-  var fetchedProfiles = null;
-  var fetchedAndStored = false;
-
-  try {
-    fetchedUser = await $expressAuthBackendService.login();
-
-    if (fetchedUser) {
-      const profiledIds = fetchedUser.profiles.map(
-        (profile) => profile.profileId
-      );
-
-      fetchedProfiles = await $expressUserBackendService.getProfilesData(
-        profiledIds
-      );
-
-      if (fetchedProfiles) {
-        userStore.setUser(fetchedUser);
-        profileStore.setProfiles(fetchedProfiles);
-        setUserNavigationItems(fetchedUser);
-
-        fetchedAndStored = true;
-      }
-    }
-  } catch (error) {
-    if (error.type == "ValidationError" || error.type == "UnexpectedError") {
-      userStore.setGuest(true);
-    }
-
-    if (error.type == "InvalidTokenError") {
-      messagesStore.addMessage({
-        type: messageType,
-        message: "Please login",
-      });
-    }
-
-    if (error.type == "UserExistenceError") {
-      messagesStore.addMessage({
-        type: messageType,
-        message: "Please login to finish registration",
-      });
-    }
-
-    if (error.type == "ProfileExistenceError") {
-      messagesStore.addMessage({
-        type: messageType,
-        message: "Please login to finish registration",
-      });
-    }
-
-    if (error.type == "UnexpectedError") {
-      messagesStore.addMessage({
-        type: messageType,
-        message: "Please retry login",
-      });
-    }
-  }
-
-  try {
-    if (fetchedAndStored) {
-      await $storeUserUseCase(fetchedUser);
-      await $storeProfilesUseCase(fetchedProfiles);
-
-      return;
-    }
-  } catch (error) {
-    console.log(error);
-  }
-
-  setGuestNavigationItems();
 };
 </script>

@@ -37,6 +37,10 @@
 </template>
 
 <script setup>
+definePageMeta({
+  middleware: ["check-user-and-profiles"],
+});
+
 import { navigateTo } from "nuxt/app";
 import { useOrderStore } from "@/stores/orderStore";
 </script>
