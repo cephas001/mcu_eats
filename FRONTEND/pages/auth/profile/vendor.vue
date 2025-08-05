@@ -1,5 +1,8 @@
 <template>
-  <section class="pb-5 pt-15 px-6" v-if="!tryingToCreateProfile">
+  <section
+    class="pb-5 pt-15 px-6"
+    v-if="!tryingToCreateProfile && !settingLocalStorage"
+  >
     <ProfileAuthHeader title="Vendor" text="Set up a vendor profile" />
 
     <FormErrorMessage
@@ -49,8 +52,7 @@
         labelText="Phone Number"
         placeholder="Your Business Phone Number"
         name="businessNumber"
-        type="number"
-        inputMode="numeric"
+        type="text"
         :state="profileRegistrationForm"
         @update="profileRegistrationForm.businessNumber = $event"
       />

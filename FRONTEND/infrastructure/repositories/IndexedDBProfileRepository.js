@@ -8,7 +8,7 @@ export default class IndexedDBProfileRepository extends ProfileRepository {
     this.db = db;
   }
 
-  async storeProfiles(userProfiles) {
+  async storeUserProfiles(userProfiles) {
     try {
       const stringifiedUserProfiles = userProfiles.map((profileData) =>
         stringifyArrays(profileData)
@@ -22,19 +22,19 @@ export default class IndexedDBProfileRepository extends ProfileRepository {
     }
   }
 
-  async addProfile(profileData) {
+  async addProfileToStoredUserProfiles(userProfile) {
     try {
-      await this.db.profiles.add(stringifyArrays(profileData));
+      await this.db.profiles.add(stringifyArrays(userProfile));
       return {
-        savedProfile: profileData,
-        profileId: profileData.id,
+        savedProfile: userProfile,
+        profileId: userProfile.id,
       };
     } catch (error) {
       throw error;
     }
   }
 
-  async existsByUserIdAndType(userId, type) {
+  async checkForStoredUserProfile(userId, type) {
     try {
       const profile = await this.db.profiles.where({ userId, type }).toArray();
       return profile.length > 0;
@@ -43,7 +43,7 @@ export default class IndexedDBProfileRepository extends ProfileRepository {
     }
   }
 
-  async clearProfiles() {
+  async clearUserProfiles() {
     try {
       await this.db.profiles.clear();
     } catch (error) {
@@ -51,7 +51,7 @@ export default class IndexedDBProfileRepository extends ProfileRepository {
     }
   }
 
-  async getProfiles() {
+  async retrieveUserProfiles(userId) {
     try {
       const profiles = await this.db.profiles.toArray();
       if (profiles && profiles.length > 0) {
@@ -66,7 +66,7 @@ export default class IndexedDBProfileRepository extends ProfileRepository {
     }
   }
 
-  async getProfile(profileId) {
+  async retrieveUserById(profileId) {
     try {
       const profile = await this.db.profiles.get(profileId);
       return profile ? parseArrays(profile) : null;
@@ -75,7 +75,7 @@ export default class IndexedDBProfileRepository extends ProfileRepository {
     }
   }
 
-  async getProfileByType(type) {
+  async retrieveUserProfileByType(type) {
     try {
       const profile = await this.db.profiles.where({ type }).toArray();
       return profile?.length > 0 ? parseArrays(profile[0]) : null;
@@ -84,15 +84,15 @@ export default class IndexedDBProfileRepository extends ProfileRepository {
     }
   }
 
-  async selectProfile(profileData) {
+  async selectUserProfile(userProfile) {
     try {
-      await this.db.selectedProfile.put(stringifyArrays(profileData));
+      await this.db.selectedProfile.put(stringifyArrays(userProfile));
     } catch (error) {
       throw error;
     }
   }
 
-  async clearSelectedProfile() {
+  async clearUserSelectedProfile() {
     try {
       await this.db.selectedProfile.clear();
     } catch (error) {
@@ -100,10 +100,47 @@ export default class IndexedDBProfileRepository extends ProfileRepository {
     }
   }
 
-  async getSelectedProfile() {
+  async retrieveUserSelectedProfile() {
     try {
       const selectedProfile = await this.db.selectedProfile.toArray();
       return selectedProfile ? parseArrays(selectedProfile[0]) : null;
+    } catch (error) {
+      throw error;
+    }
+  }
+
+  async clearVendorProfiles() {
+    try {
+      await this.db.vendors.clear();
+    } catch (error) {
+      throw error;
+    }
+  }
+
+  async storeVendorProfiles(vendorProfiles) {
+    try {
+      const stringifiedVendorProfiles = vendorProfiles.map((profileData) =>
+        stringifyArrays(profileData)
+      );
+
+      await this.db.vendors.bulkPut(stringifiedVendorProfiles);
+
+      return parseArrays(await this.db.vendors.toArray());
+    } catch (error) {
+      throw error;
+    }
+  }
+
+  async retrieveVendorProfiles() {
+    try {
+      const vendorProfiles = await this.db.vendors.toArray();
+      if (vendorProfiles && vendorProfiles.length > 0) {
+        const profilesToReturn = vendorProfiles.map((profile) =>
+          parseArrays(profile)
+        );
+        return profilesToReturn;
+      }
+      return null;
     } catch (error) {
       throw error;
     }

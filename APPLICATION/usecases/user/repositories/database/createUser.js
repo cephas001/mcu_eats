@@ -9,7 +9,10 @@ import {
 export default function createUser(userRepo) {
   return async function (userData) {
     if (!userData) {
-      throw new ValidationError("User data is not defined", null);
+      throw new ValidationError(
+        "The user is to be stored has not been defined",
+        null
+      );
     }
 
     const validationResult = createUserSchema.safeParse(userData);

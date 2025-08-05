@@ -2,34 +2,24 @@ import { createUserSchema } from "../../../../validators/user/validateUserData.j
 import {
   ValidationError,
   LocalStorageError,
-  UserExistenceError,
 } from "../../../../domain/Error.js";
 
-export default function (localUserRepo) {
-  return async function (id) {
-    try {
-      var userData = await localUserRepo.getUser(id);
-    } catch (error) {
-      throw new LocalStorageError(
-        "An error occurred while trying to get user data"
-      );
-    }
-
+export default function storeUser(browserUserRepo) {
+  return async function (userData) {
     if (!userData) {
-      throw new UserExistenceError("User is not stored locally");
+      throw new ValidationError("The user to be stored is not defined", null);
     }
 
     const validationResult = createUserSchema.safeParse(userData);
 
     if (!validationResult.success) {
-      console.log(validationResult.error);
       const errorList = validationResult.error.errors.map((e) => ({
         inputName: e.path.join(".") || "unknown",
         errorMessage: e.message,
       }));
 
       throw new ValidationError(
-        "User data has been tampered with",
+        "The user data has been tampered with",
         null,
         errorList
       );
@@ -37,6 +27,12 @@ export default function (localUserRepo) {
 
     const validatedData = validationResult.data;
 
-    return validatedData;
+    try {
+      await browserUserRepo.clearUser();
+
+      return await browserUserRepo.storeUser(validatedData);
+    } catch (error) {
+      throw new LocalStorageError("An error occurred while storing user data");
+    }
   };
 }

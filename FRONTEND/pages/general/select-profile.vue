@@ -85,19 +85,19 @@ const handleSelectProfile = async () => {
   }
 
   try {
-    const { $selectProfileUseCase } = useNuxtApp();
+    const { $selectUserProfileUseCase } = useNuxtApp();
     switch (registrationForm.profileValue) {
       case "Consumer":
-        await $selectProfileUseCase("consumer");
+        await $selectUserProfileUseCase("consumer");
         // console.log("here");
         await navigateTo("/consumer");
         break;
       case "Delivery Person":
-        await $selectProfileUseCase("delivery_person");
+        await $selectUserProfileUseCase("delivery_person");
         await navigateTo("/delivery-person");
         break;
       case "Vendor":
-        await $selectProfileUseCase("vendor");
+        await $selectUserProfileUseCase("vendor");
         await navigateTo("/vendor");
         break;
       default:
@@ -112,7 +112,6 @@ const handleSelectProfile = async () => {
 onMounted(() => {
   try {
     const user = userStore.getUser();
-    console.log(user);
 
     if (!user) {
       registrationForm.profileList = [];

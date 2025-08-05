@@ -3,7 +3,7 @@
     <div
       class="bg-primary w-fit py-1 px-2 rounded-r-full absolute top-10 left-[-4px] text-white text-sm z-100"
     >
-      {{ vendor.category }}
+      {{ capitalizeWords(vendor.category) }}
     </div>
     <Media
       src="/restaurant/food1.jpg"
@@ -12,7 +12,7 @@
     />
     <!-- icon to favorite would be to the top right -->
     <UIcon
-      :name="`i-material-symbols-favorite${favourited ? '' : '-outline'}`"
+      :name="`i-material-symbols-favorite${false ? '' : '-outline'}`"
       class="text-black absolute z-100 top-3 right-3 font-bold text-3xl"
       :class="animate ? 'animate-[var(--animate-pingOnce)]' : ''"
       @click.self="favouriteVendorComponent(vendor._id)"
@@ -24,8 +24,8 @@
       <p class="font-semibold">Closed</p>
 
       <p>
-        Opens at {{ vendor.opening_time.hour
-        }}{{ vendor.opening_time.hour > 11 ? "pm" : "am" }}
+        Opens at {{ vendor.openingTime.hour
+        }}{{ vendor.openingTime.hour > 11 ? "pm" : "am" }}
       </p>
     </div>
   </div>
@@ -95,25 +95,32 @@ const props = defineProps({
   vendor: {
     type: Object,
   },
-  favouriteIds: {
-    type: Array,
-  },
+  // favouriteIds: {
+  //   type: Array,
+  // },
 });
 
 const isOpen = computed(() => {
   var open = compareTime(
-    props.vendor.closing_time.hour,
-    props.vendor.closing_time.minute,
-    props.vendor.taking_orders
+    props.vendor.closingTime.hour,
+    props.vendor.closingTime.minute,
+    props.vendor.takingOrders
   );
   return true;
 });
 
+const capitalizeWords = (str) => {
+  return str
+    .split(" ") // split into words
+    .map((word) => word.charAt(0).toUpperCase() + word.slice(1)) // capitalize first letter
+    .join(" "); // join back into a string
+};
+
 const favourited = ref(false);
 
-watchEffect(() => {
-  favourited.value = props.favouriteIds?.includes(props.vendor._id) || false;
-});
+// watchEffect(() => {
+//   favourited.value = props.favouriteIds?.includes(props.vendor._id) || false;
+// });
 
 const openVendor = () => {
   if (isOpen.value) {

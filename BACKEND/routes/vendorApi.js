@@ -5,22 +5,20 @@ import express from "express";
 const router = express.Router();
 import Vendors from "../models/vendorModel.js";
 
+import { getVendorProfilesUseCase } from "../services/index.js";
+
+import { vendorProfilePresenter } from "../infrastructure/presenters/vendorProfilePresenter.js";
+
 router.get("/vendors", async (req, res) => {
   try {
-    const restaurants = await Vendors.find({ type: "restaurant" }).lean();
-    const retailers = await Vendors.find({ type: "retailer" }).lean();
-    const shops = await Vendors.find({ type: "shop" }).lean();
-
-    return res.json({
-      restaurants,
-      retailers,
-      shops,
-    });
+    const vendors = await getVendorProfilesUseCase();
+    res.json(vendorProfilePresenter(vendors));
   } catch (error) {
     console.log(error);
   }
 });
 
+// NOT REFACTORED
 router.get("/vendors/:id", async (req, res) => {
   try {
     const vendor = await Vendors.findOne({ _id: req.params.id });

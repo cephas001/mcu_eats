@@ -10,12 +10,12 @@ export default function getUser(userRepo) {
     }
 
     // Check if user does not exist
-    const existingUser = await userRepo.findById(userId);
+    const user = await userRepo.findById(userId);
 
-    if (!existingUser) {
+    if (!user) {
       throw new UserExistenceError("This user does not exists");
     }
 
-    return existingUser;
+    return user;
   };
 }

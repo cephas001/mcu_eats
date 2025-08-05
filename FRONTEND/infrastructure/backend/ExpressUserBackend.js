@@ -19,7 +19,7 @@ export default class ExpressUserBackend extends UserBackend {
 
   async getUserByEmail(email) {
     try {
-      return await this.api.request("/getUserByEmail", {
+      return await this.api.request("/get/user/email", {
         method: "POST",
         body: {
           email,
@@ -30,7 +30,7 @@ export default class ExpressUserBackend extends UserBackend {
     }
   }
 
-  async createProfile(profileData) {
+  async createUserProfile(profileData) {
     try {
       return await this.api.request("/profile", {
         method: "POST",
@@ -41,11 +41,33 @@ export default class ExpressUserBackend extends UserBackend {
     }
   }
 
-  async getProfilesData(profileIds) {
+  async getProfilesDataByProfileIds(profileIds) {
     try {
-      return await this.api.request("/profile-data", {
+      return await this.api.request("/get/profile/data/profileIds", {
         method: "POST",
         body: { profileIds },
+      });
+    } catch (error) {
+      throw error;
+    }
+  }
+
+  async getProfilesDataByType({ type, userId } = {}) {
+    try {
+      return await this.api.request("/get/profile/data/type", {
+        method: "POST",
+        body: { type, userId },
+      });
+    } catch (error) {
+      throw error;
+    }
+  }
+
+  async getVendorProfiles() {
+    try {
+      return await this.api.request("/vendors", {
+        method: "GET",
+        body: {},
       });
     } catch (error) {
       throw error;

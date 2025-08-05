@@ -1,7 +1,7 @@
 export const getRedirectUrl = (selectedProfile) => {
   var redirectTo = undefined;
 
-  switch (selectedProfile.type) {
+  switch (selectedProfile?.type) {
     case "consumer":
       redirectTo = "/consumer";
       break;
@@ -10,6 +10,7 @@ export const getRedirectUrl = (selectedProfile) => {
       break;
     case "vendor":
       redirectTo = "/vendor";
+      break;
     default:
       redirectTo = undefined;
   }

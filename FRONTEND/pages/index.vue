@@ -9,11 +9,11 @@
 <script setup>
 import { onMounted } from "vue";
 import { useRoute } from "vue-router";
-import { checkUserAndProfiles } from "@/composables/checkUserAndProfiles";
+import { setUserAndProfilesInState } from "@/composables/setUserAndProfilesInState";
 
 const route = useRoute();
 
 onMounted(async () => {
-  await checkUserAndProfiles(route.query?.redirectTo);
+  await setUserAndProfilesInState(route.query?.redirectTo);
 });
 </script>

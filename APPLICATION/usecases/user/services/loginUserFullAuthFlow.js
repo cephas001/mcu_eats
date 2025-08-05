@@ -6,7 +6,7 @@ import {
   InvalidTokenError,
 } from "../../../domain/Error.js";
 
-export default function loginUser(userRepo, loginService) {
+export default function loginUserFullAuthFlow(userRepo, loginService) {
   return async function (token) {
     if (!token) {
       throw new ValidationError("No token was sent", null);

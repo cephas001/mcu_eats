@@ -73,18 +73,18 @@ const providerSignIn = async (provider) => {
   try {
     if (!user?.value || !profiles?.value) return;
 
-    const { $storeUserUseCase, $storeProfilesUseCase } = useNuxtApp();
+    const { $storeUserUseCase, $storeUserProfilesUseCase } = useNuxtApp();
 
     await $storeUserUseCase(user.value);
-    await $storeProfilesUseCase(profiles.value);
+    await $storeUserProfilesUseCase(profiles.value);
   } catch (error) {
     emit("showModal", true);
   }
 
   try {
-    const { $getSelectedProfileUseCase } = useNuxtApp();
+    const { $retrieveUserSelectedProfileUseCase } = useNuxtApp();
 
-    const selectedProfile = await $getSelectedProfileUseCase();
+    const selectedProfile = await $retrieveUserSelectedProfileUseCase();
 
     profileStore.setSelectedProfile(selectedProfile);
 

@@ -17,7 +17,7 @@
       Restaurants
     </h1>
 
-    <VendorCarousel :vendorList="restaurants" :favouriteIds />
+    <VendorCarousel :vendorList="restaurants" />
 
     <VendorEmptyStateCard
       :vendorsLength="restaurants?.length ? restaurants.length : 0"
@@ -57,6 +57,9 @@ import { onMounted } from "vue";
 import { useVendorStore } from "@/stores/vendorStore";
 import { storeToRefs } from "pinia";
 import { returnFavouriteVendorIds } from "@/composables/returnFavouriteIds";
+import { setVendorsInState } from "@/composables/setVendorsInState";
+
+const { $expressAuthBackendService, $expressUserBackendService } = useNuxtApp();
 
 definePageMeta({
   middleware: ["check-user-and-profiles", "check-selected-profile"],
@@ -65,27 +68,31 @@ definePageMeta({
 
 const favouriteIds = ref([]);
 
-const fetchingData = ref(true);
+const fetchingData = ref(false);
 
 const vendorStore = useVendorStore();
 const { restaurants, retailers, shops } = storeToRefs(vendorStore);
 
 onMounted(async () => {
-  const { favouriteVendorIds } = await returnFavouriteVendorIds();
-  favouriteIds.value = favouriteVendorIds;
-
-  if (!restaurants?.value) {
-    fetchingData.value = true;
-    try {
-      await vendorStore.fetchVendors();
-    } catch (error) {
-      console.error("Error fetching vendors:", error);
-    } finally {
-      fetchingData.value = false;
-    }
-    return;
-  }
-
-  fetchingData.value = false;
+  await setVendorsInState();
 });
+
+// onMounted(async () => {
+//   const { favouriteVendorIds } = await returnFavouriteVendorIds();
+//   favouriteIds.value = favouriteVendorIds;
+
+//   if (!restaurants?.value) {
+//     fetchingData.value = true;
+//     try {
+//       await vendorStore.fetchVendors();
+//     } catch (error) {
+//       console.error("Error fetching vendors:", error);
+//     } finally {
+//       fetchingData.value = false;
+//     }
+//     return;
+//   }
+
+//   fetchingData.value = false;
+// });
 </script>

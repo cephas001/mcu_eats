@@ -23,11 +23,10 @@ export const processToken = async (token, callBack) => {
 
     const user = await $expressAuthBackendService.login(token);
 
-    const profiledIds = user.profiles.map((profile) => profile.profileId);
+    const profileIds = user.profiles.map((profile) => profile.profileId);
 
-    const profilesData = await $expressUserBackendService.getProfilesData(
-      profiledIds
-    );
+    const profilesData =
+      await $expressUserBackendService.getProfilesDataByProfileIds(profileIds);
 
     userStore.setUser(user);
     profileStore.setProfiles(profilesData);

@@ -7,7 +7,7 @@ export default class MongoProfileRepository extends ProfileRepository {
     this.profileRepo = profileRepo;
   }
 
-  async createProfile(profileData) {
+  async createUserProfile(profileData) {
     try {
       const profile = new this.profileRepo(profileData);
       const savedProfile = await profile.save();
@@ -22,7 +22,7 @@ export default class MongoProfileRepository extends ProfileRepository {
     }
   }
 
-  async existsByUserIdAndType(userId, type) {
+  async getProfileByUserIdAndType(userId, type) {
     try {
       return await this.profileRepo.findOne({ userId, type });
     } catch (error) {
@@ -30,7 +30,7 @@ export default class MongoProfileRepository extends ProfileRepository {
     }
   }
 
-  async getProfilesData(profileIds) {
+  async getProfilesDataByProfileIds(profileIds) {
     try {
       const profilesData = await Promise.all(
         profileIds.map((profileId) =>
@@ -43,6 +43,16 @@ export default class MongoProfileRepository extends ProfileRepository {
         }
       );
       return idMappedProfilesData;
+    } catch (error) {
+      throw error;
+    }
+  }
+
+  async getProfilesDataByType(type) {
+    try {
+      const profilesData = await this.profileRepo.find({ type });
+
+      return profilesData;
     } catch (error) {
       throw error;
     }

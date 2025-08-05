@@ -5,23 +5,24 @@ import {
   LocalStorageError,
 } from "../../../../domain/Error.js";
 
-export default function getSelectedProfile(localProfileRepo) {
+export default function retrieveUserSelectedProfile(browserProfileRepo) {
   return async function (userId) {
-    const profileData = await localProfileRepo.getSelectedProfile();
+    const selectedProfile =
+      await browserProfileRepo.retrieveUserSelectedProfile();
 
-    if (!profileData) {
-      const profilesData = await localProfileRepo.getProfiles();
+    if (!selectedProfile) {
+      const userProfiles = await browserProfileRepo.retrieveUserProfiles();
 
-      if (profilesData) {
+      if (userProfiles) {
         throw new ProfileExistenceError(
-          "Profiles exist but no profile is selected"
+          "User profiles are stored but no profile is selected"
         );
       } else {
-        throw new LocalStorageError("No profiles found in local storage");
+        throw new LocalStorageError("There are no profiles stored");
       }
     }
 
-    const validationResult = createProfileSchema.safeParse(profileData);
+    const validationResult = createProfileSchema.safeParse(selectedProfile);
 
     if (!validationResult.success) {
       const errorList = validationResult.error.errors.map((e) => ({
@@ -29,15 +30,15 @@ export default function getSelectedProfile(localProfileRepo) {
         errorMessage: e.message,
       }));
       throw new ValidationError(
-        "Profile data has been tampered with",
+        "The user profile data has been tampered with",
         null,
         errorList
       );
     }
 
-    if (profileData.userId !== userId) {
+    if (selectedProfile.userId !== userId) {
       throw new ValidationError(
-        "The stored selected profile does not belong to the user"
+        "The stored selected profile does not belong to the requesting user"
       );
     }
 

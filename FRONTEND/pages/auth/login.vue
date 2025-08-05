@@ -103,6 +103,8 @@ const showErrorModal = ref(false);
 const route = useRoute();
 
 const getRedirectUrlAndRedirect = () => {
+  tryingToLogin.value = true;
+
   const redirectToQuery = route.query?.redirectTo;
 
   if (redirectToQuery) return navigateTo(`${redirectToQuery}`);
@@ -168,17 +170,20 @@ const handleLogin = async () => {
 
     const {
       $storeUserUseCase,
-      $storeProfilesUseCase,
-      $getSelectedProfileUseCase,
+      $storeUserProfilesUseCase,
+      $retrieveUserSelectedProfileUseCase,
     } = useNuxtApp();
 
     await $storeUserUseCase(user.value);
-    await $storeProfilesUseCase(profiles.value);
+    await $storeUserProfilesUseCase(profiles.value);
 
-    const selectedProfile = await $getSelectedProfileUseCase(user.value.id);
+    const selectedProfile = await $retrieveUserSelectedProfileUseCase(
+      user.value.id
+    );
 
     profileStore.setSelectedProfile(selectedProfile);
   } catch (error) {
+    console.log(error);
     if (error.type === "ProfileExistenceError") {
       return await navigateTo("/general/select-profile");
     }
@@ -192,6 +197,7 @@ const handleLogin = async () => {
     }
 
     showErrorModal.value = true;
+    return;
   } finally {
     settingLocalStorage.value = false;
   }

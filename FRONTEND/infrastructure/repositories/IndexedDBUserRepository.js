@@ -8,9 +8,9 @@ export default class IndexedDBUserRepository extends UserRepository {
     this.db = db;
   }
 
-  async storeUser(userData) {
+  async storeUser(user) {
     try {
-      await this.db.user.put(stringifyArrays(userData));
+      await this.db.user.put(stringifyArrays(user));
       return parseArrays(await this.db.user.toArray());
     } catch (error) {
       throw error;
@@ -25,7 +25,7 @@ export default class IndexedDBUserRepository extends UserRepository {
     }
   }
 
-  async getUser(id) {
+  async retrieveUserById(id) {
     try {
       const user = await this.db.user.get(id);
       return user ? parseArrays(user) : null;

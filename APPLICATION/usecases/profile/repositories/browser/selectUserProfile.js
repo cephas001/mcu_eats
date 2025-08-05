@@ -5,33 +5,36 @@ import {
   LocalStorageError,
 } from "../../../../domain/Error.js";
 
-export default function selectProfile(localProfileRepo) {
+export default function selectUserProfile(browserProfileRepo) {
   return async function (type) {
     if (!type) {
       throw new ValidationError("Profile type is not defined", null);
     }
 
-    const profilesData = await localProfileRepo.getProfiles();
+    const userProfiles = await browserProfileRepo.retrieveUserProfiles();
 
-    if (!profilesData || profilesData.length === 0) {
-      throw new ProfileExistenceError("No saved profiles found for this user");
+    if (!userProfiles || userProfiles.length === 0) {
+      throw new ProfileExistenceError("No profiles are stored for this user");
     }
 
-    const profileData = await localProfileRepo.getProfileByType(type);
+    const userProfile = await browserProfileRepo.retrieveUserProfileByType(
+      type
+    );
 
-    if (!profileData) {
+    if (!userProfile) {
       throw new ProfileExistenceError("This profile is not already saved");
     }
 
-    const validationResult = createProfileSchema.safeParse(profileData);
+    const validationResult = createProfileSchema.safeParse(userProfile);
 
     if (!validationResult.success) {
       const errorList = validationResult.error.errors.map((e) => ({
         inputName: e.path.join(".") || "unknown",
         errorMessage: e.message,
       }));
+
       throw new ValidationError(
-        "Profile data has been tampered with",
+        "User profile data has been tampered with",
         null,
         errorList
       );
@@ -40,9 +43,9 @@ export default function selectProfile(localProfileRepo) {
     const validatedData = validationResult.data;
 
     try {
-      await localProfileRepo.clearSelectedProfile();
+      await browserProfileRepo.clearUserSelectedProfile();
 
-      await localProfileRepo.selectProfile(validatedData);
+      await browserProfileRepo.selectUserProfile(validatedData);
     } catch (error) {
       throw new LocalStorageError("An error occurred while selecting profile");
     }

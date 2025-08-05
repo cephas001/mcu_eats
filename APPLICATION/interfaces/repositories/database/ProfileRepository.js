@@ -40,5 +40,12 @@ export default class ProfileRepository {
   async delete(id) {
     throw new Error("Method not implemented.");
   }
+
+  /**
+   * @param {String} type
+   * @returns {Promise<Array|null>}
+   */
+  async getProfilesDataByType(type) {
+    throw new Error("Method not implemented.");
+  }
 }
-// This file defines the UserRepository interface, which outlines the methods for managing user profiles in the application.

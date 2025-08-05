@@ -3,15 +3,15 @@ import { useProfileStore } from "@/stores/profileStore";
 
 import { navigateTo, useNuxtApp } from "nuxt/app";
 
-export const checkUserAndProfiles = async (redirectTo) => {
+export const setUserAndProfilesInState = async (redirectTo) => {
   const {
-    $getUserUseCase,
-    $getProfilesUseCase,
-    $getSelectedProfileUseCase,
+    $retrieveUserByIdUseCase,
+    $retrieveUserProfilesUseCase,
+    $retrieveUserSelectedProfileUseCase,
     $expressAuthBackendService,
     $expressUserBackendService,
     $storeUserUseCase,
-    $storeProfilesUseCase,
+    $storeUserProfilesUseCase,
   } = useNuxtApp();
 
   const navigationRoutes = {
@@ -65,6 +65,13 @@ export const checkUserAndProfiles = async (redirectTo) => {
           return navigateTo(navigationRoutes["consumer_route"]);
         }
       case "InvalidTokenError":
+        if (userStore.alreadyPromptedUserToLogin) {
+          // redirect to logout page instead (fix!)
+          await $fetch("/api/logout");
+          userStore.setGuest(true);
+          return navigateTo(navigationRoutes["consumer_route"]);
+        }
+        userStore.setAlreadyPromptedUserToLogin(true);
         return navigateTo(navigationRoutes["login_route"]);
       default:
         userStore.setGuest(true);
@@ -74,13 +81,13 @@ export const checkUserAndProfiles = async (redirectTo) => {
 
   // Attempt to load cached data
   try {
-    const user = await $getUserUseCase(userId);
-    const profiles = await $getProfilesUseCase(userId);
+    const user = await $retrieveUserByIdUseCase(userId);
+    const profiles = await $retrieveUserProfilesUseCase(userId);
 
     userStore.setUser(user);
     profileStore.setProfiles(profiles);
 
-    const selectedProfile = await $getSelectedProfileUseCase(userId);
+    const selectedProfile = await $retrieveUserSelectedProfileUseCase(userId);
 
     profileStore.setSelectedProfile(selectedProfile);
 
@@ -101,9 +108,8 @@ export const checkUserAndProfiles = async (redirectTo) => {
     const user = await $expressAuthBackendService.login();
     const profileIds = user.profiles.map((p) => p.profileId);
 
-    const profiles = await $expressUserBackendService.getProfilesData(
-      profileIds
-    );
+    const profiles =
+      await $expressUserBackendService.getProfilesDataByProfileIds(profileIds);
 
     userStore.setUser(user);
     profileStore.setProfiles(profiles);
@@ -123,7 +129,7 @@ export const checkUserAndProfiles = async (redirectTo) => {
 
   try {
     await $storeUserUseCase(userStore.user);
-    await $storeProfilesUseCase(profileStore.profiles);
+    await $storeUserProfilesUseCase(profileStore.profiles);
   } catch (error) {
     console.log(error);
   }

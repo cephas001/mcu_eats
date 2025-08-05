@@ -24,7 +24,7 @@ export default class MongoUserRepository extends UserRepository {
     return await this.userRepo.findById(id).lean();
   }
 
-  async linkProfile(userId, profileId) {
+  async linkProfileToUser(userId, profileId) {
     try {
       const profile = await this.profileRepo.findById(profileId);
       if (!profile) {

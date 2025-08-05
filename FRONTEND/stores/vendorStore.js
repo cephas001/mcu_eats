@@ -16,60 +16,76 @@ export const useVendorStore = defineStore("vendor", () => {
 
   const selectedProductType = ref({});
 
-  const fetchVendors = async () => {
-    if (vendors.value) return;
-
-    try {
-      // Check if vendors are already stored in IndexedDB
-      const indexedDBvendors = await db.vendors.toArray();
-      if (indexedDBvendors?.length > 0) {
-        const stringifiedEmbeddedRestaurants = await db.vendors
-          .where("type")
-          .equals("restaurant")
-          .toArray();
-        const stringifiedEmbeddedRetailers = await db.vendors
-          .where("type")
-          .equals("retailer")
-          .toArray();
-        const stringifiedEmbeddedShops = await db.vendors
-          .where("type")
-          .equals("shop")
-          .toArray();
-
-        restaurants.value = parseArrays(stringifiedEmbeddedRestaurants);
-        retailers.value = parseArrays(stringifiedEmbeddedRetailers);
-        shops.value = parseArrays(stringifiedEmbeddedShops);
-
-        vendors.value = [
-          ...restaurants.value,
-          ...retailers.value,
-          ...shops.value,
-        ];
-
-        lastFetched.value = Date.now();
-        return;
-      }
-
-      // If not found in IndexedDB, fetch from API
-      const config = useRuntimeConfig();
-      const response = await $fetch(`${config.public.apiBaseUrl}/vendors`);
-
-      restaurants.value = response.restaurants;
-      retailers.value = response.retailers;
-      shops.value = response.shops;
-
-      vendors.value = [
-        ...restaurants.value,
-        ...retailers.value,
-        ...shops.value,
-      ];
-
-      lastFetched.value = Date.now();
-    } catch (error) {
-      console.error("Error fetching vendors:", error);
-      throw new Error("Error fetching vendors: " + error);
-    }
+  const setVendors = (vendors) => {
+    vendors.value = vendors;
   };
+
+  const setRestaurants = (payload) => {
+    restaurants.value = payload;
+  };
+
+  const setShops = (payload) => {
+    shops.value = payload;
+  };
+
+  const setRetailers = (payload) => {
+    retailers.value = payload;
+  };
+
+  // const fetchVendors = async () => {
+  //   if (vendors.value) return;
+
+  //   try {
+  //     // Check if vendors are already stored in IndexedDB
+  //     const indexedDBvendors = await db.vendors.toArray();
+  //     if (indexedDBvendors?.length > 0) {
+  //       const stringifiedEmbeddedRestaurants = await db.vendors
+  //         .where("type")
+  //         .equals("restaurant")
+  //         .toArray();
+  //       const stringifiedEmbeddedRetailers = await db.vendors
+  //         .where("type")
+  //         .equals("retailer")
+  //         .toArray();
+  //       const stringifiedEmbeddedShops = await db.vendors
+  //         .where("type")
+  //         .equals("shop")
+  //         .toArray();
+
+  //       restaurants.value = parseArrays(stringifiedEmbeddedRestaurants);
+  //       retailers.value = parseArrays(stringifiedEmbeddedRetailers);
+  //       shops.value = parseArrays(stringifiedEmbeddedShops);
+
+  //       vendors.value = [
+  //         ...restaurants.value,
+  //         ...retailers.value,
+  //         ...shops.value,
+  //       ];
+
+  //       lastFetched.value = Date.now();
+  //       return;
+  //     }
+
+  //     // If not found in IndexedDB, fetch from API
+  //     const config = useRuntimeConfig();
+  //     const response = await $fetch(`${config.public.apiBaseUrl}/vendors`);
+
+  //     restaurants.value = response.restaurants;
+  //     retailers.value = response.retailers;
+  //     shops.value = response.shops;
+
+  //     vendors.value = [
+  //       ...restaurants.value,
+  //       ...retailers.value,
+  //       ...shops.value,
+  //     ];
+
+  //     lastFetched.value = Date.now();
+  //   } catch (error) {
+  //     console.error("Error fetching vendors:", error);
+  //     throw new Error("Error fetching vendors: " + error);
+  //   }
+  // };
 
   const fetchVendorById = async (id) => {
     try {
@@ -108,7 +124,10 @@ export const useVendorStore = defineStore("vendor", () => {
     selectedProductType,
     vendors,
     lastFetched,
-    fetchVendors,
+    setVendors,
+    setRestaurants,
+    setRetailers,
+    setShops,
     fetchVendorById,
     findVendorById,
     setVendor,

@@ -5,7 +5,8 @@
     dots
     class="rounded-md shadow-md text-sm mb-5 cursor-pointer hover:shadow-lg focus:shadow-lg"
   >
-    <VendorCard :vendor="item" :favouriteIds />
+    <!-- <VendorCard :vendor="item" :favouriteIds /> -->
+    <VendorCard :vendor="item" />
   </UCarousel>
 </template>
 
@@ -14,8 +15,8 @@ const props = defineProps({
   vendorList: {
     type: Array,
   },
-  favouriteIds: {
-    type: Array,
-  },
+  // favouriteIds: {
+  //   type: Array,
+  // },
 });
 </script>

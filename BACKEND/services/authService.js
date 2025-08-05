@@ -1,7 +1,7 @@
 import MongoUserRepository from "../infrastructure/repositories/MongoUserRepository.js";
 import FirebaseAuthService from "../infrastructure/services/FirebaseAuthService.js";
 
-import loginUser from "../../APPLICATION/usecases/user/services/loginUser.js";
+import loginUserFullAuthFlow from "../../APPLICATION/usecases/user/services/loginUserFullAuthFlow.js";
 import verifyToken from "../../APPLICATION/usecases/user/services/verifyToken.js";
 import getEmailVerificationLink from "../../APPLICATION/usecases/user/services/getEmailVerificationLink.js";
 import deleteUserAuth from "../../APPLICATION/usecases/user/services/deleteUserAuth.js";
@@ -15,7 +15,10 @@ import admin from "../firebaseConnection.js";
 const userRepo = new MongoUserRepository(User, Profile);
 const authService = new FirebaseAuthService(admin);
 
-export const loginUserUseCase = loginUser(userRepo, authService);
+export const loginUserFullAuthFlowUseCase = loginUserFullAuthFlow(
+  userRepo,
+  authService
+);
 export const verifyTokenUseCase = verifyToken(authService);
 export const deleteUserAuthUseCase = deleteUserAuth(authService);
 export const getUserByEmailUseCase = getUserByEmail(authService);

@@ -8,7 +8,7 @@ export default class ExpressAuthBackend extends AuthBackend {
 
   async verifyToken(token) {
     try {
-      return await this.api.request("/verifyToken", {
+      return await this.api.request("/verify/token", {
         method: "POST",
         body: token ? { auth_token: token } : {},
       });
@@ -19,7 +19,7 @@ export default class ExpressAuthBackend extends AuthBackend {
 
   async login(token) {
     try {
-      return await this.api.request("/login", {
+      return await this.api.request("/login/full", {
         method: "POST",
         body: token ? { auth_token: token } : {},
       });
@@ -30,7 +30,7 @@ export default class ExpressAuthBackend extends AuthBackend {
 
   async verifyEmail(urlFrom, userId) {
     try {
-      return await this.api.request(`/users/verifyEmail`, {
+      return await this.api.request(`/verify/email`, {
         method: "POST",
         body: {
           urlFrom,

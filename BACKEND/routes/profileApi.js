@@ -5,13 +5,14 @@ import express from "express";
 const router = express.Router();
 
 import {
-  createProfileUseCase,
-  getProfilesDataUseCase,
+  createUserProfileUseCase,
+  getProfilesDataByProfileIdsUseCase,
+  getProfilesDataByTypeUseCase,
 } from "../services/index.js";
 
 router.post("/profile", async (req, res) => {
   try {
-    const { savedProfile, updatedUser } = await createProfileUseCase(
+    const { savedProfile, updatedUser } = await createUserProfileUseCase(
       req.body.profileData
     );
     res.status(200).json({ savedProfile, updatedUser });
@@ -20,14 +21,28 @@ router.post("/profile", async (req, res) => {
   }
 });
 
-router.post("/profile-data", async (req, res) => {
+router.post("/get/profile/data/profileIds", async (req, res) => {
   try {
-    const { profileIds } = req.body;
-    const profileData = await getProfilesDataUseCase(profileIds);
+    const profileIds = req.body?.profileIds;
+    const profileData = await getProfilesDataByProfileIdsUseCase(profileIds);
 
     res.json(profileData);
   } catch (error) {
     throw error;
   }
 });
+
+router.post("/get/profile/data/type", async (req, res) => {
+  try {
+    const userId = req.body?.userId;
+    const type = req.body?.type;
+
+    const profileData = await getProfilesDataByTypeUseCase(userId, type);
+
+    return res.json(profileData);
+  } catch (error) {
+    throw error;
+  }
+});
+
 export default router;

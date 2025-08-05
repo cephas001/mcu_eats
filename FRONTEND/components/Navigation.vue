@@ -106,7 +106,7 @@ const setUserNavigationItems = (user, selectedProfile) => {
       {
         label: "Home",
         icon: "i-material-symbols-house-rounded",
-        to: `/?redirectTo=${redirectTo}`,
+        to: `/?redirectTo=${redirectTo ? redirectTo : "consumer"}`,
         color: "info",
       },
       {
@@ -263,7 +263,7 @@ const setNavigationItems = () => {
 
     const selectedProfile = profileStore.getSelectedProfile();
 
-    if (user && profiles && selectedProfile) {
+    if (user && profiles) {
       setUserNavigationItems(user, selectedProfile);
 
       appendProfileSpecificRoutes(selectedProfile);

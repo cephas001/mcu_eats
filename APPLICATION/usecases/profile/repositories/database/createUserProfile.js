@@ -8,31 +8,35 @@ import {
   UnauthorizedError,
 } from "../../../../domain/Error.js";
 
-export default function createProfile(profileRepo, userRepo) {
-  return async function (profileData) {
-    if (!profileData) {
-      throw new ValidationError("Profile data is not defined", null);
+export default function createUserProfile(profileRepo, userRepo) {
+  return async function (userProfile) {
+    if (!userProfile) {
+      throw new ValidationError("The user profile data is not defined", null);
     }
 
-    if (!profileData.userId) {
-      throw new ValidationError("User ID is not defined", "userId");
+    if (!userProfile.userId) {
+      throw new ValidationError("The user's ID is not defined", "userId");
     }
 
-    if (!profileData.type) {
-      throw new ValidationError("Profile type is not defined", null, errorList);
+    if (!userProfile.type) {
+      throw new ValidationError(
+        "The profile type is not defined",
+        null,
+        errorList
+      );
     }
 
     // Check if user exists by ID
-    const existingUser = await userRepo.findById(profileData.userId);
+    const existingUser = await userRepo.findById(userProfile.userId);
 
     if (!existingUser) {
       throw new UserExistenceError("A user with this ID does not exist");
     }
 
     // Check if profile already exists
-    const existingProfile = await profileRepo.existsByUserIdAndType(
-      profileData.userId,
-      profileData.type
+    const existingProfile = await profileRepo.getProfileByUserIdAndType(
+      userProfile.userId,
+      userProfile.type
     );
 
     if (existingProfile) {
@@ -41,21 +45,18 @@ export default function createProfile(profileRepo, userRepo) {
       );
     }
 
-    const isStaffDelivery =
-      existingUser.category === "staff" &&
-      ["delivery_person", "vendor"].includes(profileData.type);
+    const unauthorizedAction =
+      (existingUser.category === "staff" ||
+        existingUser.category === "visitor") &&
+      ["delivery_person", "vendor"].includes(userProfile.type);
 
-    const isVisitorRestricted =
-      existingUser.category === "visitor" &&
-      ["delivery_person", "vendor"].includes(profileData.type);
-
-    if (isStaffDelivery || isVisitorRestricted) {
+    if (unauthorizedAction) {
       throw new UnauthorizedError(
         "Access denied: You are not authorized to create this profile."
       );
     }
 
-    const validationResult = createProfileSchema.safeParse(profileData);
+    const validationResult = createProfileSchema.safeParse(userProfile);
 
     if (!validationResult.success) {
       const errorList = validationResult.error.errors.map((e) => ({
@@ -71,12 +72,12 @@ export default function createProfile(profileRepo, userRepo) {
     const profile = new Profile(validatedData);
 
     try {
-      const { savedProfile, profileId } = await profileRepo.createProfile(
+      const { savedProfile, profileId } = await profileRepo.createUserProfile(
         profile
       );
 
-      const updatedUser = await userRepo.linkProfile(
-        profileData.userId,
+      const updatedUser = await userRepo.linkProfileToUser(
+        userProfile.userId,
         profileId
       );
 

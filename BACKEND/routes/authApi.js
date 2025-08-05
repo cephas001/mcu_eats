@@ -5,7 +5,7 @@ import express from "express";
 const router = express.Router();
 
 import {
-  loginUserUseCase,
+  loginUserFullAuthFlowUseCase,
   deleteUserAuthUseCase,
   verifyTokenUseCase,
   getUserByEmailUseCase,
@@ -15,17 +15,17 @@ import {
 
 import sendVerificationEmail from "../utils/sendVerificationEmail.js";
 
-router.post("/login", async (req, res) => {
+router.post("/login/full", async (req, res) => {
   try {
     const { auth_token } = req.cookies || req.body;
-    const user = await loginUserUseCase(auth_token);
+    const user = await loginUserFullAuthFlowUseCase(auth_token);
     res.json(user);
   } catch (error) {
     throw error;
   }
 });
 
-router.post("/deleteUserAuth", async (req, res) => {
+router.post("/auth/delete-user", async (req, res) => {
   try {
     const { id } = req.body;
     await deleteUserAuthUseCase(id);
@@ -37,7 +37,7 @@ router.post("/deleteUserAuth", async (req, res) => {
   }
 });
 
-router.post("/verifyToken", async (req, res) => {
+router.post("/verify/token", async (req, res) => {
   try {
     const { auth_token } = req.cookies || req.body;
     const token = auth_token;
@@ -48,7 +48,7 @@ router.post("/verifyToken", async (req, res) => {
   }
 });
 
-router.post("/getUserByEmail", async (req, res) => {
+router.post("/get/user/email", async (req, res) => {
   try {
     const { email } = req.body;
     const user = await getUserByEmailUseCase(email);
@@ -58,9 +58,8 @@ router.post("/getUserByEmail", async (req, res) => {
   }
 });
 
-router.post("/users/verifyEmail", async (req, res) => {
+router.post("/verify/email", async (req, res) => {
   try {
-    console.log("here");
     const token = req.cookies?.auth_token || req.body?.auth_token;
 
     const { urlFrom, userId } = req.body;

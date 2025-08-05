@@ -5,6 +5,8 @@ export const useUserStore = defineStore("user", () => {
   const user = ref(null);
   const isGuest = ref(null);
 
+  const alreadyPromptedUserToLogin = ref(false);
+
   const { $expressUserBackendService, $useIndexedDBUserRepo } = useNuxtApp();
 
   const messagesStore = useMessagesStore();
@@ -37,6 +39,9 @@ export const useUserStore = defineStore("user", () => {
     }
   };
 
+  const setAlreadyPromptedUserToLogin = (payload) => {
+    alreadyPromptedUserToLogin.value = payload;
+  };
   const updateUser = async (userId, newUserData) => {
     try {
       const user = await $expressUserBackendService.updateUser(
@@ -60,7 +65,9 @@ export const useUserStore = defineStore("user", () => {
     getUser,
     setGuest,
     checkGuest,
+    setAlreadyPromptedUserToLogin,
     user,
     isGuest,
+    alreadyPromptedUserToLogin,
   };
 });
