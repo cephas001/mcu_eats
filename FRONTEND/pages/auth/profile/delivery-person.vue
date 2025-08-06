@@ -96,7 +96,7 @@
     text="Setting up things for you..."
   />
 
-  <LocalSaveError
+  <BrowserStorageErrorModal
     v-if="showErrorModal"
     action="Profile creation"
     @firstButtonClick="navigateTo('/delivery-person')"
@@ -116,19 +116,16 @@
 import { navigateTo } from "nuxt/app";
 
 import { useLogInStore } from "@/stores/logInStore";
-import { useUserStore } from "@/stores/userStore";
-import { useProfileStore } from "@/stores/profileStore";
 
 import { storeToRefs } from "pinia";
 
+import { createUserProfileAndSetInState } from "@/composables/createUserProfileAndSetInState";
+import { storeUserAndProfilesUsingUseCases } from "@/composables/storeUserAndProfilesUsingUseCases";
+import { handleProfileCreationErrors } from "@/composables/handleProfileCreationErrors";
+
 const logInStore = useLogInStore();
 
-const userStore = useUserStore();
-const { user } = storeToRefs(userStore);
-
-const profileStore = useProfileStore();
-
-const { profileRegistrationForm, displayError, clearError } = logInStore;
+const { profileRegistrationForm, clearError } = logInStore;
 const { profileRegistrationErrors } = storeToRefs(logInStore);
 
 const tryingToCreateProfile = ref(false);
@@ -138,68 +135,21 @@ const showErrorModal = ref(false);
 const handleFormSubmit = async () => {
   tryingToCreateProfile.value = true;
 
-  var profile = null;
-
   try {
-    const { $expressUserBackendService, $expressAuthBackendService } =
-      useNuxtApp();
-
-    const response = await $expressAuthBackendService.verifyToken();
-
-    const { id } = response;
-
-    const { savedProfile, updatedUser } =
-      await $expressUserBackendService.createProfile({
-        type: "delivery_person",
-        userId: id,
-        data: {
-          username: profileRegistrationForm.username?.trim(),
-          gender: profileRegistrationForm.genderValue?.trim().toLowerCase(),
-          hostel: profileRegistrationForm.hostelValue,
-          roomNumber: profileRegistrationForm.roomNumber?.toString().trim(),
-          college: profileRegistrationForm.collegeValue,
-          department: profileRegistrationForm.departmentValue,
-          matricNumber: profileRegistrationForm.matricNumber?.toString().trim(),
-        },
-      });
-
-    profile = savedProfile;
-
-    userStore.setUser(updatedUser);
-    profileStore.addProfile(savedProfile);
-    profileStore.selectProfile(savedProfile.type);
-  } catch (error) {
-    clearError();
-
-    if (error.type == "ValidationError") {
-      if (error.errorList) {
-        const { inputName, errorMessage } = error.errorList[0];
-        displayError(errorMessage, inputName.split(".")[1]);
-      } else {
-        displayError(error.message, error.inputName);
+    var { savedProfile } = await createUserProfileAndSetInState(
+      "delivery_person",
+      {
+        username: profileRegistrationForm.username?.trim(),
+        gender: profileRegistrationForm.genderValue?.trim().toLowerCase(),
+        hostel: profileRegistrationForm.hostelValue,
+        roomNumber: profileRegistrationForm.roomNumber?.toString().trim(),
+        college: profileRegistrationForm.collegeValue,
+        department: profileRegistrationForm.departmentValue,
+        matricNumber: profileRegistrationForm.matricNumber?.toString().trim(),
       }
-      return;
-    }
-
-    if (error.type == "InvalidTokenError") {
-      return await navigateTo("/auth/login");
-    }
-
-    if (error.type == "UserExistenceError") {
-      return await navigateTo("/auth/register");
-    }
-
-    if (error.type == "ProfileExistenceError") {
-      profileRegistrationErrors.value = error.message;
-      return;
-    }
-
-    if (error.type == "UnauthorizedError") {
-      profileRegistrationErrors.value = error.message;
-      return;
-    }
-
-    profileRegistrationErrors.value = "An unexpected error occurred";
+    );
+  } catch (error) {
+    handleProfileCreationErrors(error);
 
     return;
   } finally {
@@ -207,20 +157,12 @@ const handleFormSubmit = async () => {
   }
 
   try {
-    if (!user?.value) return;
-
     settingLocalStorage.value = true;
 
-    const { $storeUserUseCase, $addProfileUseCase, $selectProfileUseCase } =
-      useNuxtApp();
-
-    await $storeUserUseCase(user.value);
-    await $addProfileUseCase(profile);
-    await $selectProfileUseCase(profile.type);
+    await storeUserAndProfilesUsingUseCases(savedProfile.type);
 
     await navigateTo("/delivery-person");
   } catch (error) {
-    console.log(error);
     showErrorModal.value = true;
   } finally {
     settingLocalStorage.value = false;

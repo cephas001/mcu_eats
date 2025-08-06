@@ -1,7 +1,7 @@
 <template>
   <section
     class="pb-5 pt-10 px-6"
-    v-if="!tryingToCreateProfile && !settingLocalStorage"
+    v-if="!tryingToCreateProfile && !settingBrowserStorage"
   >
     <ProfileAuthHeader title="Consumer" text="Set up a consumer profile" />
 
@@ -21,66 +21,24 @@
     />
 
     <UForm class="mb-5 flex flex-col gap-3" :state="profileRegistrationForm">
-      <!-- USERNAME FIELD -->
-      <FormField
-        labelText="Username"
-        placeholder="Choose a display name"
-        name="username"
-        type="text"
-        :state="profileRegistrationForm"
-        @update="profileRegistrationForm.username = $event"
-      />
-      <!-- GENDER SELECT FIELD -->
-      <FormField
-        labelText="Gender"
-        name="gender"
-        type="select"
-        :state="profileRegistrationForm"
-        :items="profileRegistrationForm.genderList"
-        @update="profileRegistrationForm.genderValue = $event"
-      />
-      <!-- HOSTEL SELECT FIELD -->
-      <FormField
-        labelText="Hostel"
-        name="hostel"
-        type="select"
-        :state="profileRegistrationForm"
-        :items="profileRegistrationForm.hostelList"
-        @update="profileRegistrationForm.hostelValue = $event"
-        v-if="!showStaffFields"
-      />
-      <!-- ROOM NUMBER FIELD -->
-      <FormField
-        labelText="Room number"
-        placeholder="Your Room Number"
-        name="roomNumber"
-        type="number"
-        inputMode="numeric"
-        :state="profileRegistrationForm"
-        @update="profileRegistrationForm.roomNumber = $event"
-        v-if="!showStaffFields"
-      />
-      <!-- COLLEGE SELECT FIELD -->
-      <FormField
-        labelText="College"
-        name="college"
-        type="select"
-        :state="profileRegistrationForm"
-        :items="profileRegistrationForm.collegeList"
-        @update="profileRegistrationForm.collegeValue = $event"
-        v-if="showStaffFields"
-      />
-      <!-- OFFICE NUMBER FIELD -->
-      <FormField
-        labelText="Office Number"
-        placeholder="Your Office Number"
-        name="officeNumber"
-        inputMode="numeric"
-        type="number"
-        :state="profileRegistrationForm"
-        @update="profileRegistrationForm.officeNumber = $event"
-        v-if="showStaffFields"
-      />
+      <div v-for="formField in consumerFormFieldsSchema" :key="formField.name">
+        <FormField
+          :labelText="formField.label"
+          :placeholder="formField.label"
+          :name="formField.name"
+          :type="formField.type"
+          :inputMode="formField.inputMode"
+          :state="profileRegistrationForm"
+          :items="profileRegistrationForm[formField.listVariableName]"
+          @update="
+            profileRegistrationForm[formField.valueVariableName] = $event
+          "
+          v-if="
+            showStaffFields == formField.staffField || formField.generalField
+          "
+        />
+      </div>
+
       <button
         type="sumbit"
         class="text-white rounded-md p-3 w-full bg-primary text-center text-md"
@@ -92,14 +50,14 @@
   </section>
 
   <LoadingIconLarge
-    :loading="settingLocalStorage"
+    :loading="settingBrowserStorage"
     class="animate-none"
     imageSrc="/Pulse@1x-1.0s-200px-200px.svg"
     text="Setting up things for you..."
   />
 
-  <LocalSaveError
-    v-if="showErrorModal"
+  <BrowserStorageErrorModal
+    v-if="showBroswerStorageErrorModal"
     action="Profile creation"
     @firstButtonClick="navigateTo('/consumer')"
     :dismissible="false"
@@ -120,40 +78,80 @@ import { onMounted } from "vue";
 import { useRoute } from "vue-router";
 
 import { useLogInStore } from "@/stores/logInStore";
-import { useUserStore } from "@/stores/userStore";
-import { useProfileStore } from "@/stores/profileStore";
 import { storeToRefs } from "pinia";
+
+import { createUserProfileAndSetInState } from "@/composables/createUserProfileAndSetInState";
+import { storeUserAndProfilesUsingUseCases } from "@/composables/storeUserAndProfilesUsingUseCases";
+import { handleProfileCreationErrors } from "@/composables/handleProfileCreationErrors";
 
 const route = useRoute();
 const category = ref("");
 
-const userStore = useUserStore();
-const { user } = storeToRefs(userStore);
-
 const logInStore = useLogInStore();
-const { profileRegistrationForm, displayError, clearError } = logInStore;
+const { profileRegistrationForm, clearError } = logInStore;
 const { profileRegistrationErrors } = storeToRefs(logInStore);
-
-const profileStore = useProfileStore();
 
 const tryingToCreateProfile = ref(false);
 const showStaffFields = ref(false);
-const settingLocalStorage = ref(false);
-const showErrorModal = ref(false);
+const settingBrowserStorage = ref(false);
+const showBroswerStorageErrorModal = ref(false);
+
+const consumerFormFieldsSchema = [
+  {
+    label: "Username",
+    placeholder: "Choose a display name",
+    name: "username",
+    type: "text",
+    valueVariableName: "username",
+    generalField: true,
+  },
+  {
+    label: "Gender",
+    name: "gender",
+    type: "select",
+    valueVariableName: "genderValue",
+    listVariableName: "genderList",
+    generalField: true,
+  },
+  {
+    label: "Hostel",
+    name: "hostel",
+    type: "select",
+    valueVariableName: "hostelValue",
+    listVariableName: "hostelList",
+    staffField: false,
+  },
+  {
+    label: "Room number",
+    placeholder: "Your Room Number",
+    name: "roomNumber",
+    type: "number",
+    valueVariableName: "roomNumber",
+    inputMode: "numeric",
+    staffField: false,
+  },
+  {
+    label: "College",
+    name: "college",
+    type: "select",
+    valueVariableName: "collegeValue",
+    listVariableName: "collegeList",
+    staffField: true,
+  },
+  {
+    label: "Office Number",
+    placeholder: "Your Office Number",
+    name: "officeNumber",
+    type: "number",
+    inputMode: "numeric",
+    staffField: true,
+  },
+];
 
 const handleFormSubmit = async () => {
   tryingToCreateProfile.value = true;
 
-  var profile = null;
-
   try {
-    const { $expressUserBackendService, $expressAuthBackendService } =
-      useNuxtApp();
-
-    const response = await $expressAuthBackendService.verifyToken();
-
-    const { id } = response;
-
     const generalConsumerData = {
       username: profileRegistrationForm.username?.trim(),
       gender: profileRegistrationForm.genderValue?.trim().toLowerCase(),
@@ -171,51 +169,12 @@ const handleFormSubmit = async () => {
       roomNumber: profileRegistrationForm.roomNumber?.toString().trim(),
     };
 
-    const { savedProfile, updatedUser } =
-      await $expressUserBackendService.createProfile({
-        type: "consumer",
-        userId: id,
-        data: showStaffFields ? staffConsumerData : studentConsumerData,
-      });
-
-    profile = savedProfile;
-
-    userStore.setUser(updatedUser);
-    profileStore.addProfile(savedProfile);
-    profileStore.selectProfile(savedProfile.type);
+    var { savedProfile } = await createUserProfileAndSetInState(
+      "consumer",
+      showStaffFields ? staffConsumerData : studentConsumerData
+    );
   } catch (error) {
-    clearError();
-
-    if (error.type == "ValidationError") {
-      if (error.errorList) {
-        const { inputName, errorMessage } = error.errorList[0];
-        displayError(errorMessage, inputName.split(".")[1]);
-      } else {
-        displayError(error.message, error.inputName);
-      }
-
-      return;
-    }
-
-    if (error.type == "InvalidTokenError") {
-      return await navigateTo("/auth/login");
-    }
-
-    if (error.type == "UserExistenceError") {
-      return await navigateTo("/auth/register");
-    }
-
-    if (error.type == "ProfileExistenceError") {
-      profileRegistrationErrors.value = error.message;
-      return;
-    }
-
-    if (error.type == "UnauthorizedError") {
-      profileRegistrationErrors.value = error.message;
-      return;
-    }
-
-    profileRegistrationErrors.value = "An unexpected error occurred";
+    handleProfileCreationErrors(error);
 
     return;
   } finally {
@@ -223,22 +182,15 @@ const handleFormSubmit = async () => {
   }
 
   try {
-    if (!user.value) return;
+    settingBrowserStorage.value = true;
 
-    settingLocalStorage.value = true;
-
-    const { $storeUserUseCase, $addProfileUseCase, $selectProfileUseCase } =
-      useNuxtApp();
-
-    await $storeUserUseCase(user.value);
-    await $addProfileUseCase(profile);
-    await $selectProfileUseCase(profile.type);
+    await storeUserAndProfilesUsingUseCases(savedProfile.type);
 
     await navigateTo("/consumer");
   } catch (error) {
-    showErrorModal.value = true;
+    showBroswerStorageErrorModal.value = true;
   } finally {
-    settingLocalStorage.value = false;
+    settingBrowserStorage.value = false;
   }
 };
 

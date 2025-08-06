@@ -83,7 +83,7 @@
     class="animate-none"
   />
 
-  <LocalSaveError
+  <BrowserStorageErrorModal
     v-if="showErrorModal"
     action="Login"
     @firstButtonClick="navigateTo('/')"
@@ -100,6 +100,7 @@ import { useLogInStore } from "@/stores/logInStore";
 import { storeToRefs } from "pinia";
 
 import { processToken } from "@/composables/processToken";
+import { handleSignUpErrors } from "@/composables/handleSignupErrors";
 
 const logInStore = useLogInStore();
 const { signUpForm, displayError, clearError } = useLogInStore();
@@ -122,31 +123,15 @@ const handleSignUp = async () => {
       confirmPassword: signUpForm.confirmPassword,
     });
 
-    await processToken(token, async () => {
-      await navigateTo("/auth/register");
-    });
+    await processToken(
+      token,
+      async () => {
+        await navigateTo("/auth/register");
+      },
+      true
+    );
   } catch (error) {
-    if (error.type == "ValidationError") {
-      if (error.errorList) {
-        const { inputName, errorMessage } = error.errorList[0];
-        displayError(errorMessage, inputName);
-      } else {
-        displayError(error.message, error.inputName);
-      }
-      return;
-    }
-
-    if (error.type == "UserExistenceError") {
-      signUpErrors.value = error.message;
-      return;
-    }
-
-    if (error.type == "UnexpectedError") {
-      signUpErrors.value = error.message;
-      return;
-    }
-
-    signUpErrors.value = "An unexpected error occurred";
+    handleSignUpErrors(error);
   } finally {
     tryingToSignIn.value = false;
   }

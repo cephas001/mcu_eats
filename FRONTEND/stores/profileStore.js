@@ -4,10 +4,11 @@ import { useMessagesStore } from "./messagesStore";
 export const useProfileStore = defineStore("profile", () => {
   const profiles = ref(null);
   const selectedProfile = ref(null);
+  const showSelectProfileModal = ref(false);
 
   const clearProfiles = () => {
     profiles.value = null;
-    // await $useIndexedDBProfileRepo.clearProfiles();
+    selectedProfile.value = null;
   };
 
   const getProfile = (type) => {
@@ -66,5 +67,6 @@ export const useProfileStore = defineStore("profile", () => {
     clearProfiles,
     profiles,
     selectedProfile,
+    showSelectProfileModal,
   };
 });

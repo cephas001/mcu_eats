@@ -75,8 +75,9 @@ import { useLogInStore } from "@/stores/logInStore";
 
 import { storeToRefs } from "pinia";
 
+import { handleUserRegistrationErrors } from "@/composables/handleUserRegistrationErrors";
 const logInStore = useLogInStore();
-const { registrationForm, displayError, clearError } = useLogInStore();
+const { registrationForm, clearError } = useLogInStore();
 const { registrationErrors } = storeToRefs(logInStore);
 
 const tryingToRegister = ref(false);
@@ -103,28 +104,7 @@ const handleRegister = async () => {
 
     await navigateTo(`/auth/profile?category=${user?.category}`);
   } catch (error) {
-    clearError();
-
-    if (error.type == "ValidationError") {
-      if (error.errorList) {
-        const { inputName, errorMessage } = error.errorList[0];
-        displayError(errorMessage, inputName);
-      } else {
-        displayError(error.message, error.inputName);
-      }
-      return;
-    }
-
-    if (error.type == "UserExistenceError") {
-      registrationErrors.value = error.message;
-      return;
-    }
-
-    if (error.type == "InvalidTokenError") {
-      return await navigateTo("/auth/login");
-    }
-
-    registrationErrors.value = "An unexpected error occurred";
+    handleUserRegistrationErrors(error);
   } finally {
     tryingToRegister.value = false;
   }

@@ -25,20 +25,11 @@ import FacebookIcon from "@/assets/images/facebook.e4480188.svg";
 import { navigateTo, useNuxtApp } from "nuxt/app";
 
 import { useLogInStore } from "@/stores/logInStore";
-import { useUserStore } from "@/stores/userStore";
-import { useProfileStore } from "@/stores/profileStore";
-
-import { storeToRefs } from "pinia";
 
 import { processToken } from "@/composables/processToken";
-
-const userStore = useUserStore();
-const { user } = storeToRefs(userStore);
+import { storeUserAndProfilesUsingUseCases } from "@/composables/storeUserAndProfilesUsingUseCases";
 
 const { clearError } = useLogInStore();
-
-const profileStore = useProfileStore();
-const { profiles } = storeToRefs(profileStore);
 
 const emit = defineEmits([
   "error",
@@ -57,50 +48,14 @@ const providerSignIn = async (provider) => {
 
     await processToken(token);
   } catch (error) {
-    if (error.type == "UserExistenceError") {
-      return await navigateTo("/auth/register");
-    }
-
-    if (error.type == "ProfileExistenceError") {
-      return await navigateTo("/auth/profile");
-    }
-
     emit("error", error.message);
-
     return;
   }
 
   try {
-    if (!user?.value || !profiles?.value) return;
-
-    const { $storeUserUseCase, $storeUserProfilesUseCase } = useNuxtApp();
-
-    await $storeUserUseCase(user.value);
-    await $storeUserProfilesUseCase(profiles.value);
+    await storeUserAndProfilesUsingUseCases();
   } catch (error) {
     emit("showModal", true);
-  }
-
-  try {
-    const { $retrieveUserSelectedProfileUseCase } = useNuxtApp();
-
-    const selectedProfile = await $retrieveUserSelectedProfileUseCase();
-
-    profileStore.setSelectedProfile(selectedProfile);
-
-    await navigateTo("/");
-  } catch (error) {
-    if (error.type === "ProfileExistenceError") {
-      return await navigateTo("/general/select-profile");
-    }
-
-    if (error.type === "LocalStorageError") {
-      return await navigateTo("/");
-    }
-
-    if (error.type === "ValidationError") {
-      return await navigateTo("auth/logout");
-    }
   }
 };
 </script>

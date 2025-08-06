@@ -3,6 +3,8 @@ import { useProfileStore } from "@/stores/profileStore";
 
 import { navigateTo, useNuxtApp } from "nuxt/app";
 
+import { logoutUserFromTokenAndStorage } from "./logoutUserFromTokenAndStorage";
+
 export const setUserAndProfilesInState = async (redirectTo) => {
   const {
     $retrieveUserByIdUseCase,
@@ -32,9 +34,8 @@ export const setUserAndProfilesInState = async (redirectTo) => {
   if (guest) {
     if (redirectTo == "/consumer") {
       return;
-    } else {
-      return await navigateTo(navigationRoutes["unathorized_route"]);
     }
+    return await navigateTo(navigationRoutes["unathorized_route"]);
   }
 
   const user = userStore.getUser();
@@ -58,20 +59,13 @@ export const setUserAndProfilesInState = async (redirectTo) => {
 
     var { id: userId } = response;
   } catch (error) {
+    await logoutUserFromTokenAndStorage();
+
     switch (error.type) {
       case "ValidationError":
-        if (!userStore.isGuest) {
-          userStore.setGuest(true);
-          return navigateTo(navigationRoutes["consumer_route"]);
-        }
+        userStore.setGuest(true);
+        return navigateTo(navigationRoutes["consumer_route"]);
       case "InvalidTokenError":
-        if (userStore.alreadyPromptedUserToLogin) {
-          // redirect to logout page instead (fix!)
-          await $fetch("/api/logout");
-          userStore.setGuest(true);
-          return navigateTo(navigationRoutes["consumer_route"]);
-        }
-        userStore.setAlreadyPromptedUserToLogin(true);
         return navigateTo(navigationRoutes["login_route"]);
       default:
         userStore.setGuest(true);

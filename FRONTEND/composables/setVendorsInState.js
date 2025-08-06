@@ -23,7 +23,7 @@ export const setVendorsInState = async () => {
 
     const restaurants = filterAndReturnVendorsByType(vendors, "restaurant");
     const retailers = filterAndReturnVendorsByType(vendors, "retailer");
-    const shops = filterAndReturnVendorsByType(vendors, "shops");
+    const shops = filterAndReturnVendorsByType(vendors, "shop");
 
     vendorStore.setRestaurants(restaurants);
     vendorStore.setShops(shops);

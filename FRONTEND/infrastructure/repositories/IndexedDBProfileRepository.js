@@ -66,7 +66,7 @@ export default class IndexedDBProfileRepository extends ProfileRepository {
     }
   }
 
-  async retrieveUserById(profileId) {
+  async retrieveProfileById(profileId) {
     try {
       const profile = await this.db.profiles.get(profileId);
       return profile ? parseArrays(profile) : null;

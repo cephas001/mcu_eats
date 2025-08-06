@@ -110,7 +110,7 @@
     text="Setting up things for you..."
   />
 
-  <LocalSaveError
+  <BrowserStorageErrorModal
     v-if="showErrorModal"
     action="Profile creation"
     @firstButtonClick="navigateTo('/consumer')"
@@ -129,20 +129,17 @@
 <script setup>
 import { navigateTo } from "nuxt/app";
 
-import { useUserStore } from "@/stores/userStore";
 import { useLogInStore } from "@/stores/logInStore";
-import { useProfileStore } from "@/stores/profileStore";
 
 import { storeToRefs } from "pinia";
 
-const userStore = useUserStore();
-const { user } = storeToRefs(userStore);
+import { createUserProfileAndSetInState } from "@/composables/createUserProfileAndSetInState";
+import { storeUserAndProfilesUsingUseCases } from "@/composables/storeUserAndProfilesUsingUseCases";
+import { handleProfileCreationErrors } from "@/composables/handleProfileCreationErrors";
 
 const logInStore = useLogInStore();
-const { profileRegistrationForm, displayError, clearError } = logInStore;
+const { profileRegistrationForm, clearError } = logInStore;
 const { profileRegistrationErrors } = storeToRefs(logInStore);
-
-const profileStore = useProfileStore();
 
 const tryingToCreateProfile = ref(false);
 const settingLocalStorage = ref(false);
@@ -151,78 +148,26 @@ const showErrorModal = ref(false);
 const handleFormSubmit = async () => {
   tryingToCreateProfile.value = true;
 
-  var profile = null;
-
   try {
-    const { $expressUserBackendService, $expressAuthBackendService } =
-      useNuxtApp();
-
-    const response = await $expressAuthBackendService.verifyToken();
-
-    const { id } = response;
-
-    const { savedProfile, updatedUser } =
-      await $expressUserBackendService.createProfile({
-        type: "vendor",
-        userId: id,
-        data: {
-          vendorName: profileRegistrationForm.vendorName?.trim(),
-          vendorType: profileRegistrationForm.vendorTypeValue?.toLowerCase(),
-          description: profileRegistrationForm.description?.trim(),
-          businessNumber: profileRegistrationForm.businessNumber
-            ?.toString()
-            .trim(),
-          businessEmail: profileRegistrationForm.businessEmail?.trim(),
-          category: profileRegistrationForm.categoryValue?.toLowerCase(),
-          address: profileRegistrationForm.address?.toString().trim(),
-          openingTime: {
-            hour: Number(profileRegistrationForm.openingTime?.split(":")[0]),
-            minute: Number(profileRegistrationForm.openingTime?.split(":")[1]),
-          },
-          closingTime: {
-            hour: Number(profileRegistrationForm.closingTime?.split(":")[0]),
-            minute: Number(profileRegistrationForm.closingTime?.split(":")[1]),
-          },
-        },
-      });
-
-    profile = savedProfile;
-
-    userStore.setUser(updatedUser);
-    profileStore.addProfile(savedProfile);
-    profileStore.selectProfile(savedProfile.type);
+    var { savedProfile } = await createUserProfileAndSetInState("vendor", {
+      vendorName: profileRegistrationForm.vendorName?.trim(),
+      vendorType: profileRegistrationForm.vendorTypeValue?.toLowerCase(),
+      description: profileRegistrationForm.description?.trim(),
+      businessNumber: profileRegistrationForm.businessNumber?.toString().trim(),
+      businessEmail: profileRegistrationForm.businessEmail?.trim(),
+      category: profileRegistrationForm.categoryValue?.toLowerCase(),
+      address: profileRegistrationForm.address?.toString().trim(),
+      openingTime: {
+        hour: Number(profileRegistrationForm.openingTime?.split(":")[0]),
+        minute: Number(profileRegistrationForm.openingTime?.split(":")[1]),
+      },
+      closingTime: {
+        hour: Number(profileRegistrationForm.closingTime?.split(":")[0]),
+        minute: Number(profileRegistrationForm.closingTime?.split(":")[1]),
+      },
+    });
   } catch (error) {
-    clearError();
-
-    if (error.type == "ValidationError") {
-      if (error.errorList) {
-        const { inputName, errorMessage } = error.errorList[0];
-        displayError(errorMessage, inputName.split(".")[1]);
-      } else {
-        displayError(error.message, error.inputName);
-      }
-      return;
-    }
-
-    if (error.type == "InvalidTokenError") {
-      return await navigateTo("/auth/login");
-    }
-
-    if (error.type == "UserExistenceError") {
-      return await navigateTo("/auth/register");
-    }
-
-    if (error.type == "ProfileExistenceError") {
-      profileRegistrationErrors.value = error.message;
-      return;
-    }
-
-    if (error.type == "UnauthorizedError") {
-      profileRegistrationErrors.value = error.message;
-      return;
-    }
-
-    profileRegistrationErrors.value = "An unexpected error occurred";
+    handleProfileCreationErrors(error);
 
     return;
   } finally {
@@ -230,16 +175,9 @@ const handleFormSubmit = async () => {
   }
 
   try {
-    if (!user?.value) return;
-
     settingLocalStorage.value = true;
 
-    const { $storeUserUseCase, $addProfileUseCase, $selectProfileUseCase } =
-      useNuxtApp();
-
-    await $storeUserUseCase(user.value);
-    await $addProfileUseCase(profile);
-    await $selectProfileUseCase(profile.type);
+    await storeUserAndProfilesUsingUseCases(savedProfile.type);
 
     await navigateTo("/vendor");
   } catch (error) {

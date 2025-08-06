@@ -1,7 +1,7 @@
 import { useUserStore } from "@/stores/userStore";
 import { useProfileStore } from "@/stores/profileStore";
 
-export const processToken = async (token, callBack) => {
+export const processToken = async (token, callBack, handleErrors) => {
   try {
     const userStore = useUserStore();
     const profileStore = useProfileStore();
@@ -32,6 +32,14 @@ export const processToken = async (token, callBack) => {
     profileStore.setProfiles(profilesData);
     profileStore.setSelectedProfile(profilesData[0]);
   } catch (error) {
+    if (error.type == "UserExistenceError" && !handleErrors) {
+      await navigateTo("/auth/register");
+    }
+
+    if (error.type == "ProfileExistenceError" && !handleErrors) {
+      await navigateTo("/auth/profile");
+    }
+
     throw error;
   }
 };

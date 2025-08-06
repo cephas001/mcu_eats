@@ -63,7 +63,7 @@
     text="Setting up things for you..."
   />
 
-  <LocalSaveError
+  <BrowserStorageErrorModal
     v-if="showErrorModal"
     action="Login"
     @firstButtonClick="getRedirectUrlAndRedirect()"
@@ -76,7 +76,6 @@ import { navigateTo, useNuxtApp } from "nuxt/app";
 import { onMounted } from "vue";
 
 import { useLogInStore } from "@/stores/logInStore";
-import { useUserStore } from "@/stores/userStore";
 import { useProfileStore } from "@/stores/profileStore";
 
 import { storeToRefs } from "pinia";
@@ -84,17 +83,15 @@ import { storeToRefs } from "pinia";
 import { getRedirectUrl } from "@/utils/getRedirectUrl";
 
 import { processToken } from "@/composables/processToken";
+import { storeUserAndProfilesUsingUseCases } from "@/composables/storeUserAndProfilesUsingUseCases";
+import { handleLoginErrors } from "@/composables/handleLoginErrors";
 import { useRoute } from "vue-router";
 
 const logInStore = useLogInStore();
 const { loginForm, displayError, clearError } = useLogInStore();
 const { loginErrors } = storeToRefs(logInStore);
 
-const userStore = useUserStore();
-const { user } = storeToRefs(userStore);
-
 const profileStore = useProfileStore();
-const { profiles } = storeToRefs(profileStore);
 
 const tryingToLogin = ref(false);
 const settingLocalStorage = ref(false);
@@ -102,18 +99,18 @@ const showErrorModal = ref(false);
 
 const route = useRoute();
 
-const getRedirectUrlAndRedirect = () => {
+const getUrlAndRedirect = () => {
   tryingToLogin.value = true;
 
-  const redirectToQuery = route.query?.redirectTo;
+  var redirectToURL = route.query?.redirectTo;
 
-  if (redirectToQuery) return navigateTo(`${redirectToQuery}`);
+  if (redirectToURL) return navigateTo(`${redirectToURL}`);
 
   const selectedProfile = profileStore.getSelectedProfile();
 
-  const redirectTo = getRedirectUrl(selectedProfile);
+  redirectToURL = getRedirectUrl(selectedProfile);
 
-  return navigateTo(`${redirectTo}`);
+  return navigateTo(`${redirectToURL}`);
 };
 
 const handleLogin = async () => {
@@ -131,78 +128,24 @@ const handleLogin = async () => {
 
     await processToken(token);
   } catch (error) {
-    clearError();
-
-    if (error.type == "ValidationError") {
-      if (error.errorList) {
-        const { inputName, errorMessage } = error.errorList[0];
-        displayError(errorMessage, inputName);
-      } else {
-        displayError(error.message, error.inputName);
-      }
-      return;
-    }
-
-    if (error.type == "InvalidCredentialsError") {
-      loginErrors.value = error.message;
-    }
-
-    if (error.type == "UserExistenceError") {
-      return await navigateTo("/auth/register");
-    }
-
-    if (error.type == "ProfileExistenceError") {
-      return await navigateTo("/auth/profile");
-    }
-
-    if (error.type == "UnexpectedError") {
-      loginErrors.value = "An unexpected error occurred";
-    }
-
+    handleLoginErrors(error);
     return;
   } finally {
     tryingToLogin.value = false;
   }
 
   try {
-    if (!user?.value || !profiles?.value) return;
     settingLocalStorage.value = true;
 
-    const {
-      $storeUserUseCase,
-      $storeUserProfilesUseCase,
-      $retrieveUserSelectedProfileUseCase,
-    } = useNuxtApp();
-
-    await $storeUserUseCase(user.value);
-    await $storeUserProfilesUseCase(profiles.value);
-
-    const selectedProfile = await $retrieveUserSelectedProfileUseCase(
-      user.value.id
-    );
-
-    profileStore.setSelectedProfile(selectedProfile);
+    await storeUserAndProfilesUsingUseCases();
   } catch (error) {
-    console.log(error);
-    if (error.type === "ProfileExistenceError") {
-      return await navigateTo("/general/select-profile");
-    }
-
-    if (error.type === "LocalStorageError") {
-      getRedirectUrlAndRedirect();
-    }
-
-    if (error.type === "ValidationError") {
-      return await navigateTo("/auth/logout");
-    }
-
     showErrorModal.value = true;
     return;
   } finally {
     settingLocalStorage.value = false;
   }
 
-  getRedirectUrlAndRedirect();
+  getUrlAndRedirect();
 };
 
 onMounted(() => {

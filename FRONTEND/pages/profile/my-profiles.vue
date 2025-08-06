@@ -9,13 +9,19 @@
       </p>
     </div>
 
-    <div v-for="profile in profiles" :key="profile.id" class="mt-7">
+    <div v-for="profile in profiles" :key="profile.id" class="mt-7 relative">
+      <div
+        class="bg-primary text-white absolute right-[-2px] rounded-l-sm top-3 py-1 px-2 text-sm"
+        v-if="selectedProfile.type == profile.type"
+      >
+        <p>Selected</p>
+      </div>
       <div
         class="bg-white shadow-md rounded-lg p-6 border border-gray-300 font-manrope"
       >
         <!-- Header -->
         <div class="mb-4 flex flex-col gap-1">
-          <h1 class="text-xl font-semibold text-black">
+          <h1 class="text-md font-semibold text-black">
             {{ profileType(profile.type) }}
           </h1>
           <span class="text-sm text-gray-800">
@@ -25,23 +31,18 @@
 
         <!-- User Info -->
         <div class="mb-4">
-          <p>
+          <p class="text-sm">
             <span class="font-semibold">Username:</span>
             {{ profile.data.username }}
           </p>
         </div>
 
-        <!-- Action Buttons -->
-        <div class="flex space-x-4">
+        <!-- Action Button -->
+        <div>
           <button
-            class="px-4 py-2 bg-primary text-white rounded hover:bg-primary_light transition duration-200"
+            class="bg-primary text-white rounded hover:bg-primary_light transition duration-200 text-sm py-1 px-2"
           >
-            Manage Data
-          </button>
-          <button
-            class="px-4 py-2 bg-red-500 text-white rounded hover:bg-red-600 transition duration-200"
-          >
-            Delete Profile
+            Manage
           </button>
         </div>
       </div>
@@ -63,9 +64,8 @@ const userStore = useUserStore();
 const { user } = storeToRefs(userStore);
 
 const profileStore = useProfileStore();
-const { profiles } = storeToRefs(profileStore);
+const { profiles, selectedProfile } = storeToRefs(profileStore);
 
-console.log(profiles.value);
 const profileType = (type) =>
   computed(() => {
     if (type == "consumer") {

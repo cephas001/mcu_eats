@@ -30,12 +30,14 @@
       </UDropdownMenu>
     </div>
   </div>
+
+  <SelectProfileModal />
 </template>
 
 <script setup>
 import { navigateTo } from "nuxt/app";
 import { ref } from "vue";
-
+import { useRoute } from "vue-router";
 import { useUserStore } from "@/stores/userStore";
 import { useProfileStore } from "@/stores/profileStore";
 import { useCartStore } from "@/stores/cartStore";
@@ -46,9 +48,11 @@ import { getRedirectUrl } from "@/utils/getRedirectUrl";
 const cartStore = useCartStore();
 const { cart } = storeToRefs(cartStore);
 
+const route = useRoute();
 const userStore = useUserStore();
 
 const profileStore = useProfileStore();
+const { showSelectProfileModal } = storeToRefs(profileStore);
 
 const messagesStore = useMessagesStore();
 
@@ -121,7 +125,9 @@ const setUserNavigationItems = (user, selectedProfile) => {
         label: "Switch Profile",
         icon: "i-material-symbols-published-with-changes",
         color: "info",
-        to: "/general/select-profile",
+        onSelect: () => {
+          showSelectProfileModal.value = true;
+        },
       },
     ],
     ...(messages?.length > 0
