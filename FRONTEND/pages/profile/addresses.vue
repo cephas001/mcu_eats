@@ -157,6 +157,7 @@ import { useFormValidationMethods } from "@/composables/formValidation";
 
 definePageMeta({
   middleware: ["check-user-and-profiles"],
+  specificType: ["consumer", "vendor"],
 });
 
 const userStore = useUserStore();

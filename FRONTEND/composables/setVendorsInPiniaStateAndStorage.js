@@ -3,7 +3,25 @@ import { storeToRefs } from "pinia";
 
 import { vendorProfilePresenter } from "../infrastructure/presenters/vendorProfilePresenter";
 
-export const setVendorsInState = async () => {
+var filterAndReturnVendorsByType = (vendors, vendorType) => {
+  return vendors.filter((vendor) => vendor.type == vendorType);
+};
+
+var setVendorsRestaurantsAndOthersInPiniaStore = (vendors) => {
+  const vendorStore = useVendorStore();
+
+  vendorStore.setVendors(vendors);
+
+  const restaurants = filterAndReturnVendorsByType(vendors, "restaurant");
+  const retailers = filterAndReturnVendorsByType(vendors, "retailer");
+  const shops = filterAndReturnVendorsByType(vendors, "shop");
+
+  vendorStore.setRestaurants(restaurants);
+  vendorStore.setShops(shops);
+  vendorStore.setRetailers(retailers);
+};
+
+export const setVendorsInPiniaStateAndStorage = async () => {
   const vendorStore = useVendorStore();
   const { vendors } = storeToRefs(vendorStore);
 
@@ -13,22 +31,6 @@ export const setVendorsInState = async () => {
     $retrieveVendorProfilesUseCase,
     $clearVendorProfilesUseCase,
   } = useNuxtApp();
-
-  const filterAndReturnVendorsByType = (vendors, vendorType) => {
-    return vendors.filter((vendor) => vendor.type == vendorType);
-  };
-
-  const setVendorsRestaurantsAndOthersInPiniaStore = (vendors) => {
-    vendorStore.setVendors(vendors);
-
-    const restaurants = filterAndReturnVendorsByType(vendors, "restaurant");
-    const retailers = filterAndReturnVendorsByType(vendors, "retailer");
-    const shops = filterAndReturnVendorsByType(vendors, "shop");
-
-    vendorStore.setRestaurants(restaurants);
-    vendorStore.setShops(shops);
-    vendorStore.setRetailers(retailers);
-  };
 
   if (vendors.value) {
     return;
@@ -50,6 +52,10 @@ export const setVendorsInState = async () => {
   try {
     const fetchedVendors = await $expressUserBackendService.getVendorProfiles();
 
+    if (!fetchedVendors || fetchedVendors?.length == 0) {
+      return;
+    }
+
     var modifiedVendors = vendorProfilePresenter(fetchedVendors);
 
     setVendorsRestaurantsAndOthersInPiniaStore(modifiedVendors);
@@ -58,7 +64,7 @@ export const setVendorsInState = async () => {
   }
 
   try {
-    const storedProfiles = await $storeVendorProfilesUseCase(modifiedVendors);
+    await $storeVendorProfilesUseCase(modifiedVendors);
   } catch (error) {
     console.log(error);
   }

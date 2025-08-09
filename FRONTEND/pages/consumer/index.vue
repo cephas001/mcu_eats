@@ -49,7 +49,7 @@
     />
   </section>
 
-  <LoadingIconLarge :loading="fetchingData" />
+  <LoadingIconSpinner :loading="fetchingData" />
 </template>
 
 <script setup>
@@ -57,13 +57,13 @@ import { onMounted } from "vue";
 import { useVendorStore } from "@/stores/vendorStore";
 import { storeToRefs } from "pinia";
 import { returnFavouriteVendorIds } from "@/composables/returnFavouriteIds";
-import { setVendorsInState } from "@/composables/setVendorsInState";
+import { setVendorsInPiniaStateAndStorage } from "@/composables/setVendorsInPiniaStateAndStorage";
 
-const { $expressAuthBackendService, $expressUserBackendService } = useNuxtApp();
 
 definePageMeta({
   middleware: ["check-user-and-profiles", "check-selected-profile"],
   allowAnonymous: true,
+  specificUserType: ["consumer"],
 });
 
 const favouriteIds = ref([]);
@@ -74,7 +74,7 @@ const vendorStore = useVendorStore();
 const { restaurants, retailers, shops } = storeToRefs(vendorStore);
 
 onMounted(async () => {
-  await setVendorsInState();
+  await setVendorsInPiniaStateAndStorage();
 });
 
 // onMounted(async () => {

@@ -1,28 +1,36 @@
 <template>
   <UModal
     v-model:open="showSelectProfileModal"
-    class="bg-white pb-4 font-manrope"
+    class="bg-background text-black pb-4 font-manrope"
     title="Choose a profile"
-    description="Select one of the profiles below to continue"
+    description="Select one of your profiles to continue"
+    color="neutral"
     :close="{
       color: 'primary',
       variant: 'outline',
       class: 'rounded-full',
     }"
-    :dismissible="false"
+    :ui="{
+      content: 'text-black',
+      title: 'text-black',
+      description: 'text-black',
+    }"
     @close="showSelectProfileModal = false"
+    v-if="!selectingProfile"
   >
-    <template #body v-if="!selectingProfile">
-      <FormField
-        labelText=""
-        name="profile"
-        type="select"
-        :state="registrationForm"
-        :items="registrationForm.profileList"
-        @update="registrationForm.profileValue = $event"
+    <template #body>
+      <URadioGroup
+        v-model="selectedProfileType"
+        :items="profileOptions"
+        variant="card"
+        class="text-black"
+        :ui="{
+          label: 'text-black',
+          description: 'text-gray-800',
+          indicator: 'bg-primary',
+        }"
     /></template>
 
-    <template v-if="selectingProfile" #body> loading.... </template>
     <template #footer>
       <button
         class="text-white rounded-md p-3 w-full text-center text-md bg-primary"
@@ -36,7 +44,6 @@
 
 <script setup>
 import { useLogInStore } from "@/stores/logInStore";
-import { useUserStore } from "@/stores/userStore";
 import { useProfileStore } from "@/stores/profileStore";
 import { useRoute } from "vue-router";
 import { storeToRefs } from "pinia";
@@ -44,83 +51,92 @@ import { storeToRefs } from "pinia";
 import { setSelectedProfileInStateWithType } from "@/composables/setSelectedProfileInStateWithType";
 import { storeSelectedProfileWithTypeUsingUseCase } from "@/composables/storeSelectedProfileWithTypeUsingUseCase";
 import { navigateTo } from "nuxt/app";
+import { watch } from "vue";
 
-const { registrationForm, displayError } = useLogInStore();
-const userStore = useUserStore();
+const { registrationForm } = useLogInStore();
 
 const route = useRoute();
 
+const profileOptions = ref([
+  {
+    label: "Loading...",
+    description: "",
+    value: "null",
+  },
+]);
+const selectedProfileType = ref("");
+
 const profileStore = useProfileStore();
-const { showSelectProfileModal } = storeToRefs(profileStore);
+const { showSelectProfileModal, selectedProfile } = storeToRefs(profileStore);
 const selectingProfile = ref(false);
 
 const handleSelectProfile = async () => {
-  if (!registrationForm.profileValue) {
-    displayError("Please select a profile", "profile");
+  if (selectedProfileType.value == "") {
     return;
   }
 
   try {
-    setSelectedProfileInStateWithType(registrationForm.profileValue);
+    setSelectedProfileInStateWithType(selectedProfileType.value);
   } catch (error) {
-    displayError("Profile does not exists", "profile");
+    console.log(error);
   }
 
   try {
     selectingProfile.value = true;
-    await storeSelectedProfileWithTypeUsingUseCase(
-      registrationForm.profileValue
-    );
-    if (
-      route.fullPath == "/consumer" ||
-      (route.fullPath == "/vendor" &&
-        registrationForm.profileValue == "delivery_person")
-    ) {
-      await navigateTo("/delivery-person");
-    }
-    if (
-      route.fullPath == "/delivery-person" ||
-      (route.fullPath == "/vendor" &&
-        registrationForm.profileValue == "consumer")
-    ) {
-      await navigateTo("/consumer");
-    }
-    if (
-      route.fullPath == "/consumer" ||
-      (route.fullPath == "/delivery-person" &&
-        registrationForm.profileValue == "vendor")
-    ) {
-      await navigateTo("/vendor");
-    }
+
+    await storeSelectedProfileWithTypeUsingUseCase(selectedProfileType.value);
   } catch (error) {
+    console.log(error);
     selectingProfile.value = false;
-    await navigateTo("/consumer");
+  }
+  selectingProfile.value = false;
+
+  if (!route.meta.specificUserType) {
+    if (route.fullPath == "/general/select-profile") {
+      return navigateTo("/");
+    }
+    showSelectProfileModal.value = false;
+    return;
   }
 
-  selectingProfile.value = false;
+  if (!route.meta.specificUserType.includes(selectedProfileType.value)) {
+    showSelectProfileModal.value = false;
+    return navigateTo("/");
+  }
+
   showSelectProfileModal.value = false;
 };
 
-onMounted(() => {
-  try {
-    const user = userStore.getUser();
-
-    if (!user) {
-      return navigateTo("/consumer");
-    }
-
-    if (user?.profiles.length == 0) {
-      return navigateTo("/consumer");
-    }
-
-    registrationForm.profileList = user.profiles.map((profile) => {
-      if (profile.type == "delivery_person") {
-        return "Delivery Person";
-      }
-      return profile.type.charAt(0).toUpperCase() + profile.type.slice(1);
-    });
-  } catch (error) {
-    console.log(error);
+const getProfileNameFromType = (profileType) => {
+  if (profileType == "delivery_person") {
+    return "Delivery Person";
   }
+  return profileType.charAt(0).toUpperCase() + profileType.slice(1);
+};
+
+watch(showSelectProfileModal, (newVal, oldVal) => {
+  const profiles = profileStore.getProfiles();
+
+  if (!profiles || profiles?.length == 0) {
+    navigateTo("/consumer");
+  }
+
+  profileOptions.value = profiles.map((profile, index) => {
+    if (selectedProfile?.value?.type == profile.type) {
+      selectedProfileType.value = profile.type;
+    } else {
+      if (index == 0) {
+        selectedProfileType.value = profile.type;
+      }
+    }
+
+    return {
+      label: `${getProfileNameFromType(profile.type)} Profile`,
+      description: `Username: ${
+        profile.data.username || profile.data.vendorName
+      }`,
+      value: profile.type,
+    };
+  });
 });
 </script>

@@ -12,5 +12,12 @@ export default defineAppConfig({
         },
       },
     },
-  },
+    modal: {
+      background: 'bg-background',  
+      text: 'text-black',          
+      slots: {
+        footer: 'justify-between', 
+      }
+    }
+  }
 });

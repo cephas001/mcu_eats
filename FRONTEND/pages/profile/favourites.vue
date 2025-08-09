@@ -137,6 +137,7 @@ import { parseArrays } from "@/utils/parseArrays";
 definePageMeta({
   middleware: ["check-user-and-profiles"],
   allowAnonymous: true,
+  specificType: ["consumer", "delivery_person"],
 });
 
 const fetchingData = ref(true);

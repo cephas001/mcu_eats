@@ -14,12 +14,16 @@
     --font-montserrat: "Montserrat", sans-serif;
     --font-roboto: "Roboto Variable", sans-serif;
     --color-primary: #9F7240;
+    --color-secondary: #A3B18A;
     --color-info: rgb(248, 205, 156);
-    --color-primary_light: rgb(248, 205, 156);
+    --color-accent: #B85C5C;
     --color-primary_black: #262622;
-    --color-bottom_nav: #9f734036;
+    --color-background: #F5F5F0;
+    --color-success: #6BA368;
+    --color-warning: #D88C4A;
+    --color-error: #B85C5C;
+    --color-primary_light: rgb(248, 205, 156);
     --background-ivory: #F5F5F5;
-
     --animate-pingOnce: pingOnce 0.5s cubic-bezier(0, 0, 0.2, 1) forwards;
 
     @keyframes pingOnce {
@@ -38,30 +42,6 @@
             opacity: 1;
         }
     }
-
-    /* 
-        --ui-primary: var(--color-green-500);
-        --ui-bg: var(--color-black);
-        --ui-bg-muted: var(--color-gray-900);
-        --ui-bg-elevated: var(--color-gray-800);
-        --ui-bg-accented: var(--color-gray-700);
-        --ui-bg-inverted: var(--color-white);
-
-        --ui-text: var(--color-primary_light);
-        --ui-text-muted: var(--color-primary_light);
-        --ui-text-dimmed: var(--color-primary_light);
-        --ui-text-highlighted: var(--color-primary_light); 
-    */
-
-    /*     
-        --ui-border: var(--color-gray-800);
-        --ui-border-muted: var(--color-gray-800);
-        --ui-border-accented: var(--color-gray-700);
-        --ui-border-inverted: var(--color-white); 
-    
-        --ui-radius: var(--radius-md);
-        --ui-container: var(--container-6xl); 
-    */
 }
 
 @layer utilities {

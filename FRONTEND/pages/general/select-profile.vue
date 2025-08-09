@@ -1,104 +1,16 @@
 <template>
   <section class="h-[100vh]"></section>
-  <UModal
-    v-model:open="test"
-    class="bg-white pb-4 font-manrope"
-    title="Choose a profile"
-    description="Select one of the profiles below to continue"
-    @close:prevent="navigateTo(redirectTo)"
-    :close="{
-      color: 'primary',
-      variant: 'outline',
-      class: 'rounded-full',
-    }"
-    :dismissible="false"
-  >
-    <template #body>
-      <FormField
-        labelText=""
-        name="profile"
-        type="select"
-        :state="registrationForm"
-        :items="registrationForm.profileList"
-        @update="registrationForm.profileValue = $event"
-    /></template>
-
-    <template #footer>
-      <button
-        class="text-white rounded-md p-3 w-full text-center text-md bg-primary"
-        @click="handleSelectProfile"
-      >
-        Continue
-      </button>
-    </template>
-  </UModal>
 </template>
 
 <script setup>
-import { navigateTo } from "nuxt/app";
 import { onMounted } from "vue";
-import { useRoute } from "vue-router";
-import { useUserStore } from "@/stores/userStore";
-import { useLogInStore } from "@/stores/logInStore";
+import { useProfileStore } from "@/stores/profileStore";
+import { storeToRefs } from "pinia";
 
-import { setSelectedProfileInStateWithType } from "@/composables/setSelectedProfileInStateWithType";
-import { storeSelectedProfileWithTypeUsingUseCase } from "@/composables/storeSelectedProfileWithTypeUsingUseCase";
-
-const userStore = useUserStore();
-
-const { registrationForm, displayError } = useLogInStore();
-
-const test = ref(true);
-const route = useRoute();
-const redirectTo = ref(null);
-
-const handleSelectProfile = async () => {
-  console.log(registrationForm.profileValue);
-  return;
-  if (!registrationForm.profileValue) {
-    displayError("Please select a profile", "profile");
-    return;
-  }
-
-  try {
-    setSelectedProfileInStateWithType(registrationForm.profileValue);
-  } catch (error) {
-    displayError("Profile does not exists", "profile");
-  }
-
-  try {
-    await storeSelectedProfileWithTypeUsingUseCase(
-      registrationForm.profileValue,
-      redirectTo.value
-    );
-  } catch (error) {
-    await navigateTo("/consumer");
-  }
-};
+const profileStore = useProfileStore();
+const { showSelectProfileModal } = storeToRefs(profileStore);
 
 onMounted(() => {
-  try {
-    const user = userStore.getUser();
-
-    if (!user) {
-      return navigateTo("/consumer");
-    }
-
-    const redirect = route.query?.redirectTo;
-    redirectTo.value = redirect ? redirect : "/consumer";
-
-    if (user?.profiles.length == 0) {
-      return navigateTo("/consumer");
-    }
-
-    registrationForm.profileList = user.profiles.map((profile) => {
-      if (profile.type == "delivery_person") {
-        return "Delivery Person";
-      }
-      return profile.type.charAt(0).toUpperCase() + profile.type.slice(1);
-    });
-  } catch (error) {
-    console.log(error);
-  }
+  showSelectProfileModal.value = true;
 });
 </script>

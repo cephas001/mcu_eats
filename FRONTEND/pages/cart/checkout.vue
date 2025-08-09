@@ -129,6 +129,7 @@ import { navigateTo } from "nuxt/app";
 definePageMeta({
   middleware: ["check-user-and-profiles"],
   allowAnonymous: true,
+  specificUserType: ["consumer"],
 });
 
 const userStore = useUserStore();

@@ -3,7 +3,7 @@ import { useProfileStore } from "@/stores/profileStore";
 import { storeToRefs } from "pinia";
 
 export const storeUserAndProfilesUsingUseCases = async (
-  profileTypeToSelect
+  typeOfProfileToSelect
 ) => {
   const userStore = useUserStore();
   const { user } = storeToRefs(userStore);
@@ -24,10 +24,10 @@ export const storeUserAndProfilesUsingUseCases = async (
     await $storeUserUseCase(user.value);
     await $storeUserProfilesUseCase(profiles.value);
 
-    if (profileTypeToSelect) {
-      await $selectUserProfileUseCase(profileTypeToSelect);
+    if (typeOfProfileToSelect) {
+      await $selectUserProfileUseCase(typeOfProfileToSelect);
 
-      profileStore.selectProfile(profileTypeToSelect);
+      profileStore.selectProfile(typeOfProfileToSelect);
 
       return;
     }

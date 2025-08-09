@@ -1,5 +1,4 @@
 import { defineStore } from "pinia";
-import { useMessagesStore } from "./messagesStore";
 
 export const useProfileStore = defineStore("profile", () => {
   const profiles = ref(null);

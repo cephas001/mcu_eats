@@ -1,7 +1,7 @@
 <template>
   <ProfilePageHeader text="My profiles" classList="mb-4 px-6 pt-8 pb-4" />
 
-  <section class="px-6 min-h-[100vh]">
+  <section class="px-6 min-h-[80vh]">
     <div class="w-full text-right">
       <h1>{{ user?.name }}</h1>
       <p class="text-sm font-semibold">

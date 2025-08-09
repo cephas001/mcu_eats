@@ -1,6 +1,6 @@
 <template>
   <section
-    class="pb-5 pt-10 px-6"
+    class="pb-5 pt-10 px-6 relative"
     v-if="!tryingToCreateProfile && !settingBrowserStorage"
   >
     <ProfileAuthHeader title="Consumer" text="Set up a consumer profile" />
@@ -49,12 +49,7 @@
     </UForm>
   </section>
 
-  <LoadingIconLarge
-    :loading="settingBrowserStorage"
-    class="animate-none"
-    imageSrc="/Pulse@1x-1.0s-200px-200px.svg"
-    text="Setting up things for you..."
-  />
+  <LoadingIconSpinner :loading="tryingToCreateProfile || settingBrowserStorage" />
 
   <BrowserStorageErrorModal
     v-if="showBroswerStorageErrorModal"
@@ -63,12 +58,6 @@
     :dismissible="false"
     @modalCloseAttempt="navigateTo('/consumer')"
     :showSecondButton="false"
-  />
-
-  <LoadingIconLarge
-    :loading="tryingToCreateProfile"
-    imageSrc="/Pulse@1x-1.0s-200px-200px.svg"
-    class="animate-none"
   />
 </template>
 

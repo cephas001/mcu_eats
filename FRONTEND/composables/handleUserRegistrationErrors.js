@@ -11,7 +11,7 @@ export const handleUserRegistrationErrors = (error) => {
   if (error.type == "ValidationError") {
     if (error.errorList) {
       const { inputName, errorMessage } = error.errorList[0];
-      displayError(errorMessage, inputName.split(".")[1]);
+      displayError(errorMessage, inputName);
     } else {
       displayError(error.message, error.inputName);
     }

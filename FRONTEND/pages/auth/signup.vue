@@ -3,7 +3,7 @@
     <div class="px-1 mt-7">
       Step 1 of
       <span
-        class="border-b-primary_light border-x-primary_light border-t-primary border-2 px-2 py-1 rounded-full ml-[0.5px]"
+        class="border-b-background border-x-background border-t-primary_light border-2 px-2 py-1 rounded-full ml-[0.5px]"
         >3</span
       >
     </div>
@@ -70,25 +70,7 @@
     <LoginPrivacyCookiePolicy />
   </section>
 
-  <LoadingIconLarge
-    :loading="settingLocalStorage"
-    class="animate-none"
-    imageSrc="/Rolling@1x-1.0s-200px-200px.svg"
-    text="Setting up things for you..."
-  />
-
-  <LoadingIconLarge
-    :loading="tryingToSignIn"
-    imageSrc="/Pulse@1x-1.0s-200px-200px.svg"
-    class="animate-none"
-  />
-
-  <BrowserStorageErrorModal
-    v-if="showErrorModal"
-    action="Login"
-    @firstButtonClick="navigateTo('/')"
-    :showSecondButton="false"
-  />
+  <LoadingIconSpinner :loading="tryingToSignIn" />
 </template>
 
 <script setup>
@@ -100,15 +82,13 @@ import { useLogInStore } from "@/stores/logInStore";
 import { storeToRefs } from "pinia";
 
 import { processToken } from "@/composables/processToken";
-import { handleSignUpErrors } from "@/composables/handleSignupErrors";
+import { handleSignupErrors } from "@/composables/handleSignupErrors";
 
 const logInStore = useLogInStore();
-const { signUpForm, displayError, clearError } = useLogInStore();
+const { signUpForm, clearError } = useLogInStore();
 const { signUpErrors } = storeToRefs(logInStore);
 
 const tryingToSignIn = ref(false);
-const settingLocalStorage = ref(false);
-const showErrorModal = ref(false);
 
 const handleSignUp = async () => {
   clearError();
@@ -131,7 +111,7 @@ const handleSignUp = async () => {
       true
     );
   } catch (error) {
-    handleSignUpErrors(error);
+    handleSignupErrors(error);
   } finally {
     tryingToSignIn.value = false;
   }

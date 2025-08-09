@@ -2,7 +2,8 @@
   <div class="px-1 mb-10 flex justify-between items-center">
     <div>
       Step 3 of
-      <span class="border-primary border-2 px-2 py-1 rounded-full ml-[0.5px]"
+      <span
+        class="border-primary_light border-2 px-2 py-1 rounded-full ml-[0.5px]"
         >3</span
       >
     </div>

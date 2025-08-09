@@ -1,7 +1,7 @@
 <template>
   <section
     class="pb-5 pt-10 px-6"
-    v-if="!tryingToCreateProfile && !settingLocalStorage"
+    v-if="!tryingToCreateProfile && !settingBrowserStorage"
   >
     <ProfileAuthHeader
       title="Delivery Person"
@@ -89,26 +89,15 @@
     </UForm>
   </section>
 
-  <LoadingIconLarge
-    :loading="settingLocalStorage"
-    class="animate-none"
-    imageSrc="/Rolling@1x-1.0s-200px-200px.svg"
-    text="Setting up things for you..."
-  />
+  <LoadingIconSpinner :loading="tryingToCreateProfile || settingBrowserStorage" />
 
   <BrowserStorageErrorModal
-    v-if="showErrorModal"
+    v-if="showBrowerStorageErrorModal"
     action="Profile creation"
     @firstButtonClick="navigateTo('/delivery-person')"
     :dismissible="false"
     @modalCloseAttempt="navigateTo('/delivery-person')"
     :showSecondButton="false"
-  />
-
-  <LoadingIconLarge
-    :loading="tryingToCreateProfile"
-    imageSrc="/Pulse@1x-1.0s-200px-200px.svg"
-    class="animate-none"
   />
 </template>
 
@@ -129,8 +118,8 @@ const { profileRegistrationForm, clearError } = logInStore;
 const { profileRegistrationErrors } = storeToRefs(logInStore);
 
 const tryingToCreateProfile = ref(false);
-const settingLocalStorage = ref(false);
-const showErrorModal = ref(false);
+const settingBrowserStorage = ref(false);
+const showBrowerStorageErrorModal = ref(false);
 
 const handleFormSubmit = async () => {
   tryingToCreateProfile.value = true;
@@ -157,15 +146,15 @@ const handleFormSubmit = async () => {
   }
 
   try {
-    settingLocalStorage.value = true;
+    settingBrowserStorage.value = true;
 
     await storeUserAndProfilesUsingUseCases(savedProfile.type);
 
     await navigateTo("/delivery-person");
   } catch (error) {
-    showErrorModal.value = true;
+    showBrowerStorageErrorModal.value = true;
   } finally {
-    settingLocalStorage.value = false;
+    settingBrowserStorage.value = false;
   }
 };
 

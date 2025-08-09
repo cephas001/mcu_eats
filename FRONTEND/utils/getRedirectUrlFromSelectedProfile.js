@@ -1,4 +1,4 @@
-export const getRedirectUrl = (selectedProfile) => {
+export const getRedirectUrlFromSelectedProfile = (selectedProfile) => {
   var redirectTo = undefined;
 
   switch (selectedProfile?.type) {

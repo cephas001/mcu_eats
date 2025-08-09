@@ -132,16 +132,9 @@
     </template>
   </PopOverSection>
 
-  <LoadingIconLarge
-    :loading="loadingUser"
-    imageSrc="/Pulse@1x-1.0s-200px-200px.svg"
-    class="animate-none"
-  />
-
-  <LoadingIconLarge
-    :loading="sendingEmail || updatingUser"
-    imageSrc="/Pulse@1x-1.0s-200px-200px.svg"
-    class="animate-none"
+  <LoadingIconSpinner
+    :loading="loadingUser || sendingEmail || updatingUser"
+   
   />
 </template>
 

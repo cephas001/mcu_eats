@@ -181,6 +181,7 @@ import { useUserStore } from "@/stores/userStore";
 definePageMeta({
   middleware: ["check-user-and-profiles"],
   allowAnonymous: true,
+  specificUserType: ["consumer"],
 });
 
 const userStore = useUserStore();

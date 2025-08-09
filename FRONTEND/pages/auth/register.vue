@@ -6,7 +6,7 @@
     <div class="px-1 mt-7">
       Step 2 of
       <span
-        class="border-b-primary_light border-l-primary_light border-r-primary border-t-primary border-2 px-2 py-1 rounded-full ml-[0.5px]"
+        class="border-b-background border-l-background border-r-primary_light border-t-primary_light border-2 px-2 py-1 rounded-full ml-[0.5px]"
         >3</span
       >
     </div>
@@ -60,10 +60,8 @@
     </UForm>
   </section>
 
-  <LoadingIconLarge
+  <LoadingIconSpinner
     :loading="tryingToRegister"
-    imageSrc="/Pulse@1x-1.0s-200px-200px.svg"
-    class="animate-none"
   />
 </template>
 

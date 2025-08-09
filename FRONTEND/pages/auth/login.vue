@@ -1,5 +1,5 @@
 <template>
-  <section class="py-5 px-6" v-if="!tryingToLogin && !settingLocalStorage">
+  <section class="py-5 px-6" v-if="!tryingToLogin && !settingBrowserStorage">
     <AuthFlowHeader
       mainText="Welcome"
       subText="Continue with one of the following options"
@@ -44,27 +44,16 @@
 
     <LoginSignupServiceProviders
       @error="loginErrors = $event"
-      @showModal="showErrorModal = $event"
+      @showModal="showBrowserStorageErrorModal = $event"
     />
 
     <LoginSwitchAction page="LoginPage" />
   </section>
 
-  <LoadingIconLarge
-    :loading="tryingToLogin"
-    imageSrc="/Pulse@1x-1.0s-200px-200px.svg"
-    class="animate-none"
-  />
-
-  <LoadingIconLarge
-    :loading="settingLocalStorage"
-    class="animate-none"
-    imageSrc="/Pulse@1x-1.0s-200px-200px.svg"
-    text="Setting up things for you..."
-  />
+  <LoadingIconSpinner :loading="tryingToLogin || settingBrowserStorage" />
 
   <BrowserStorageErrorModal
-    v-if="showErrorModal"
+    v-if="showBrowserStorageErrorModal"
     action="Login"
     @firstButtonClick="getRedirectUrlAndRedirect()"
     :showSecondButton="false"
@@ -80,7 +69,7 @@ import { useProfileStore } from "@/stores/profileStore";
 
 import { storeToRefs } from "pinia";
 
-import { getRedirectUrl } from "@/utils/getRedirectUrl";
+import { getRedirectUrlFromSelectedProfile } from "@/utils/getRedirectUrlFromSelectedProfile";
 
 import { processToken } from "@/composables/processToken";
 import { storeUserAndProfilesUsingUseCases } from "@/composables/storeUserAndProfilesUsingUseCases";
@@ -94,8 +83,8 @@ const { loginErrors } = storeToRefs(logInStore);
 const profileStore = useProfileStore();
 
 const tryingToLogin = ref(false);
-const settingLocalStorage = ref(false);
-const showErrorModal = ref(false);
+const settingBrowserStorage = ref(false);
+const showBrowserStorageErrorModal = ref(false);
 
 const route = useRoute();
 
@@ -108,7 +97,7 @@ const getUrlAndRedirect = () => {
 
   const selectedProfile = profileStore.getSelectedProfile();
 
-  redirectToURL = getRedirectUrl(selectedProfile);
+  redirectToURL = getRedirectUrlFromSelectedProfile(selectedProfile);
 
   return navigateTo(`${redirectToURL}`);
 };
@@ -116,7 +105,7 @@ const getUrlAndRedirect = () => {
 const handleLogin = async () => {
   clearError();
   tryingToLogin.value = true;
-  showErrorModal.value = false;
+  showBrowserStorageErrorModal.value = false;
 
   try {
     const { $loginUserWithEmailAndPasswordUseCase } = useNuxtApp();
@@ -135,14 +124,14 @@ const handleLogin = async () => {
   }
 
   try {
-    settingLocalStorage.value = true;
+    settingBrowserStorage.value = true;
 
     await storeUserAndProfilesUsingUseCases();
   } catch (error) {
-    showErrorModal.value = true;
+    showBrowserStorageErrorModal.value = true;
     return;
   } finally {
-    settingLocalStorage.value = false;
+    settingBrowserStorage.value = false;
   }
 
   getUrlAndRedirect();

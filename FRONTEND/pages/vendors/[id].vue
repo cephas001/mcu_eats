@@ -111,6 +111,11 @@ import {
   returnFavouriteProductIds,
 } from "@/composables/returnFavouriteIds";
 
+definePageMeta({
+  middleware: ["check-user-and-profiles"],
+  specificType: ["consumer"],
+});
+
 const cartStore = useCartStore();
 const { cart } = storeToRefs(cartStore);
 

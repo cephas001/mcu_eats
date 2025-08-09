@@ -43,7 +43,7 @@ import { useProfileStore } from "@/stores/profileStore";
 import { useCartStore } from "@/stores/cartStore";
 import { useMessagesStore } from "@/stores/messagesStore";
 import { storeToRefs } from "pinia";
-import { getRedirectUrl } from "@/utils/getRedirectUrl";
+import { getRedirectUrlFromSelectedProfile } from "@/utils/getRedirectUrlFromSelectedProfile";
 
 const cartStore = useCartStore();
 const { cart } = storeToRefs(cartStore);
@@ -92,7 +92,7 @@ const refineMessages = (messages) => {
 };
 
 const setUserNavigationItems = (user, selectedProfile) => {
-  const redirectTo = getRedirectUrl(selectedProfile);
+  const redirectTo = getRedirectUrlFromSelectedProfile(selectedProfile);
 
   const messages = messagesStore.getMessages();
 
@@ -128,6 +128,12 @@ const setUserNavigationItems = (user, selectedProfile) => {
         onSelect: () => {
           showSelectProfileModal.value = true;
         },
+      },
+      {
+        label: "Create Profile",
+        icon: "i-material-symbols-badge",
+        color: "info",
+        to: "/auth/profile",
       },
     ],
     ...(messages?.length > 0

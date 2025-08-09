@@ -79,5 +79,7 @@ onMounted(() => {
     registrationForm.profileList = ["Consumer"];
     return;
   }
+
+  registrationForm.profileList = ["Consumer", "Delivery Person", "Vendor"];
 });
 </script>
