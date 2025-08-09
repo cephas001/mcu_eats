@@ -43,7 +43,6 @@
 </template>
 
 <script setup>
-import { useLogInStore } from "@/stores/logInStore";
 import { useProfileStore } from "@/stores/profileStore";
 import { useRoute } from "vue-router";
 import { storeToRefs } from "pinia";
@@ -52,8 +51,6 @@ import { setSelectedProfileInStateWithType } from "@/composables/setSelectedProf
 import { storeSelectedProfileWithTypeUsingUseCase } from "@/composables/storeSelectedProfileWithTypeUsingUseCase";
 import { navigateTo } from "nuxt/app";
 import { watch } from "vue";
-
-const { registrationForm } = useLogInStore();
 
 const route = useRoute();
 
@@ -89,13 +86,14 @@ const handleSelectProfile = async () => {
     console.log(error);
     selectingProfile.value = false;
   }
+
   selectingProfile.value = false;
 
   if (!route.meta.specificUserType) {
+    showSelectProfileModal.value = false;
     if (route.fullPath == "/general/select-profile") {
       return navigateTo("/");
     }
-    showSelectProfileModal.value = false;
     return;
   }
 
@@ -132,9 +130,7 @@ watch(showSelectProfileModal, (newVal, oldVal) => {
 
     return {
       label: `${getProfileNameFromType(profile.type)} Profile`,
-      description: `Username: ${
-        profile.data.username || profile.data.vendorName
-      }`,
+      description: `${profile.data.username || profile.data.vendorName}`,
       value: profile.type,
     };
   });

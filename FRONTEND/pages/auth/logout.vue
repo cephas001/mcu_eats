@@ -1,9 +1,5 @@
 <template>
-  <LoadingIconLarge
-    :loading="true"
-    imageSrc="/Pulse@1x-1.0s-200px-200px.svg"
-    class="animate-none"
-  />
+  <LoadingIconSpinner :loading="true" />
 </template>
 
 <script setup>
@@ -15,10 +11,10 @@ const route = useRoute();
 onMounted(async () => {
   await logoutUserFromTokenAndStorage();
 
-  if (route.query.redirect) {
+  if (route.query.redirectToLogin) {
     await navigateTo("/login");
   } else {
-    await router.back();
+    await navigateTo("/");
   }
 });
 </script>

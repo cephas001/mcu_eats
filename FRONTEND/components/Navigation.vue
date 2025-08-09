@@ -207,6 +207,21 @@ const appendProfileSpecificRoutes = (selectedProfile) => {
   }
 
   if (selectedProfile?.type == "vendor") {
+    addToNavigationItems(1, [
+      {
+        label: "Manage Products",
+        icon: "i-material-symbols-list-alt-outline-rounded",
+        to: "/vendor/products",
+        color: "info",
+      },
+      {
+        label: "Business Details",
+        icon: "i-material-symbols-business-center-outline-rounded",
+        to: "/vendor/details",
+        color: "info",
+      },
+    ]);
+    return;
   }
 
   if (selectedProfile?.type == "delivery_person") {
