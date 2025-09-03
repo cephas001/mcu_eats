@@ -3,7 +3,7 @@
     <div class="px-1 mt-7">
       Step 1 of
       <span
-        class="border-b-background border-x-background border-t-primary_light border-2 px-2 py-1 rounded-full ml-[0.5px]"
+        class="border-b-background border-x-background border-t-primary border-2 px-2 py-1 rounded-full ml-[0.5px]"
         >3</span
       >
     </div>
@@ -81,8 +81,8 @@ import { useLogInStore } from "@/stores/logInStore";
 
 import { storeToRefs } from "pinia";
 
-import { processToken } from "@/composables/processToken";
-import { handleSignupErrors } from "@/composables/handleSignupErrors";
+import { loginUser } from "@/composables/auth/loginUser";
+import { handleSignupErrors } from "@/composables/auth/handleSignupErrors";
 
 const logInStore = useLogInStore();
 const { signUpForm, clearError } = useLogInStore();
@@ -103,7 +103,7 @@ const handleSignUp = async () => {
       confirmPassword: signUpForm.confirmPassword,
     });
 
-    await processToken(
+    await loginUser(
       token,
       async () => {
         await navigateTo("/auth/register");

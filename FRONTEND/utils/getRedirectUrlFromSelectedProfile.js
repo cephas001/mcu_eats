@@ -12,7 +12,7 @@ export const getRedirectUrlFromSelectedProfile = (selectedProfile) => {
       redirectTo = "/vendor";
       break;
     default:
-      redirectTo = undefined;
+      redirectTo = "/consumer";
   }
 
   return redirectTo;

@@ -116,6 +116,8 @@ export const useLogInStore = defineStore("logIn", () => {
   const profileRegistrationErrors = ref("");
   const loginErrors = ref("");
 
+  const creatingProfile = ref(false);
+
   // Clears any error
   const clearError = () => {
     error.value.errorMessage = "";
@@ -137,6 +139,7 @@ export const useLogInStore = defineStore("logIn", () => {
     signUpErrors,
     registrationErrors,
     profileRegistrationErrors,
+    creatingProfile,
     displayError,
     clearError,
   };

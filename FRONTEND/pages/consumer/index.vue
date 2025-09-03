@@ -56,9 +56,8 @@
 import { onMounted } from "vue";
 import { useVendorStore } from "@/stores/vendorStore";
 import { storeToRefs } from "pinia";
-import { returnFavouriteVendorIds } from "@/composables/returnFavouriteIds";
-import { setVendorsInPiniaStateAndStorage } from "@/composables/setVendorsInPiniaStateAndStorage";
-
+// import { returnFavouriteVendorIds } from "@/composables/returnFavouriteIds";
+import { checkVendors } from "@/composables/state/checkVendors";
 
 definePageMeta({
   middleware: ["check-user-and-profiles", "check-selected-profile"],
@@ -74,7 +73,7 @@ const vendorStore = useVendorStore();
 const { restaurants, retailers, shops } = storeToRefs(vendorStore);
 
 onMounted(async () => {
-  await setVendorsInPiniaStateAndStorage();
+  await checkVendors();
 });
 
 // onMounted(async () => {

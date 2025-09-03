@@ -27,7 +27,10 @@ export const useProfileStore = defineStore("profile", () => {
   };
 
   const addProfile = (profile) => {
-    if (!profiles.value) profiles.value = [profile];
+    if (!profiles.value) {
+      profiles.value = [profile];
+      return;
+    }
     setProfiles([...profiles.value, profile]);
   };
 

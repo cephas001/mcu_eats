@@ -6,7 +6,7 @@
     <div class="px-1 mt-7">
       Step 2 of
       <span
-        class="border-b-background border-l-background border-r-primary_light border-t-primary_light border-2 px-2 py-1 rounded-full ml-[0.5px]"
+        class="border-b-background border-l-background border-r-primary border-t-primary border-2 px-2 py-1 rounded-full ml-[0.5px]"
         >3</span
       >
     </div>
@@ -60,9 +60,7 @@
     </UForm>
   </section>
 
-  <LoadingIconSpinner
-    :loading="tryingToRegister"
-  />
+  <LoadingIconSpinner :loading="tryingToRegister" />
 </template>
 
 <script setup>
@@ -73,7 +71,7 @@ import { useLogInStore } from "@/stores/logInStore";
 
 import { storeToRefs } from "pinia";
 
-import { handleUserRegistrationErrors } from "@/composables/handleUserRegistrationErrors";
+import { handleUserRegistrationErrors } from "@/composables/auth/handleUserRegistrationErrors";
 const logInStore = useLogInStore();
 const { registrationForm, clearError } = useLogInStore();
 const { registrationErrors } = storeToRefs(logInStore);
@@ -102,6 +100,7 @@ const handleRegister = async () => {
 
     await navigateTo(`/auth/profile?category=${user?.category}`);
   } catch (error) {
+    console.log(error);
     handleUserRegistrationErrors(error);
   } finally {
     tryingToRegister.value = false;

@@ -159,7 +159,7 @@ const setUserNavigationItems = (user, selectedProfile) => {
         color: "error",
         icon: "i-lucide-log-out",
         kbds: ["shift", "meta", "q"],
-        to: "/auth/logout",
+        to: "/auth/logout?redirectToLogin=true",
       },
     ],
   ];

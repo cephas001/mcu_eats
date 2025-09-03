@@ -26,8 +26,8 @@ import { navigateTo, useNuxtApp } from "nuxt/app";
 
 import { useLogInStore } from "@/stores/logInStore";
 
-import { processToken } from "@/composables/processToken";
-import { storeUserAndProfilesUsingUseCases } from "@/composables/storeUserAndProfilesUsingUseCases";
+import { loginUser } from "@/composables/auth/loginUser";
+import { storeUserAndProfiles } from "@/composables/usecases/storeUserAndProfiles";
 
 const { clearError } = useLogInStore();
 
@@ -46,14 +46,14 @@ const providerSignIn = async (provider) => {
 
     const { token } = await $signUpUserWithProviderUseCase(provider);
 
-    await processToken(token);
+    await loginUser(token);
   } catch (error) {
     emit("error", error.message);
     return;
   }
 
   try {
-    await storeUserAndProfilesUsingUseCases();
+    await storeUserAndProfiles();
   } catch (error) {
     emit("showModal", true);
   }

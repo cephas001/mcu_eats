@@ -19,11 +19,7 @@ export default function createUserProfile(profileRepo, userRepo) {
     }
 
     if (!userProfile.type) {
-      throw new ValidationError(
-        "The profile type is not defined",
-        null,
-        errorList
-      );
+      throw new ValidationError("The profile type is not defined", null);
     }
 
     // Check if user exists by ID
@@ -63,6 +59,7 @@ export default function createUserProfile(profileRepo, userRepo) {
         inputName: e.path.join(".") || "unknown",
         errorMessage: e.message,
       }));
+
       throw new ValidationError("Validation failed", null, errorList);
     }
 

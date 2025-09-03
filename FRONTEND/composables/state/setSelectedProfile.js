@@ -1,6 +1,6 @@
 import { useProfileStore } from "@/stores/profileStore";
 
-export const setSelectedProfileInStateWithType = (type) => {
+export const setSelectedProfile = (type) => {
   const profileStore = useProfileStore();
 
   try {

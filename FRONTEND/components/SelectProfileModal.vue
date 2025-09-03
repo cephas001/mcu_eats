@@ -47,8 +47,8 @@ import { useProfileStore } from "@/stores/profileStore";
 import { useRoute } from "vue-router";
 import { storeToRefs } from "pinia";
 
-import { setSelectedProfileInStateWithType } from "@/composables/setSelectedProfileInStateWithType";
-import { storeSelectedProfileWithTypeUsingUseCase } from "@/composables/storeSelectedProfileWithTypeUsingUseCase";
+import { setSelectedProfile } from "@/composables/state/setSelectedProfile";
+import { storeSelectedProfileUsingType } from "@/composables/usecases/storeSelectedProfileUsingType";
 import { navigateTo } from "nuxt/app";
 import { watch } from "vue";
 
@@ -73,7 +73,7 @@ const handleSelectProfile = async () => {
   }
 
   try {
-    setSelectedProfileInStateWithType(selectedProfileType.value);
+    setSelectedProfile(selectedProfileType.value);
   } catch (error) {
     console.log(error);
   }
@@ -81,7 +81,7 @@ const handleSelectProfile = async () => {
   try {
     selectingProfile.value = true;
 
-    await storeSelectedProfileWithTypeUsingUseCase(selectedProfileType.value);
+    await storeSelectedProfileUsingType(selectedProfileType.value);
   } catch (error) {
     console.log(error);
     selectingProfile.value = false;

@@ -50,8 +50,8 @@ const consumerDataSchema = z.object({
     .min(4, "Username must be at least 4 characters")
     .regex(/^[^\d]/, "Username must not start with a number"),
   gender: z.enum(["male", "female"]),
-  hostel: z.string().min(1).optional(),
-  roomNumber: z.string().min(1).optional(),
+  hostel: z.string().min(1),
+  roomNumber: z.string().min(1),
   college: z.string().min(1).optional(),
   officeNumber: z.string().min(1).optional(),
   favorites: z

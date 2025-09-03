@@ -4,10 +4,10 @@ import { useUserStore } from "@/stores/userStore";
 import { useVendorStore } from "@/stores/vendorStore";
 import { db } from "@/utils/db";
 import { stringifyArrays } from "../utils/stringifyArrays";
-import {
-  returnFavouriteVendorIds,
-  returnFavouriteProductIds,
-} from "@/composables/returnFavouriteIds";
+// import {
+// returnFavouriteVendorIds,
+// returnFavouriteProductIds,
+// } from "@/composables/returnFavouriteIds";
 import { returnFavouriteProductObject } from "@/utils/returnFavouriteProductObject";
 
 export const useUserFavouritesStore = defineStore("userFavouritesStore", () => {

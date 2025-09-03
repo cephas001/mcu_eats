@@ -1,14 +1,10 @@
 import { useUserStore } from "@/stores/userStore";
 import { useProfileStore } from "@/stores/profileStore";
 
-export const createUserProfileAndSetInState = async (
-  profileType,
-  profileObject
-) => {
+export const createUserProfile = async (profileType, profileObject) => {
   const userStore = useUserStore();
 
   const profileStore = useProfileStore();
-
   try {
     const { $expressUserBackendService, $expressAuthBackendService } =
       useNuxtApp();
@@ -30,6 +26,7 @@ export const createUserProfileAndSetInState = async (
 
     return { savedProfile, updatedUser };
   } catch (error) {
+    console.log(error);
     if (error.type == "InvalidTokenError" || error.message.includes("token")) {
       await navigateTo("/auth/login");
     }

@@ -3,18 +3,14 @@ import { useProfileStore } from "@/stores/profileStore";
 
 import { navigateTo, useNuxtApp } from "nuxt/app";
 
-import { logoutUserFromTokenAndStorage } from "./logoutUserFromTokenAndStorage";
+import { logoutUser } from "./logoutUser";
+import { retrieveUserAndProfiles } from "../usecases/retrieveUserAndProfiles";
+import { fetchUserAndProfiles } from "./fetchUserAndProfiles";
+import { setUserAndProfiles } from "../state/setUserAndProfiles";
+import { storeUserAndProfiles } from "../usecases/storeUserAndProfiles";
 
-export const setUserAndProfilesInState = async (redirectTo) => {
-  const {
-    $retrieveUserByIdUseCase,
-    $retrieveUserProfilesUseCase,
-    $retrieveUserSelectedProfileUseCase,
-    $expressAuthBackendService,
-    $expressUserBackendService,
-    $storeUserUseCase,
-    $storeUserProfilesUseCase,
-  } = useNuxtApp();
+export const checkLoggedInUser = async (redirectTo) => {
+  const { $expressAuthBackendService } = useNuxtApp();
 
   const navigationRoutes = {
     select_profile: "/general/select-profile",
@@ -59,31 +55,21 @@ export const setUserAndProfilesInState = async (redirectTo) => {
 
     var { id: userId } = response;
   } catch (error) {
-    await logoutUserFromTokenAndStorage();
+    await logoutUser();
 
     switch (error.type) {
-      case "ValidationError":
-        userStore.setGuest(true);
+      case "TokenExistenceError":
         return navigateTo(navigationRoutes["consumer_route"]);
       case "InvalidTokenError":
         return navigateTo(navigationRoutes["login_route"]);
       default:
-        userStore.setGuest(true);
         return navigateTo(navigationRoutes["consumer_route"]);
     }
   }
 
   // Attempt to load cached data
   try {
-    const user = await $retrieveUserByIdUseCase(userId);
-    const profiles = await $retrieveUserProfilesUseCase(userId);
-
-    userStore.setUser(user);
-    profileStore.setProfiles(profiles);
-
-    const selectedProfile = await $retrieveUserSelectedProfileUseCase(userId);
-
-    profileStore.setSelectedProfile(selectedProfile);
+    await retrieveUserAndProfiles(userId);
 
     if (redirectTo) return await navigateTo(redirectTo);
 
@@ -92,21 +78,17 @@ export const setUserAndProfilesInState = async (redirectTo) => {
     if (error.type === "ProfileExistenceError") {
       return await navigateTo(navigationRoutes["select_profile"]);
     }
+
     if (error.type === "ValidationError") {
-      return await navigateTo(navigationRoutes["logout_route"]);
+      await logoutUser();
     }
   }
 
   // Fallback: Fetch fresh data
   try {
-    const user = await $expressAuthBackendService.login();
-    const profileIds = user.profiles.map((p) => p.profileId);
+    const { user, profiles } = await fetchUserAndProfiles();
 
-    const profiles =
-      await $expressUserBackendService.getProfilesDataByProfileIds(profileIds);
-
-    userStore.setUser(user);
-    profileStore.setProfiles(profiles);
+    setUserAndProfiles(user, profiles, false);
   } catch (error) {
     switch (error.type) {
       case "InvalidTokenError":
@@ -122,8 +104,9 @@ export const setUserAndProfilesInState = async (redirectTo) => {
   }
 
   try {
-    await $storeUserUseCase(userStore.user);
-    await $storeUserProfilesUseCase(profileStore.profiles);
+    await storeUserAndProfiles(userStore.getUser(), profileStore.getProfiles());
+
+    return await navigateTo(navigationRoutes["select_profile"]);
   } catch (error) {
     console.log(error);
   }

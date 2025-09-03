@@ -1,6 +1,6 @@
 import { navigateTo } from "nuxt/app";
 
-export const storeSelectedProfileWithTypeUsingUseCase = async (type) => {
+export const storeSelectedProfileUsingType = async (type) => {
   try {
     const { $selectUserProfileUseCase } = useNuxtApp();
     await $selectUserProfileUseCase(type);

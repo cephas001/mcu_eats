@@ -1,17 +1,15 @@
 <template>
-  <LoadingIconBars
-    :loading="true"
-  />
+  <LoadingIconBars :loading="true" />
 </template>
 
 <script setup>
 import { onMounted } from "vue";
 import { useRoute } from "vue-router";
-import { setUserAndProfilesInState } from "@/composables/setUserAndProfilesInState";
+import { checkLoggedInUser } from "@/composables/auth/checkLoggedInUser";
 
 const route = useRoute();
 
 onMounted(async () => {
-  await setUserAndProfilesInState(route.query?.redirectTo);
+  await checkLoggedInUser(route.query?.redirectTo);
 });
 </script>

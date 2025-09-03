@@ -55,7 +55,7 @@
   <BrowserStorageErrorModal
     v-if="showBrowserStorageErrorModal"
     action="Login"
-    @firstButtonClick="getRedirectUrlAndRedirect()"
+    @firstButtonClick="getUrlAndRedirect()"
     :showSecondButton="false"
   />
 </template>
@@ -66,14 +66,15 @@ import { onMounted } from "vue";
 
 import { useLogInStore } from "@/stores/logInStore";
 import { useProfileStore } from "@/stores/profileStore";
+import { useUserStore } from "@/stores/userStore";
 
 import { storeToRefs } from "pinia";
 
 import { getRedirectUrlFromSelectedProfile } from "@/utils/getRedirectUrlFromSelectedProfile";
 
-import { processToken } from "@/composables/processToken";
-import { storeUserAndProfilesUsingUseCases } from "@/composables/storeUserAndProfilesUsingUseCases";
-import { handleLoginErrors } from "@/composables/handleLoginErrors";
+import { loginUser } from "@/composables/auth/loginUser";
+import { storeUserAndProfiles } from "@/composables/usecases/storeUserAndProfiles";
+import { handleLoginErrors } from "@/composables/auth/handleLoginErrors";
 import { useRoute } from "vue-router";
 
 const logInStore = useLogInStore();
@@ -81,10 +82,14 @@ const { loginForm, displayError, clearError } = useLogInStore();
 const { loginErrors } = storeToRefs(logInStore);
 
 const profileStore = useProfileStore();
+const { profiles } = storeToRefs(profileStore);
 
 const tryingToLogin = ref(false);
 const settingBrowserStorage = ref(false);
 const showBrowserStorageErrorModal = ref(false);
+
+const userStore = useUserStore();
+const { user } = storeToRefs(userStore);
 
 const route = useRoute();
 
@@ -96,6 +101,10 @@ const getUrlAndRedirect = () => {
   if (redirectToURL) return navigateTo(`${redirectToURL}`);
 
   const selectedProfile = profileStore.getSelectedProfile();
+
+  if (!selectedProfile) {
+    return navigateTo("/general/select-profile");
+  }
 
   redirectToURL = getRedirectUrlFromSelectedProfile(selectedProfile);
 
@@ -115,7 +124,7 @@ const handleLogin = async () => {
       password: loginForm.password?.trim(),
     });
 
-    await processToken(token);
+    await loginUser(token);
   } catch (error) {
     handleLoginErrors(error);
     return;
@@ -126,7 +135,7 @@ const handleLogin = async () => {
   try {
     settingBrowserStorage.value = true;
 
-    await storeUserAndProfilesUsingUseCases();
+    await storeUserAndProfiles(user.value, profiles.value);
   } catch (error) {
     showBrowserStorageErrorModal.value = true;
     return;

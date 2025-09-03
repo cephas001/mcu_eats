@@ -3,16 +3,16 @@
 </template>
 
 <script setup>
-import { logoutUserFromTokenAndStorage } from "@/composables/logoutUserFromTokenAndStorage";
+import { logoutUser } from "@/composables/auth/logoutUser";
 
 const router = useRouter();
 const route = useRoute();
 
 onMounted(async () => {
-  await logoutUserFromTokenAndStorage();
+  await logoutUser();
 
-  if (route.query.redirectToLogin) {
-    await navigateTo("/login");
+  if (route.query?.redirectToLogin) {
+    await navigateTo("/auth/login");
   } else {
     await navigateTo("/");
   }

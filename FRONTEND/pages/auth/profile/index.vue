@@ -46,19 +46,23 @@ const handleRegister = async () => {
   }
 
   if (registrationForm.profileValue == "Consumer") {
-    await navigateTo(`/auth/profile/consumer?category=${category.value}`);
+    await navigateTo(
+      `/auth/profile/profile-creation?profileType=consumer&category=${category.value}`
+    );
     return;
   }
 
   if (registrationForm.profileValue == "Delivery Person") {
     await navigateTo(
-      `/auth/profile/delivery-person?category=${category.value}`
+      `/auth/profile/profile-creation?profileType=delivery_person&category=${category.value}`
     );
     return;
   }
 
   if (registrationForm.profileValue == "Vendor") {
-    await navigateTo(`/auth/profile/vendor?category=${category.value}`);
+    await navigateTo(
+      `/auth/profile/profile-creation?profileType=vendor&category=${category.value}`
+    );
     return;
   }
 

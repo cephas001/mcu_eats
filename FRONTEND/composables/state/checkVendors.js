@@ -1,13 +1,13 @@
 import { useVendorStore } from "@/stores/vendorStore";
 import { storeToRefs } from "pinia";
 
-import { vendorProfilePresenter } from "../infrastructure/presenters/vendorProfilePresenter";
+import { vendorProfilePresenter } from "../../infrastructure/presenters/vendorProfilePresenter";
 
 var filterAndReturnVendorsByType = (vendors, vendorType) => {
   return vendors.filter((vendor) => vendor.type == vendorType);
 };
 
-var setVendorsRestaurantsAndOthersInPiniaStore = (vendors) => {
+var setVendors = (vendors) => {
   const vendorStore = useVendorStore();
 
   vendorStore.setVendors(vendors);
@@ -21,7 +21,7 @@ var setVendorsRestaurantsAndOthersInPiniaStore = (vendors) => {
   vendorStore.setRetailers(retailers);
 };
 
-export const setVendorsInPiniaStateAndStorage = async () => {
+export const checkVendors = async () => {
   const vendorStore = useVendorStore();
   const { vendors } = storeToRefs(vendorStore);
 
@@ -40,7 +40,7 @@ export const setVendorsInPiniaStateAndStorage = async () => {
     const vendors = await $retrieveVendorProfilesUseCase();
 
     if (vendors) {
-      setVendorsRestaurantsAndOthersInPiniaStore(vendors);
+      setVendors(vendors);
       return;
     }
   } catch (error) {
@@ -58,7 +58,7 @@ export const setVendorsInPiniaStateAndStorage = async () => {
 
     var modifiedVendors = vendorProfilePresenter(fetchedVendors);
 
-    setVendorsRestaurantsAndOthersInPiniaStore(modifiedVendors);
+    setVendors(modifiedVendors);
   } catch (error) {
     console.log(error);
   }

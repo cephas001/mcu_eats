@@ -1,8 +1,5 @@
 <template>
-  <section
-    class="pb-5 pt-15 px-6"
-    v-if="!tryingToCreateProfile && !settingBrowserStorage"
-  >
+  <section class="pb-5 pt-15 px-6">
     <ProfileAuthHeader title="Vendor" text="Set up a vendor profile" />
 
     <FormErrorMessage
@@ -102,43 +99,28 @@
       </button>
     </UForm>
   </section>
-
-  <LoadingIconSpinner :loading="tryingToCreateProfile || settingBrowserStorage" />
-
-  <BrowserStorageErrorModal
-    v-if="showBrowserStorageErrorModal"
-    action="Profile creation"
-    @firstButtonClick="navigateTo('/consumer')"
-    :dismissible="false"
-    @modalCloseAttempt="navigateTo('/consumer')"
-    :showSecondButton="false"
-  />
 </template>
 
 <script setup>
-import { navigateTo } from "nuxt/app";
-
 import { useLogInStore } from "@/stores/logInStore";
 
 import { storeToRefs } from "pinia";
 
-import { createUserProfileAndSetInState } from "@/composables/createUserProfileAndSetInState";
-import { storeUserAndProfilesUsingUseCases } from "@/composables/storeUserAndProfilesUsingUseCases";
-import { handleProfileCreationErrors } from "@/composables/handleProfileCreationErrors";
+import { createUserProfile } from "@/composables/auth/createUserProfile";
+
+import { handleProfileCreationErrors } from "@/composables/auth/handleProfileCreationErrors";
 
 const logInStore = useLogInStore();
 const { profileRegistrationForm, clearError } = logInStore;
-const { profileRegistrationErrors } = storeToRefs(logInStore);
+const { profileRegistrationErrors, creatingProfile } = storeToRefs(logInStore);
 
-const tryingToCreateProfile = ref(false);
-const settingBrowserStorage = ref(false);
-const showBrowserStorageErrorModal = ref(false);
+const emit = defineEmits(["profileCreation"]);
 
 const handleFormSubmit = async () => {
-  tryingToCreateProfile.value = true;
-
   try {
-    var { savedProfile } = await createUserProfileAndSetInState("vendor", {
+    creatingProfile.value = true;
+
+    await createUserProfile("vendor", {
       vendorName: profileRegistrationForm.vendorName?.trim(),
       vendorType: profileRegistrationForm.vendorTypeValue?.toLowerCase(),
       description: profileRegistrationForm.description?.trim(),
@@ -155,28 +137,16 @@ const handleFormSubmit = async () => {
         minute: Number(profileRegistrationForm.closingTime?.split(":")[1]),
       },
     });
+
+    emit("profileCreation", "successful");
   } catch (error) {
     handleProfileCreationErrors(error);
-
-    return;
   } finally {
-    tryingToCreateProfile.value = false;
-  }
-
-  try {
-    settingBrowserStorage.value = true;
-
-    await storeUserAndProfilesUsingUseCases(savedProfile.type);
-
-    await navigateTo("/vendor");
-  } catch (error) {
-    showBrowserStorageErrorModal.value = true;
-  } finally {
-    settingBrowserStorage.value = false;
+    creatingProfile.value = false;
   }
 };
 
 onMounted(() => {
-  clearError();
+  // clearError();
 });
 </script>

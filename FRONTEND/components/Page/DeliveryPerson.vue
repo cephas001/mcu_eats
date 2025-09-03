@@ -1,8 +1,5 @@
 <template>
-  <section
-    class="pb-5 pt-10 px-6"
-    v-if="!tryingToCreateProfile && !settingBrowserStorage"
-  >
+  <section class="pb-5 pt-10 px-6">
     <ProfileAuthHeader
       title="Delivery Person"
       text="Set up a delivery person profile."
@@ -88,73 +85,42 @@
       </button>
     </UForm>
   </section>
-
-  <LoadingIconSpinner :loading="tryingToCreateProfile || settingBrowserStorage" />
-
-  <BrowserStorageErrorModal
-    v-if="showBrowerStorageErrorModal"
-    action="Profile creation"
-    @firstButtonClick="navigateTo('/delivery-person')"
-    :dismissible="false"
-    @modalCloseAttempt="navigateTo('/delivery-person')"
-    :showSecondButton="false"
-  />
 </template>
 
 <script setup>
-import { navigateTo } from "nuxt/app";
-
 import { useLogInStore } from "@/stores/logInStore";
 
 import { storeToRefs } from "pinia";
 
-import { createUserProfileAndSetInState } from "@/composables/createUserProfileAndSetInState";
-import { storeUserAndProfilesUsingUseCases } from "@/composables/storeUserAndProfilesUsingUseCases";
-import { handleProfileCreationErrors } from "@/composables/handleProfileCreationErrors";
+import { createUserProfile } from "@/composables/auth/createUserProfile";
+
+import { handleProfileCreationErrors } from "@/composables/auth/handleProfileCreationErrors";
 
 const logInStore = useLogInStore();
 
 const { profileRegistrationForm, clearError } = logInStore;
-const { profileRegistrationErrors } = storeToRefs(logInStore);
+const { profileRegistrationErrors, creatingProfile } = storeToRefs(logInStore);
 
-const tryingToCreateProfile = ref(false);
-const settingBrowserStorage = ref(false);
-const showBrowerStorageErrorModal = ref(false);
+const emit = defineEmits(["profileCreation"]);
 
 const handleFormSubmit = async () => {
-  tryingToCreateProfile.value = true;
-
   try {
-    var { savedProfile } = await createUserProfileAndSetInState(
-      "delivery_person",
-      {
-        username: profileRegistrationForm.username?.trim(),
-        gender: profileRegistrationForm.genderValue?.trim().toLowerCase(),
-        hostel: profileRegistrationForm.hostelValue,
-        roomNumber: profileRegistrationForm.roomNumber?.toString().trim(),
-        college: profileRegistrationForm.collegeValue,
-        department: profileRegistrationForm.departmentValue,
-        matricNumber: profileRegistrationForm.matricNumber?.toString().trim(),
-      }
-    );
+    creatingProfile.value = true;
+    await createUserProfile("delivery-person", {
+      username: profileRegistrationForm.username?.trim(),
+      gender: profileRegistrationForm.genderValue?.trim().toLowerCase(),
+      hostel: profileRegistrationForm.hostelValue,
+      roomNumber: profileRegistrationForm.roomNumber?.toString().trim(),
+      college: profileRegistrationForm.collegeValue,
+      department: profileRegistrationForm.departmentValue,
+      matricNumber: profileRegistrationForm.matricNumber?.toString().trim(),
+    });
+
+    emit("profileCreation", "successful");
   } catch (error) {
     handleProfileCreationErrors(error);
-
-    return;
   } finally {
-    tryingToCreateProfile.value = false;
-  }
-
-  try {
-    settingBrowserStorage.value = true;
-
-    await storeUserAndProfilesUsingUseCases(savedProfile.type);
-
-    await navigateTo("/delivery-person");
-  } catch (error) {
-    showBrowerStorageErrorModal.value = true;
-  } finally {
-    settingBrowserStorage.value = false;
+    creatingProfile.value = false;
   }
 };
 
@@ -169,6 +135,6 @@ const filteredDepartmentList = computed(() => {
 });
 
 onMounted(() => {
-  clearError();
+  // clearError();
 });
 </script>

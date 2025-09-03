@@ -29,5 +29,9 @@ export const handleProfileCreationErrors = (error) => {
     return;
   }
 
+  if (error.type == "TokenExistenceError") {
+    return navigateTo("/auth/login");
+  }
+
   profileRegistrationErrors.value = "An unexpected error occurred";
 };

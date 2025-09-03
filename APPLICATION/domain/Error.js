@@ -48,6 +48,14 @@ export class InvalidTokenError extends Error {
   }
 }
 
+export class TokenExistenceError extends Error {
+  constructor(message) {
+    super(message);
+    this.name = "TokenExistenceError";
+    this.type = "TokenExistenceError";
+  }
+}
+
 export class UnauthorizedError extends Error {
   constructor(message) {
     super(message);
