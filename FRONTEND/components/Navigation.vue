@@ -220,11 +220,32 @@ const appendProfileSpecificRoutes = (selectedProfile) => {
         to: "/vendor/details",
         color: "info",
       },
+      {
+        label: "Error-404",
+        icon: "i-material-symbols-light:error-rounded",
+        to: "/error-page/error404",
+        color: "info",
+      },
     ]);
     return;
   }
 
   if (selectedProfile?.type == "delivery_person") {
+    addToNavigationItems(1, [
+      {
+        label: "Wallet",
+        icon: "i-material-symbols-light:account-balance-wallet",
+        to: "/delivery-person/wallet",
+        color: "info",
+      },
+
+      // {
+      //   label: "Profile Settings",
+      //   icon: "i-material-symbols-light:room-preferences",
+      //   to: "/delivery-person/deliverySettings",
+      //   color: "info",
+      // },
+    ])
   }
 };
 
