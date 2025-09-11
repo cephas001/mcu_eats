@@ -15,25 +15,30 @@
   <div class="px-6 pt-2">
     <!-- Header -->
     <header class="text-center mb-6">
-          <div class="flex justify-between items-start">
-            <div class="text-left">
-              <h1 class="text-2xl font-bold text-black mb-2">
-                Welcome, <br /> Godwin and Sons Confectionery
-              </h1>
-              <div class="flex items-center gap-2">
-                <span class="text-sm text-gray-500">Status:</span>
-                <select 
-                  v-model="status" 
-                  class ="text-sm border rounded px-2 py-1"
-                  :class="status === 'Open' ? 'text-green-600 border-green-600' : 'text-red-600 border-red-600'"
-                  >
-                  <option value="Open">Opened</option>
-                  <option value="Closed">Closed</option>
-                  <option value="Busy">Busy</option>
-                </select>
-              </div>
-            </div>
-        <Media src="/vendor.jpg" class="w-20 rounded-full"/>
+      <div class="flex justify-between items-start">
+        <div class="text-left">
+          <h1 class="text-2xl font-bold text-black mb-2">
+            Welcome, <br />
+            Godwin and Sons Confectionery
+          </h1>
+          <div class="flex items-center gap-2">
+            <span class="text-sm text-gray-500">Status:</span>
+            <select
+              v-model="status"
+              class="text-sm border rounded px-2 py-1"
+              :class="
+                status === 'Open'
+                  ? 'text-green-600 border-green-600'
+                  : 'text-red-600 border-red-600'
+              "
+            >
+              <option value="Open">Opened</option>
+              <option value="Closed">Closed</option>
+              <option value="Busy">Busy</option>
+            </select>
+          </div>
+        </div>
+        <Media src="/vendor.jpg" class="w-20 rounded-full" />
       </div>
     </header>
 
@@ -42,9 +47,7 @@
       <div class="bg-blue-50 shadow-md p-4 rounded-lg flex justify-between">
         <div>
           <p class="text-lg text-gray-800 font-semibold">Active Orders</p>
-          <p class="text-2xl font-bold text-black">
-            {{ profile?.data?.activeOrders?.length || 0 }}
-          </p>
+          <p class="text-2xl font-bold text-black">0</p>
         </div>
         <div class="bg-blue-100 h-fit pt-2 pb-1 px-2 rounded-md">
           <UIcon
@@ -57,13 +60,11 @@
       <!-- Today's Revenue -->
       <div class="bg-green-50 shadow-md p-4 rounded-lg flex justify-between">
         <div>
-          <p class="text-lg text-gray-800 font-semibold mb-5">Today's Revenue</p>
-          <p class="text-2xl font-bold text-black">
-            ₦{{ profile?.data?.todayRevenue || 0 }}
+          <p class="text-lg text-gray-800 font-semibold mb-5">
+            Today's Revenue
           </p>
-          <p class="text-xs mt-1 text-gray-600">
-            {{ profile?.data?.todayOrders || 0 }} orders
-          </p>
+          <p class="text-2xl font-bold text-black">₦0</p>
+          <p class="text-xs mt-1 text-gray-600">0 orders</p>
         </div>
         <div class="bg-green-100 h-fit pt-2 pb-1 px-2 rounded-md">
           <UIcon
@@ -74,16 +75,12 @@
       </div>
 
       <!-- Customer Rating -->
-        <div class="bg-yellow-50 shadow-md p-4 rounded-lg flex justify-between">
-          <div>
-            <p class="text-lg text-gray-800 font-semibold">Rating</p>
-            <p class="text-2xl font-bold text-black">
-              {{ profile?.data?.rating || '4.8' }}
-            </p>
-            <p class="text-xs mt-1 text-gray-600">
-              {{ profile?.data?.totalReviews || 0 }} reviews
-            </p>
-          </div>
+      <div class="bg-yellow-50 shadow-md p-4 rounded-lg flex justify-between">
+        <div>
+          <p class="text-lg text-gray-800 font-semibold">Rating</p>
+          <p class="text-2xl font-bold text-black">0</p>
+          <p class="text-xs mt-1 text-gray-600">0 reviews</p>
+        </div>
         <div class="bg-yellow-100 h-fit pt-2 pb-1 px-2 rounded-md">
           <UIcon
             name="i-material-symbols-star"
@@ -93,16 +90,12 @@
       </div>
 
       <!-- Completed Orders -->
-        <div class="bg-purple-50 shadow-md p-4 rounded-lg flex justify-between">
-          <div>
-            <p class="text-lg text-gray-800 font-semibold">Today</p>
-            <p class="text-2xl font-bold text-black">
-              {{ profile?.data?.completedToday || 0 }}
-            </p>
-            <p class="text-xs mt-1 text-gray-600">
-              Succesfully fulfilled
-            </p>
-          </div>
+      <div class="bg-purple-50 shadow-md p-4 rounded-lg flex justify-between">
+        <div>
+          <p class="text-lg text-gray-800 font-semibold">Today</p>
+          <p class="text-2xl font-bold text-black">0</p>
+          <p class="text-xs mt-1 text-gray-600">Succesfully fulfilled</p>
+        </div>
         <div class="bg-purple-100 h-fit pt-2 pb-1 px-2 rounded-md">
           <UIcon
             name="i-material-symbols-check-circle"
@@ -112,16 +105,12 @@
       </div>
 
       <!-- Pending Deliveries -->
-        <div class="bg-orange-50 shadow-md p-4 rounded-lg flex justify-between">
-          <div>
-            <p class="text-lg text-gray-800 font-semibold">Pending Delivery</p>
-            <p class="text-2xl font-bold text-black">
-              {{ profile?.data?.pendingDelivery || 0 }}
-            </p>
-            <p class="text-xs mt-1 text-gray-600">  
-              Ready for Pickup
-            </p>
-          </div>
+      <div class="bg-orange-50 shadow-md p-4 rounded-lg flex justify-between">
+        <div>
+          <p class="text-lg text-gray-800 font-semibold">Pending Delivery</p>
+          <p class="text-2xl font-bold text-black">0</p>
+          <p class="text-xs mt-1 text-gray-600">Ready for Pickup</p>
+        </div>
         <div class="bg-orange-100 h-fit pt-2 pb-1 px-2 rounded-md">
           <UIcon
             name="i-material-symbols-local-shipping"
@@ -129,13 +118,16 @@
           />
         </div>
       </div>
-
-      
     </section>
   </div>
 </template>
 
 <script setup>
-import { ref } from 'vue';
-const status = ref('Closed');
+definePageMeta({
+  middleware: ["check-user-and-profiles", "check-selected-profile"],
+  specificUserType: ["vendor"],
+});
+
+import { ref } from "vue";
+const status = ref("Closed");
 </script>

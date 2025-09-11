@@ -10,6 +10,8 @@ export default function storeUser(browserUserRepo) {
       throw new ValidationError("The user to be stored is not defined", null);
     }
 
+    console.log(userData);
+
     const validationResult = createUserSchema.safeParse(userData);
 
     if (!validationResult.success) {
@@ -17,7 +19,7 @@ export default function storeUser(browserUserRepo) {
         inputName: e.path.join(".") || "unknown",
         errorMessage: e.message,
       }));
-
+      console.log(errorList);
       throw new ValidationError(
         "The user data has been tampered with",
         null,

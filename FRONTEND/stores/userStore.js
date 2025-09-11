@@ -42,6 +42,8 @@ export const useUserStore = defineStore("user", () => {
   const setAlreadyPromptedUserToLogin = (payload) => {
     alreadyPromptedUserToLogin.value = payload;
   };
+
+  // THIS SHOULD NOT BE SENDING THE ENTIRE USER OBJECT, ONLY THE FIELDS THAT NEED TO BE UPDATED. CHANGE THE WAY THIS FUNCTION IS CALLED RIGHT FROM THE USECASE.
   const updateUser = async (userId, newUserData) => {
     try {
       const user = await $expressUserBackendService.updateUser(

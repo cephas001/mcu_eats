@@ -1,4 +1,4 @@
-import { z } from "zod";
+import { profileTypeSchema } from "../../../../validators/profile/validateProfileData.js";
 import {
   ValidationError,
   UnexpectedError,
@@ -11,8 +11,6 @@ export default function getProfilesDataByType(userRepo, profileRepo) {
     if (!userId || !type) {
       throw new ValidationError("User id or type is not defined", null);
     }
-
-    const profileTypeSchema = z.enum(["vendor", "delivery_person", "consumer"]);
 
     const result = profileTypeSchema.safeParse(type);
 

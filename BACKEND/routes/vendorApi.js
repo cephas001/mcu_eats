@@ -7,12 +7,11 @@ import Vendors from "../models/vendorModel.js";
 
 import { getVendorProfilesUseCase } from "../services/index.js";
 
-import { vendorProfilePresenter } from "../infrastructure/presenters/vendorProfilePresenter.js";
-
 router.get("/vendors", async (req, res) => {
   try {
     const vendors = await getVendorProfilesUseCase();
-    res.json(vendorProfilePresenter(vendors));
+    console.log(vendors);
+    res.json(vendors);
   } catch (error) {
     console.log(error);
   }

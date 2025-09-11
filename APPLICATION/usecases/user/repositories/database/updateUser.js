@@ -1,5 +1,4 @@
-import User from "../../../../domain/User.js";
-import { createUserSchema } from "../../../../validators/user/validateUserData.js";
+import { updateUserSchema } from "../../../../validators/user/validateUserData.js";
 import {
   ValidationError,
   UserExistenceError,
@@ -7,12 +6,12 @@ import {
 } from "../../../../domain/Error.js";
 
 export default function updateUser(userRepo) {
-  return async function (userId, dataToAdd) {
+  return async function (userId, dataToUpdateUserWith) {
     if (!userId) {
       throw new ValidationError("User Id is not defined", null);
     }
 
-    if (!dataToAdd) {
+    if (!dataToUpdateUserWith) {
       throw new ValidationError(
         "The data to update user with is not defined",
         null
@@ -26,7 +25,7 @@ export default function updateUser(userRepo) {
       throw new UserExistenceError("This user does not exists");
     }
 
-    const validationResult = createUserSchema.safeParse(dataToAdd);
+    const validationResult = updateUserSchema.safeParse(dataToUpdateUserWith);
 
     if (!validationResult.success) {
       const errorList = validationResult.error.errors.map((e) => ({
@@ -40,8 +39,7 @@ export default function updateUser(userRepo) {
     const validatedData = validationResult.data;
 
     try {
-      const user = new User(validatedData);
-      return await userRepo.update(userId, user);
+      return await userRepo.update(userId, validatedData);
     } catch (error) {
       throw new UnexpectedError("An unexpected error occurred");
     }

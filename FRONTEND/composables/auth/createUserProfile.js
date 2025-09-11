@@ -13,18 +13,18 @@ export const createUserProfile = async (profileType, profileObject) => {
 
     const { id } = response;
 
-    const { savedProfile, updatedUser } =
+    const { createdProfile, updatedUser } =
       await $expressUserBackendService.createUserProfile({
         type: profileType,
         userId: id,
-        data: profileObject,
+        ...profileObject,
       });
 
     userStore.setUser(updatedUser);
-    profileStore.addProfile(savedProfile);
-    profileStore.selectProfile(savedProfile.type);
+    profileStore.addProfile(createdProfile);
+    profileStore.selectProfile(createdProfile.type);
 
-    return { savedProfile, updatedUser };
+    return { createdProfile, updatedUser };
   } catch (error) {
     console.log(error);
     if (error.type == "InvalidTokenError" || error.message.includes("token")) {

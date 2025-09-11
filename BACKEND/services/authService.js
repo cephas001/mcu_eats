@@ -9,10 +9,19 @@ import getUserByEmail from "../../APPLICATION/usecases/user/services/getUserByEm
 
 import Profile from "../models/profileModel.js";
 import User from "../models/userModel.js";
+import ConsumerProfile from "../models/consumerProfileModel.js";
+import DeliveryPersonProfile from "../models/deliveryPersonProfileModel.js";
+import VendorProfile from "../models/vendorProfileModel.js";
 
 import admin from "../firebaseConnection.js";
 
-const userRepo = new MongoUserRepository(User, Profile);
+const userRepo = new MongoUserRepository(
+  User,
+  Profile,
+  ConsumerProfile,
+  DeliveryPersonProfile,
+  VendorProfile
+);
 const authService = new FirebaseAuthService(admin);
 
 export const loginUserFullAuthFlowUseCase = loginUserFullAuthFlow(

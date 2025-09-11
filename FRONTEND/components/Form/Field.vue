@@ -57,12 +57,12 @@
 
 <script setup>
 import { defineProps, defineEmits, computed } from "vue";
-import { useLogInStore } from "@/stores/logInStore";
+import { useAuthStore } from "@/stores/authStore";
 
-const { clearError } = useLogInStore();
-const logInStore = useLogInStore();
+const { clearError } = useAuthStore();
+const authStore = useAuthStore();
 
-const { error } = storeToRefs(logInStore);
+const { error } = storeToRefs(authStore);
 
 const showPassword = ref(false);
 

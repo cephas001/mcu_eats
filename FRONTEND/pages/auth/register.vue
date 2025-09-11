@@ -67,14 +67,14 @@
 import { navigateTo, useNuxtApp } from "nuxt/app";
 import { onMounted } from "vue";
 
-import { useLogInStore } from "@/stores/logInStore";
+import { useAuthStore } from "@/stores/authStore";
 
 import { storeToRefs } from "pinia";
 
 import { handleUserRegistrationErrors } from "@/composables/auth/handleUserRegistrationErrors";
-const logInStore = useLogInStore();
-const { registrationForm, clearError } = useLogInStore();
-const { registrationErrors } = storeToRefs(logInStore);
+const authStore = useAuthStore();
+const { registrationForm, clearError } = useAuthStore();
+const { registrationErrors } = storeToRefs(authStore);
 
 const tryingToRegister = ref(false);
 

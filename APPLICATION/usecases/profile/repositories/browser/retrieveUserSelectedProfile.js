@@ -1,4 +1,3 @@
-import { createProfileSchema } from "../../../../validators/profile/validateProfileData.js";
 import {
   ValidationError,
   ProfileExistenceError,
@@ -22,28 +21,12 @@ export default function retrieveUserSelectedProfile(browserProfileRepo) {
       }
     }
 
-    const validationResult = createProfileSchema.safeParse(selectedProfile);
-
-    if (!validationResult.success) {
-      const errorList = validationResult.error.errors.map((e) => ({
-        inputName: e.path.join(".") || "unknown",
-        errorMessage: e.message,
-      }));
-      throw new ValidationError(
-        "The user profile data has been tampered with",
-        null,
-        errorList
-      );
-    }
-
     if (selectedProfile.userId !== userId) {
       throw new ValidationError(
         "The stored selected profile does not belong to the requesting user"
       );
     }
 
-    const validatedData = validationResult.data;
-
-    return validatedData;
+    return selectedProfile;
   };
 }

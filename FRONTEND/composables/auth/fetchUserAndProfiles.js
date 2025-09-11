@@ -5,12 +5,12 @@ export const fetchUserAndProfiles = async (token) => {
 
     const user = await $expressAuthBackendService.login(token);
 
-    const userProfileIds = user.profiles.map((profile) => profile.profileId);
+    const profileTypes = user.profiles.map((profile) => profile.type);
 
-    const profiles =
-      await $expressUserBackendService.getProfilesDataByProfileIds(
-        userProfileIds
-      );
+    const profiles = await $expressUserBackendService.getUserProfiles(
+      user.id,
+      profileTypes
+    );
 
     return { user, profiles };
   } catch (error) {

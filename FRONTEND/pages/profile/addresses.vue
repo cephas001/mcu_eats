@@ -152,7 +152,7 @@
 <script setup>
 import { useUserStore } from "@/stores/userStore";
 import { onMounted } from "vue";
-import { useLogInStore } from "@/stores/logInStore";
+import { useAuthStore } from "@/stores/authStore";
 import { useFormValidationMethods } from "@/composables/formValidation";
 
 definePageMeta({
@@ -177,7 +177,7 @@ const filteredAddresses = computed(() => {
   });
 });
 
-const { additionalFormState } = useLogInStore();
+const { additionalFormState } = useAuthStore();
 
 const { checkRoomNumber } = useFormValidationMethods();
 

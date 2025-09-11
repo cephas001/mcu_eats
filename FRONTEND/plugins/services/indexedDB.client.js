@@ -17,6 +17,7 @@ import clearUserProfiles from "../../../APPLICATION/usecases/profile/repositorie
 import retrieveUserSelectedProfile from "../../../APPLICATION/usecases/profile/repositories/browser/retrieveUserSelectedProfile.js";
 import selectUserProfile from "../../../APPLICATION/usecases/profile/repositories/browser/selectUserProfile.js";
 import storeUserProfiles from "../../../APPLICATION/usecases/profile/repositories/browser/storeUserProfiles.js";
+import updateStoredUserProfile from "../../../APPLICATION/usecases/profile/repositories/browser/updateStoredUserProfile.js";
 
 // Vendor Profiles Use Cases
 import storeVendorProfiles from "../../../APPLICATION/usecases/profile/repositories/browser/storeVendorProfiles.js";
@@ -48,6 +49,10 @@ export default defineNuxtPlugin(() => {
       storeUserProfilesUseCase: storeUserProfiles(
         indexedDBProfileRepo,
         indexedDBUserRepo
+      ),
+      updateStoredUserProfileUseCase: updateStoredUserProfile(
+        indexedDBUserRepo,
+        indexedDBProfileRepo
       ),
 
       // Vendor Profiles Use Cases

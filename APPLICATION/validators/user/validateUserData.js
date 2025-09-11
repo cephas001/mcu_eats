@@ -57,3 +57,5 @@ export const createUserSchema = z.object({
 
   lastLogin: dateSchema,
 });
+
+export const updateUserSchema = createUserSchema.partial().strict();

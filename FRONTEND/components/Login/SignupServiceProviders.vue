@@ -22,14 +22,14 @@
 import GoogleIcon from "@/assets/images/google.73c708cb.svg";
 import FacebookIcon from "@/assets/images/facebook.e4480188.svg";
 
-import { navigateTo, useNuxtApp } from "nuxt/app";
+import { useNuxtApp } from "nuxt/app";
 
-import { useLogInStore } from "@/stores/logInStore";
+import { useAuthStore } from "@/stores/authStore";
 
 import { loginUser } from "@/composables/auth/loginUser";
 import { storeUserAndProfiles } from "@/composables/usecases/storeUserAndProfiles";
 
-const { clearError } = useLogInStore();
+const { clearError } = useAuthStore();
 
 const emit = defineEmits([
   "error",

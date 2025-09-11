@@ -8,7 +8,7 @@
       class="w-full"
       readonly
       :ui="{ base: 'bg-transparent text-black rounded-full' }"
-      @click.prevent="navigateTo('/search')"
+      @click.prevent="navigateTo('/general/search')"
     />
   </section>
 

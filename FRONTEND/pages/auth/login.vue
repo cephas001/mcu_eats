@@ -11,34 +11,13 @@
     />
 
     <!-- Login Form -->
-    <UForm
-      class="mb-5 flex flex-col gap-3"
-      :class="[loginErrors != '' ? 'mt-4' : '']"
-      :state="loginForm"
-    >
-      <FormField
-        labelText="Email"
-        placeholder="Email"
-        name="email"
-        type="email"
-        :state="loginForm"
-        @update="loginForm.email = $event"
-      />
-      <FormField
-        labelText="Password"
-        placeholder="Password"
-        name="password"
-        type="password"
-        :state="loginForm"
-        @update="loginForm.password = $event"
-      />
-      <button
-        class="text-white rounded-md p-3 w-full text-center text-md bg-primary"
-        @click="handleLogin"
-      >
-        Log In
-      </button>
-    </UForm>
+    <CustomForm
+      :formFieldsSchema="loginFormSchema"
+      :formState="loginForm"
+      submitButtonText="Log In"
+      :classList="loginErrors != '' ? 'mt-4' : ''"
+      @formSubmit="handleLogin"
+    />
 
     <LoginPolicyService />
 
@@ -63,23 +42,19 @@
 <script setup>
 import { navigateTo, useNuxtApp } from "nuxt/app";
 import { onMounted } from "vue";
-
-import { useLogInStore } from "@/stores/logInStore";
+import { useAuthStore } from "@/stores/authStore";
 import { useProfileStore } from "@/stores/profileStore";
 import { useUserStore } from "@/stores/userStore";
-
 import { storeToRefs } from "pinia";
-
 import { getRedirectUrlFromSelectedProfile } from "@/utils/getRedirectUrlFromSelectedProfile";
-
 import { loginUser } from "@/composables/auth/loginUser";
 import { storeUserAndProfiles } from "@/composables/usecases/storeUserAndProfiles";
 import { handleLoginErrors } from "@/composables/auth/handleLoginErrors";
 import { useRoute } from "vue-router";
 
-const logInStore = useLogInStore();
-const { loginForm, displayError, clearError } = useLogInStore();
-const { loginErrors } = storeToRefs(logInStore);
+const authStore = useAuthStore();
+const { loginForm, clearError } = useAuthStore();
+const { loginErrors, loginFormSchema } = storeToRefs(authStore);
 
 const profileStore = useProfileStore();
 const { profiles } = storeToRefs(profileStore);
@@ -137,6 +112,7 @@ const handleLogin = async () => {
 
     await storeUserAndProfiles(user.value, profiles.value);
   } catch (error) {
+    console.log(error);
     showBrowserStorageErrorModal.value = true;
     return;
   } finally {

@@ -1,8 +1,6 @@
 import { useVendorStore } from "@/stores/vendorStore";
 import { storeToRefs } from "pinia";
 
-import { vendorProfilePresenter } from "../../infrastructure/presenters/vendorProfilePresenter";
-
 var filterAndReturnVendorsByType = (vendors, vendorType) => {
   return vendors.filter((vendor) => vendor.type == vendorType);
 };
@@ -33,6 +31,7 @@ export const checkVendors = async () => {
   } = useNuxtApp();
 
   if (vendors.value) {
+    console.log("here");
     return;
   }
 
@@ -40,6 +39,7 @@ export const checkVendors = async () => {
     const vendors = await $retrieveVendorProfilesUseCase();
 
     if (vendors) {
+      console.log(vendors);
       setVendors(vendors);
       return;
     }
@@ -50,21 +50,19 @@ export const checkVendors = async () => {
   }
 
   try {
-    const fetchedVendors = await $expressUserBackendService.getVendorProfiles();
+    var fetchedVendors = await $expressUserBackendService.getVendorProfiles();
 
     if (!fetchedVendors || fetchedVendors?.length == 0) {
       return;
     }
-
-    var modifiedVendors = vendorProfilePresenter(fetchedVendors);
-
-    setVendors(modifiedVendors);
+    console.log(fetchedVendors);
+    setVendors(fetchedVendors);
   } catch (error) {
     console.log(error);
   }
 
   try {
-    await $storeVendorProfilesUseCase(modifiedVendors);
+    await $storeVendorProfilesUseCase(fetchedVendors);
   } catch (error) {
     console.log(error);
   }

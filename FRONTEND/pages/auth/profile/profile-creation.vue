@@ -1,20 +1,12 @@
 <template>
   <template
     v-if="
-      profileType == 'consumer' && !creatingProfile && !settingBrowserStorage
-    "
-  >
-    <PageConsumer @profileCreation="handleProfileCreation" />
-  </template>
-
-  <template
-    v-else-if="
       profileType == 'delivery_person' &&
       !creatingProfile &&
       !settingBrowserStorage
     "
   >
-    <PageDeliveryPerson @profileCreation="handleProfileCreation" />
+    <PageDeliveryPerson />
   </template>
 
   <template
@@ -22,14 +14,23 @@
       profileType == 'vendor' && !creatingProfile && !settingBrowserStorage
     "
   >
-    <PageVendor @profileCreation="handleProfileCreation" />
+    <PageVendor />
   </template>
 
-  <template v-else
-    ><PageConsumer
-      @profileCreation="handleProfileCreation"
-      v-if="!creatingProfile"
-  /></template>
+  <template
+    v-else-if="
+      profileType == 'consumer' && !creatingProfile && !settingBrowserStorage
+    "
+  >
+    <PageConsumer />
+  </template>
+
+  <template v-else>
+    <LoadingIconSpinner
+      :loading="true"
+      v-if="!creatingProfile && !settingBrowserStorage"
+    />
+  </template>
 
   <LoadingIconSpinner :loading="creatingProfile || settingBrowserStorage" />
 
@@ -45,44 +46,17 @@
 
 <script setup>
 import { navigateTo } from "nuxt/app";
-
-import { useLogInStore } from "@/stores/logInStore";
-import { useUserStore } from "@/stores/userStore";
-import { useProfileStore } from "@/stores/profileStore";
+import { useAuthStore } from "@/stores/authStore";
 import { storeToRefs } from "pinia";
-
-import { storeUserAndProfiles } from "@/composables/usecases/storeUserAndProfiles";
-
 import { useRoute } from "vue-router";
 
 const route = useRoute();
 const profileType = ref("");
 
-const logInStore = useLogInStore();
-const { clearError } = logInStore;
-const { creatingProfile } = storeToRefs(logInStore);
-
-const userStore = useUserStore();
-const profileStore = useProfileStore();
-
-const settingBrowserStorage = ref(false);
-const showBrowserStorageErrorModal = ref(false);
-
-var error = ref({});
-
-const handleProfileCreation = async (payload) => {
-  try {
-    settingBrowserStorage.value = true;
-
-    await storeUserAndProfiles(userStore.getUser(), profileStore.getProfiles());
-
-    await navigateTo(navigateToURL);
-  } catch (error) {
-    showBrowserStorageErrorModal.value = true;
-  } finally {
-    settingBrowserStorage.value = false;
-  }
-};
+const authStore = useAuthStore();
+const { clearError } = authStore;
+const { creatingProfile, showBrowserStorageErrorModal, settingBrowserStorage } =
+  storeToRefs(authStore);
 
 onMounted(() => {
   clearError();

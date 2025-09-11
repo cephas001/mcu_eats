@@ -1,10 +1,10 @@
-import { useLogInStore } from "@/stores/logInStore";
+import { useAuthStore } from "@/stores/authStore";
 import { storeToRefs } from "pinia";
 
 export const handleSignupErrors = (error) => {
-  const logInStore = useLogInStore();
-  const { displayError, clearError } = logInStore;
-  const { signUpErrors } = storeToRefs(logInStore);
+  const authStore = useAuthStore();
+  const { displayError, clearError } = authStore;
+  const { signUpErrors } = storeToRefs(authStore);
 
   clearError();
 

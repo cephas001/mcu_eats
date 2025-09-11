@@ -6,8 +6,17 @@ import getUser from "../../APPLICATION/usecases/user/repositories/database/getUs
 
 import Profile from "../models/profileModel.js";
 import User from "../models/userModel.js";
+import ConsumerProfile from "../models/consumerProfileModel.js";
+import DeliveryPersonProfile from "../models/deliveryPersonProfileModel.js";
+import VendorProfile from "../models/vendorProfileModel.js";
 
-const userRepo = new MongoUserRepository(User, Profile);
+const userRepo = new MongoUserRepository(
+  User,
+  Profile,
+  ConsumerProfile,
+  DeliveryPersonProfile,
+  VendorProfile
+);
 
 export const createUserUseCase = createUser(userRepo);
 export const updateUserUseCase = updateUser(userRepo);

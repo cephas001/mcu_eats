@@ -1,5 +1,13 @@
-import Profile from "../../../../domain/Profile.js";
-import { createProfileSchema } from "../../../../validators/profile/validateProfileData.js";
+import Consumer from "../../../../domain/ConsumerProfile.js";
+import DeliveryPerson from "../../../../domain/DeliveryPersonProfile.js";
+import Vendor from "../../../../domain/VendorProfile.js";
+import {
+  createStudentConsumerProfileSchema,
+  createStaffConsumerProfileSchema,
+  createDeliveryPersonProfileSchema,
+  createVendorProfileSchema,
+  profileTypeSchema,
+} from "../../../../validators/profile/validateProfileData.js";
 import {
   ValidationError,
   UserExistenceError,
@@ -8,31 +16,42 @@ import {
   UnauthorizedError,
 } from "../../../../domain/Error.js";
 
+function checkCategoryAndReturnSchema(userCategory) {
+  if (userCategory == "staff") {
+    return createStaffConsumerProfileSchema;
+  } else {
+    return createStudentConsumerProfileSchema;
+  }
+}
 export default function createUserProfile(profileRepo, userRepo) {
-  return async function (userProfile) {
-    if (!userProfile) {
+  return async function (userProfileToCreate) {
+    if (!userProfileToCreate) {
       throw new ValidationError("The user profile data is not defined", null);
     }
 
-    if (!userProfile.userId) {
-      throw new ValidationError("The user's ID is not defined", "userId");
-    }
+    const typeValidationResult = profileTypeSchema.safeParse(
+      userProfileToCreate.type
+    );
 
-    if (!userProfile.type) {
-      throw new ValidationError("The profile type is not defined", null);
+    if (!typeValidationResult.success) {
+      throw new ValidationError(
+        "The profile type is not properly defined",
+        null
+      );
     }
 
     // Check if user exists by ID
-    const existingUser = await userRepo.findById(userProfile.userId);
+    const existingUser = await userRepo.findById(userProfileToCreate.userId);
 
     if (!existingUser) {
       throw new UserExistenceError("A user with this ID does not exist");
     }
 
     // Check if profile already exists
+    // AMMEND EMBEDDED LOGIC
     const existingProfile = await profileRepo.getProfileByUserIdAndType(
-      userProfile.userId,
-      userProfile.type
+      userProfileToCreate.userId,
+      userProfileToCreate.type
     );
 
     if (existingProfile) {
@@ -44,7 +63,7 @@ export default function createUserProfile(profileRepo, userRepo) {
     const unauthorizedAction =
       (existingUser.category === "staff" ||
         existingUser.category === "visitor") &&
-      ["delivery_person", "vendor"].includes(userProfile.type);
+      ["delivery_person", "vendor"].includes(userProfileToCreate.type);
 
     if (unauthorizedAction) {
       throw new UnauthorizedError(
@@ -52,7 +71,15 @@ export default function createUserProfile(profileRepo, userRepo) {
       );
     }
 
-    const validationResult = createProfileSchema.safeParse(userProfile);
+    const schemaMap = {
+      consumer: checkCategoryAndReturnSchema(existingUser.category),
+      vendor: createVendorProfileSchema,
+      delivery_person: createDeliveryPersonProfileSchema,
+    };
+
+    const schema = schemaMap[userProfileToCreate.type];
+
+    const validationResult = schema.safeParse(userProfileToCreate);
 
     if (!validationResult.success) {
       const errorList = validationResult.error.errors.map((e) => ({
@@ -65,17 +92,31 @@ export default function createUserProfile(profileRepo, userRepo) {
 
     const validatedData = validationResult.data;
 
-    // Create a new profile instance
-    const profile = new Profile(validatedData);
+    const domainMap = {
+      consumer: Consumer,
+      delivery_person: DeliveryPerson,
+      vendor: Vendor,
+    };
 
     try {
-      const { savedProfile, profileId } = await profileRepo.createUserProfile(
+      const profile = new domainMap[userProfileToCreate.type](validatedData);
+      var { savedProfile, profileId } = await profileRepo.createUserProfile(
+        userProfileToCreate.type,
         profile
       );
+    } catch (error) {
+      throw new UnexpectedError("An error occurred while creating profile");
+    }
+
+    try {
+      if (!profileId || !savedProfile?.type) {
+        throw new UnexpectedError("An unexpected error occurred");
+      }
 
       const updatedUser = await userRepo.linkProfileToUser(
-        userProfile.userId,
-        profileId
+        userProfileToCreate.userId,
+        profileId,
+        savedProfile.type
       );
 
       return { savedProfile, updatedUser };

@@ -11,11 +11,12 @@ export default function getVendorProfiles(profileRepo) {
 
       // REPLACE 'PENDING' LATER ON
       const approvedVendors = vendorProfiles.filter(
-        (profile) => profile.data.verificationStatus === "pending"
+        (profile) => profile.verificationStatus === "pending"
       );
 
       return approvedVendors;
     } catch (error) {
+      console.log(error);
       throw new UnexpectedError(
         "An error occurred while trying to get profiles data"
       );

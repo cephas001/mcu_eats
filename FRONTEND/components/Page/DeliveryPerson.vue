@@ -10,103 +10,51 @@
       classList="text-center mb-4 mt-4"
     />
 
-    <UForm class="mb-5 flex flex-col gap-3" :state="profileRegistrationForm">
-      <!-- USERNAME FIELD -->
-      <FormField
-        labelText="Username"
-        placeholder="Choose a display name"
-        name="username"
-        type="text"
-        :state="profileRegistrationForm"
-        @update="profileRegistrationForm.username = $event"
-      />
-      <!-- GENDER SELECT FIELD -->
-      <FormField
-        labelText="Gender"
-        name="gender"
-        type="select"
-        :state="profileRegistrationForm"
-        :items="profileRegistrationForm.genderList"
-        @update="profileRegistrationForm.genderValue = $event"
-      />
-      <!-- HOSTEL SELECT FIELD -->
-      <FormField
-        labelText="Hostel"
-        name="hostel"
-        type="select"
-        :state="profileRegistrationForm"
-        :items="profileRegistrationForm.hostelList"
-        @update="profileRegistrationForm.hostelValue = $event"
-      />
-      <!-- ROOM NUMBER FIELD -->
-      <FormField
-        labelText="Room number"
-        placeholder="Your Room Number"
-        name="roomNumber"
-        type="number"
-        inputMode="numeric"
-        :state="profileRegistrationForm"
-        @update="profileRegistrationForm.roomNumber = $event"
-      />
-      <!-- COLLEGE SELECT FIELD -->
-      <FormField
-        labelText="College"
-        name="college"
-        type="select"
-        :state="profileRegistrationForm"
-        :items="profileRegistrationForm.collegeList"
-        @update="profileRegistrationForm.collegeValue = $event"
-      />
-      <!-- DEPARTMENT SELECT FIELD -->
-      <FormField
-        labelText="Department"
-        name="department"
-        type="select"
-        :state="profileRegistrationForm"
-        :items="filteredDepartmentList"
-        @update="profileRegistrationForm.departmentValue = $event"
-        v-if="profileRegistrationForm.collegeValue"
-      />
-      <!-- MATRIC NUMBER FIELD -->
-      <FormField
-        labelText="Matric Number"
-        name="matricNumber"
-        type="number"
-        :state="profileRegistrationForm"
-        @update="profileRegistrationForm.matricNumber = $event"
-        v-if="profileRegistrationForm.departmentValue"
-      />
-      <button
-        type="sumbit"
-        class="text-white rounded-md p-3 w-full bg-primary text-center text-md"
-        @click="handleFormSubmit"
-      >
-        Create Profile
-      </button>
-    </UForm>
+    <CustomForm
+      :formFieldsSchema="deliveryPersonFormFieldsSchema"
+      :formState="profileRegistrationForm"
+      @formSubmit="handleFormSubmit"
+      submitButtonText="Create Profile"
+    />
   </section>
 </template>
 
 <script setup>
-import { useLogInStore } from "@/stores/logInStore";
-
+import { useAuthStore } from "@/stores/authStore";
 import { storeToRefs } from "pinia";
-
 import { createUserProfile } from "@/composables/auth/createUserProfile";
-
 import { handleProfileCreationErrors } from "@/composables/auth/handleProfileCreationErrors";
+import { storeUserAndProfilesAndRedirect } from "@/composables/general/storeUserAndProfilesAndRedirect";
+import { watch } from "vue";
 
-const logInStore = useLogInStore();
+const authStore = useAuthStore();
 
-const { profileRegistrationForm, clearError } = logInStore;
-const { profileRegistrationErrors, creatingProfile } = storeToRefs(logInStore);
+const { profileRegistrationForm } = authStore;
+const {
+  profileRegistrationErrors,
+  creatingProfile,
+  deliveryPersonFormFieldsSchema,
+} = storeToRefs(authStore);
 
-const emit = defineEmits(["profileCreation"]);
+watch(
+  () => profileRegistrationForm.collegeValue,
+  () => {
+    profileRegistrationForm.departmentList.forEach((collegeAndDepartment) => {
+      if (
+        collegeAndDepartment.college == profileRegistrationForm.collegeValue
+      ) {
+        profileRegistrationForm.filteredDepartments =
+          collegeAndDepartment.departments;
+      }
+    });
+  }
+);
 
 const handleFormSubmit = async () => {
   try {
     creatingProfile.value = true;
-    await createUserProfile("delivery-person", {
+
+    await createUserProfile("delivery_person", {
       username: profileRegistrationForm.username?.trim(),
       gender: profileRegistrationForm.genderValue?.trim().toLowerCase(),
       hostel: profileRegistrationForm.hostelValue,
@@ -116,25 +64,12 @@ const handleFormSubmit = async () => {
       matricNumber: profileRegistrationForm.matricNumber?.toString().trim(),
     });
 
-    emit("profileCreation", "successful");
+    await storeUserAndProfilesAndRedirect("/delivery-person");
   } catch (error) {
     handleProfileCreationErrors(error);
+    return;
   } finally {
     creatingProfile.value = false;
   }
 };
-
-const filteredDepartmentList = computed(() => {
-  var departments;
-  profileRegistrationForm.departmentList.forEach((collegeAndDepartment) => {
-    if (collegeAndDepartment.college == profileRegistrationForm.collegeValue) {
-      departments = collegeAndDepartment.departments;
-    }
-  });
-  return departments;
-});
-
-onMounted(() => {
-  // clearError();
-});
 </script>

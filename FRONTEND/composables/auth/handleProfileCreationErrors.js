@@ -1,17 +1,17 @@
-import { useLogInStore } from "@/stores/logInStore";
+import { useAuthStore } from "@/stores/authStore";
 import { storeToRefs } from "pinia";
 
 export const handleProfileCreationErrors = (error) => {
-  const logInStore = useLogInStore();
-  const { displayError, clearError } = logInStore;
-  const { profileRegistrationErrors } = storeToRefs(logInStore);
+  const authStore = useAuthStore();
+  const { displayError, clearError } = authStore;
+  const { profileRegistrationErrors } = storeToRefs(authStore);
 
   clearError();
 
   if (error.type == "ValidationError") {
     if (error.errorList) {
       const { inputName, errorMessage } = error.errorList[0];
-      displayError(errorMessage, inputName.split(".")[1]);
+      displayError(errorMessage, inputName);
     } else {
       displayError(error.message, error.inputName);
     }

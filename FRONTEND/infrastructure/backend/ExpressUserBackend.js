@@ -1,4 +1,6 @@
 import UserBackend from "../../../APPLICATION/interfaces/backend/UserBackend.js";
+import { formatProfileDataForStorage } from "../presenters/formatProfileDataForStorage.js";
+import { formatVendorProfileDataForStorage } from "../presenters/formatVendorProfileDataForStorage.js";
 
 export default class ExpressUserBackend extends UserBackend {
   constructor(api) {
@@ -32,10 +34,14 @@ export default class ExpressUserBackend extends UserBackend {
 
   async createUserProfile(profileData) {
     try {
-      return await this.api.request("/profile", {
+      const { savedProfile, updatedUser } = await this.api.request("/profile", {
         method: "POST",
         body: { profileData },
       });
+
+      const formattedProfile = formatProfileDataForStorage(savedProfile);
+
+      return { createdProfile: formattedProfile, updatedUser };
     } catch (error) {
       throw error;
     }
@@ -43,10 +49,25 @@ export default class ExpressUserBackend extends UserBackend {
 
   async getProfilesDataByProfileIds(profileIds) {
     try {
-      return await this.api.request("/get/profile/data/profileIds", {
+      const profiles = await this.api.request("/get/profile/data/profileIds", {
         method: "POST",
         body: { profileIds },
       });
+
+      return formatProfileDataForStorage(profiles);
+    } catch (error) {
+      throw error;
+    }
+  }
+
+  async getUserProfiles(userId, profileTypes) {
+    try {
+      const profiles = await this.api.request("/user/profiles", {
+        method: "POST",
+        body: { userId, profileTypes },
+      });
+
+      return formatProfileDataForStorage(profiles);
     } catch (error) {
       throw error;
     }
@@ -54,10 +75,12 @@ export default class ExpressUserBackend extends UserBackend {
 
   async getProfilesDataByType({ type, userId } = {}) {
     try {
-      return await this.api.request("/get/profile/data/type", {
+      const profiles = await this.api.request("/get/profile/data/type", {
         method: "POST",
         body: { type, userId },
       });
+
+      return formatProfileDataForStorage(profiles);
     } catch (error) {
       throw error;
     }
@@ -65,10 +88,12 @@ export default class ExpressUserBackend extends UserBackend {
 
   async getVendorProfiles() {
     try {
-      return await this.api.request("/vendors", {
+      const profiles = await this.api.request("/vendors", {
         method: "GET",
         body: {},
       });
+
+      return formatVendorProfileDataForStorage(profiles);
     } catch (error) {
       throw error;
     }
@@ -80,6 +105,19 @@ export default class ExpressUserBackend extends UserBackend {
         method: "PUT",
         body: { id: userId, userData: newUserData },
       });
+    } catch (error) {
+      throw error;
+    }
+  }
+
+  async updateUserProfile({ userId, profileType, profileId, data }) {
+    try {
+      const updatedProfile = await this.api.request("/user/profile", {
+        method: "PUT",
+        body: { userId, profileType, profileId, data },
+      });
+
+      return formatProfileDataForStorage(updatedProfile);
     } catch (error) {
       throw error;
     }

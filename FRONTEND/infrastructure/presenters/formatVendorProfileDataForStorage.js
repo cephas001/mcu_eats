@@ -1,4 +1,4 @@
-export const vendorProfilePresenter = (vendors) => {
+export const formatVendorProfileDataForStorage = (vendors) => {
   if (!Array.isArray(vendors)) {
     throw new Error("Vendor data must be an array");
   }

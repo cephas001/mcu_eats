@@ -1,10 +1,19 @@
 import UserRepository from "../../../APPLICATION/interfaces/repositories/database/UserRepository.js";
 
 export default class MongoUserRepository extends UserRepository {
-  constructor(userRepo, profileRepo) {
+  constructor(
+    userRepo,
+    profileRepo,
+    consumerProfileRepo,
+    deliveryPersonProfileRepo,
+    vendorProfileRepo
+  ) {
     super();
     this.userRepo = userRepo;
     this.profileRepo = profileRepo;
+    this.consumerProfileRepo = consumerProfileRepo;
+    this.deliveryPersonProfileRepo = deliveryPersonProfileRepo;
+    this.vendorProfileRepo = vendorProfileRepo;
   }
 
   async create(userData) {
@@ -24,21 +33,16 @@ export default class MongoUserRepository extends UserRepository {
     return await this.userRepo.findById(id).lean();
   }
 
-  async linkProfileToUser(userId, profileId) {
+  async linkProfileToUser(userId, profileId, profileType) {
     try {
-      const profile = await this.profileRepo.findById(profileId);
-      if (!profile) {
-        throw new Error("Profile not found");
-      }
-
       const updatedUser = await this.userRepo
         .findByIdAndUpdate(
           userId,
           {
             $push: {
               profiles: {
-                profileId: profile._id,
-                type: profile.type,
+                profileId,
+                type: profileType,
               },
             },
           },
@@ -55,11 +59,20 @@ export default class MongoUserRepository extends UserRepository {
 
   async userHasProfile(user) {
     try {
-      const hasProfile = !!(await this.profileRepo.exists({
+      const hasConsumerProfile = !!(await this.consumerProfileRepo.exists({
         userId: user._id,
       }));
 
-      return hasProfile;
+      const hasDeliveryPersonProfile =
+        !!(await this.deliveryPersonProfileRepo.exists({
+          userId: user._id,
+        }));
+
+      const hasVendorProfile = !!(await this.vendorProfileRepo.exists({
+        userId: user._id,
+      }));
+
+      return hasConsumerProfile || hasDeliveryPersonProfile || hasVendorProfile;
     } catch (error) {
       throw error;
     }

@@ -2,6 +2,8 @@ import ProfileRepository from "../../../APPLICATION/interfaces/repositories/loca
 import { stringifyArrays } from "../../utils/stringifyArrays.js";
 import { parseArrays } from "../../utils/parseArrays.js";
 
+import { formatProfileDataForStorage } from "../presenters/formatProfileDataForStorage.js";
+
 export default class IndexedDBProfileRepository extends ProfileRepository {
   constructor(db) {
     super();
@@ -24,7 +26,10 @@ export default class IndexedDBProfileRepository extends ProfileRepository {
 
   async addProfileToStoredUserProfiles(userProfile) {
     try {
-      await this.db.profiles.add(stringifyArrays(userProfile));
+      const formattedProfile = formatProfileDataForStorage(userProfile);
+
+      await this.db.profiles.add(stringifyArrays(formattedProfile));
+
       return {
         savedProfile: userProfile,
         profileId: userProfile.id,
@@ -144,5 +149,11 @@ export default class IndexedDBProfileRepository extends ProfileRepository {
     } catch (error) {
       throw error;
     }
+  }
+
+  async updateStoredUserProfile(profileId, newProfileValue) {
+    await this.db.profiles.update(profileId, newProfileValue);
+    const profile = await this.db.profiles.get(profileId);
+    return profile;
   }
 }

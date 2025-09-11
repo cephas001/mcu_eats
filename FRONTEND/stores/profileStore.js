@@ -32,10 +32,21 @@ export const useProfileStore = defineStore("profile", () => {
       return;
     }
     setProfiles([...profiles.value, profile]);
+    console.log(profiles.value);
   };
 
   const getSelectedProfile = () => {
     return selectedProfile.value;
+  };
+
+  const updateProfile = (profileId, updatedUserProfile) => {
+    profiles.value = profiles.value.map((profile) => {
+      if (profile.id == profileId) {
+        return updatedUserProfile;
+      } else {
+        return profile;
+      }
+    });
   };
 
   const selectProfile = (profileType) => {
@@ -67,6 +78,7 @@ export const useProfileStore = defineStore("profile", () => {
     getProfile,
     getProfiles,
     clearProfiles,
+    updateProfile,
     profiles,
     selectedProfile,
     showSelectProfileModal,

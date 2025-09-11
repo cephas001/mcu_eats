@@ -1,5 +1,5 @@
 <template>
-  <div class="mt-8 text-gray-600 text-center font-manrope">
+  <div class="mt-8 text-gray-600 text-center font-manrope text-sm">
     <p>
       By creating an account, you automatically accept our
       <NuxtLink to="/" class="font-poppins text-primary"

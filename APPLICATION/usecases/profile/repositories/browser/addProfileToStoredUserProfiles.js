@@ -1,4 +1,3 @@
-import { createProfileSchema } from "../../../../validators/profile/validateProfileData.js";
 import {
   ValidationError,
   UserExistenceError,
@@ -15,25 +14,13 @@ export default function addProfileToStoredUserProfiles(
       throw new ValidationError("The user's profile is not defined", null);
     }
 
-    if (!userProfile.userId) {
-      throw new ValidationError("The user's ID is not defined", "userId");
-    }
-
-    if (!userProfile.type) {
-      throw new ValidationError(
-        "The profile type is not defined",
-        null,
-        errorList
-      );
-    }
-
-    // Check if user exists by ID
+    // Check if user exists in storage
     const existingUser = await browserUserRepo.retrieveUserById(
       userProfile.userId
     );
 
     if (!existingUser) {
-      throw new UserExistenceError("The user is not already saved");
+      throw new UserExistenceError("This user is not stored");
     }
 
     // Checks if the profile is already stored
@@ -46,26 +33,9 @@ export default function addProfileToStoredUserProfiles(
       throw new ProfileExistenceError("This profile is already saved");
     }
 
-    const validationResult = createProfileSchema.safeParse(userProfile);
-
-    if (!validationResult.success) {
-      const errorList = validationResult.error.errors.map((e) => ({
-        inputName: e.path.join(".") || "unknown",
-        errorMessage: e.message,
-      }));
-
-      throw new ValidationError(
-        "The user profile data has been tampered with",
-        null,
-        errorList
-      );
-    }
-
-    const validatedData = validationResult.data;
-
     try {
       const { savedProfile, profileId } =
-        await browserProfileRepo.addProfileToStoredUserProfiles(validatedData);
+        await browserProfileRepo.addProfileToStoredUserProfiles(userProfile);
 
       const updatedUser = await browserUserRepo.updateUser(existingUser.id, {
         profiles: [

@@ -29,12 +29,12 @@
 </template>
 
 <script setup>
-import { useLogInStore } from "@/stores/logInStore";
+import { useAuthStore } from "@/stores/authStore";
 import { navigateTo } from "nuxt/app";
 import { onMounted } from "vue";
 import { useRoute } from "vue-router";
 
-const { registrationForm, displayError } = useLogInStore();
+const { registrationForm, displayError } = useAuthStore();
 
 const route = useRoute();
 const category = ref("");

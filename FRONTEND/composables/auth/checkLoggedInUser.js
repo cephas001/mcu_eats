@@ -75,6 +75,7 @@ export const checkLoggedInUser = async (redirectTo) => {
 
     return await navigateTo(navigationRoutes["consumer_route"]);
   } catch (error) {
+    console.log(error);
     if (error.type === "ProfileExistenceError") {
       return await navigateTo(navigationRoutes["select_profile"]);
     }

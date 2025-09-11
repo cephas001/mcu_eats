@@ -1,4 +1,3 @@
-import { createProfileSchema } from "../../../../validators/profile/validateProfileData.js";
 import {
   ValidationError,
   ProfileExistenceError,
@@ -25,27 +24,10 @@ export default function selectUserProfile(browserProfileRepo) {
       throw new ProfileExistenceError("This profile is not already saved");
     }
 
-    const validationResult = createProfileSchema.safeParse(userProfile);
-
-    if (!validationResult.success) {
-      const errorList = validationResult.error.errors.map((e) => ({
-        inputName: e.path.join(".") || "unknown",
-        errorMessage: e.message,
-      }));
-
-      throw new ValidationError(
-        "User profile data has been tampered with",
-        null,
-        errorList
-      );
-    }
-
-    const validatedData = validationResult.data;
-
     try {
       await browserProfileRepo.clearUserSelectedProfile();
 
-      await browserProfileRepo.selectUserProfile(validatedData);
+      await browserProfileRepo.selectUserProfile(userProfile);
     } catch (error) {
       throw new LocalStorageError("An error occurred while selecting profile");
     }

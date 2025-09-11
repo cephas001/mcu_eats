@@ -1,319 +1,202 @@
 <template>
   <!-- Product Listings -->
-  <div class="max-w-4xl mx-auto pt-2 px-6">
-    <section class=" p-5">
-      <header>
-          <h1 class="text-2xl font-bold text-gray-900 mb-6">Products</h1>
-      </header>
-       <div class="flex gap-2">
-          <UInput
-            icon="i-material-symbols-search-rounded"
-            size="lg"
-            variant="outline"
-            placeholder="Search products..."
-            class="w-full sm:max-w-md"
-            v-model="query"
-            readonly
-            :ui="{ base: 'bg-transparent text-black rounded-full cursor-pointer' }"
-            @click.prevent="navigateTo('/search')"
-            @keydown.enter.prevent="navigateTo('/search')"
-          />
-          <UButton
-            icon="i-material-symbols-add" 
-            color="primary"
-            size="md"
-            type="button"
-            class="shrink-0"
-            @click="showAdd = true">
+  <section class="mt-15 px-6 pb-2">
+    <h1 class="text-2xl font-bold text-black mb-6 text-center tracking-wide">
+      Products
+    </h1>
+    <div class="flex gap-4 flex-col mb-4">
+      <UInput
+        icon="i-material-symbols-search-rounded"
+        size="lg"
+        variant="outline"
+        placeholder="Search products..."
+        class="w-full sm:max-w-md"
+        readonly
+        :ui="{
+          base: 'bg-transparent text-black rounded-full cursor-pointer',
+        }"
+        @click.prevent="navigateTo('/search')"
+        @keydown.enter.prevent="navigateTo('/search')"
+      />
+      <div class="flex justify-between items-center">
+        <UButton
+          icon="i-material-symbols-add"
+          color="primary"
+          type="button"
+          class="shrink-0 w-fit text-white tracking-wide"
+          @click="showAddProductForm = true"
+        >
           Add Product
-          </UButton>
+        </UButton>
+        <div class="flex items-center gap-1">
+          <UIcon
+            name="i-material-symbols-archive-outline-rounded"
+            class="text-black text-2xl"
+          >
+          </UIcon>
+          <UIcon name="i-material-symbols-delete" class="text-red-600 text-2xl">
+          </UIcon>
         </div>
-    </section>
-
-    <div class="overflow-x-auto">
-      <table class="min-w-full text-sm">
-        <thead>
-          <tr class="text-left text-gray-600 border-b">
-            <th class="py-2 pr-4">Image</th>
-            <th class="py-2 pr-4">Name</th>
-            <th class="py-2 pr-4">Descriptions</th>
-            <th class="py-2 pr-4">Price</th>
-            <th class="py-2 pr-4">Stock</th>
-            <th class="py-2 pr-4">Status</th>
-            <th class="py-2">Actions</th>
-          </tr>
-        </thead>
-        <tbody>
-          <tr 
-            v-for="product in filtered" 
-            class="border-b"
-            :key="product.id"
-            >
-              <td class="py-3 pr-4 font-medium text-gray-900">
-                <div class="w-16 h-16 rounded-lg overflow-hidden bg-gray-100">
-                  <img 
-                    v-if="product?.image"
-                    :src="product?.image" 
-                    :alt="product?.name" 
-                    class="w-full h-full object-cover"
-                    >
-                    <div v-else class="w-full h-full flex items-center justify-center text-gray-400">
-                      <UIcon name="i-material-symbols-image" class="w-6 h-6" />
-                    </div>
-                </div>
-              </td>
-              <td class="py-3 pr-4 font-medium text-gray-900">{{ product?.name }}</td>
-              <td class="py-3 pr-4 font-medium text-gray-900">{{ product?.description }}</td>
-              <td class="py-3 pr-4 text-right">
-                      <span class="whitespace-nowrap tabular-nums">
-                        ₦ {{ Number(product?.price).toLocaleString('en-NG', { minimumFractionDigits: 2 }) }}
-                      </span>
-                        </td>
-              <td class="py-3 pr-4">{{ product?.qty }}</td>
-              <td class="py-3 pr-4">
-               <span
-                :class="product.active ? 'text-green-700' : 'text-gray-500'"
-               >
-              {{ product.active ? 'Active' : 'Draft' }}
-              </span>
-              </td>
-              <td class="py-3">
-                <div class="flex flex-col sm:flex-row sm:justify-end gap-2 sm:gap-3">
-                  <UButton
-                    icon="i-material-symbols-light:edit-square-outline" 
-                    color="primary"
-                    size="lg"
-                    type="button"
-                    class="w-full sm:w-auto"
-                    @click="edit(product)"
-                    >
-                    Edit
-                  </UButton>
-                  <UButton
-                    icon="i-material-symbols-light:delete" 
-                    color="primary"
-                    size="lg"
-                    type="button"
-                    class="w-full sm:w-auto"
-                    @click="remove(product?.id)"
-                    >
-                    Delete
-                  </UButton>
-                </div>
-              </td>
-          </tr>
-          <tr v-if="!filtered.length">
-            <td 
-              colspan="7" 
-              class="py-6 text-center text-gray-500"
-             >No products found.</td>        
-          </tr>
-        </tbody>
-      </table>
+      </div>
     </div>
+    <p
+      class="text-sm text-gray-600 flex items-center gap-1 font-manrope italic tracking-wide"
+    >
+      <UIcon name="i-material-symbols-info-outline-rounded" class="text-xl" />
+      Click on a product to view or edit it's full details
+    </p>
+  </section>
 
+  <section class="overflow-x-auto mt-3 px-6 min-h-[50vh]">
+    <table class="min-w-full text-sm font-manrope">
+      <thead>
+        <tr class="text-center text-black border-b border-gray-300">
+          <th class="py-2 pr-4">Select</th>
+          <th class="py-2 pr-4">Name</th>
+          <th class="py-2 pr-4">Price</th>
+          <th class="py-2">Stock</th>
+        </tr>
+      </thead>
 
+      <tbody class="text-center">
+        <tr class="border-b border-gray-300">
+          <td class="py-3 pr-4 flex justify-center">
+            <UCheckbox class="" color="primary" />
+          </td>
 
-    <!-- Add/Edit Modal -->
-     <div 
-        class="fixed inset-0 bg-black/40 flex items-center justify-center p-4 z-50"
-        v-if="showAdd"
-      >
-        <div class="bg-white w-full max-w-xl rounded-lg p-6">
-          <div class="flex items-center justify-between mb-4">
-            <h3 class="text-lg font-bold text-gray-900">{{ editing ? 'Edit Product' : 'Add Product' }}</h3>
-              <UIcon
-                name="i-material-symbols-light:close"
-                class="text-gray-500 font-bold w-6 h-6 cursor-pointer"
-                @click="close()"
-              />
-          </div>
-          
-          <div class="space-y-4">
-            <UInput
-              size="lg"
-              variant="outline"
-              placeholder="Search products..."
-              class="w-full sm:max-w-md"
-              readonly
-              :ui="{ base: ' w-full bg-transparent text-black rounded-full cursor-pointer' }"
-              @click.prevent="navigateTo('/search')"
-              @keydown.enter.prevent="navigateTo('/search')"
-            />
-            <UTextarea
-              v-model="form.description"
-              size="lg"
-              placeholder="Description"
-              rows="3"
-              class="w-full rounded px-3 py-2"
-            />
+          <td class="py-3 pr-4 font-medium">Bread</td>
 
-            <div class="grid grid-cols-2 gap-3">
-              <div>
-                <label class="block text-xs text-gray-500 mb-1">Name</label>
-                  <UInput
-                    v-model="form.name"
-                    variant="outline"
-                    type="text"
-                    class="w-full rounded px-3 py-2"
-                  />
-              </div>
-              <div>
-                <label class="block text-xs text-gray-500 mb-1">Price (₦)</label>
-                  <UInput
-                    v-model.number="form.price"
-                    variant="outline"
-                    type="number"
-                    min="0"
-                    class="w-full rounded px-3 py-2"
-                  />
-              </div>
-              <div>
-                <label class="block text-xs text-gray-500 mb-1">Quantity</label>
-                  <UInput
-                    v-model.number="form.qty"
-                    variant="outline"
-                    type="number"
-                    min="0"
-                    class="w-full rounded px-3 py-2"
-                  />
-              </div>
-            </div>
+          <td class="py-3 pr-4">
+            <span class="whitespace-nowrap tabular-nums"> ₦1,100 </span>
+          </td>
 
-            <div>
-              <label class="block text-xs text-gray-500 mb-1">
-                Images
-              </label>
-              <UInput
-                type="file"
-                multiple
-                @change="onFiles"
-                :ui="{ base: 'cursor-pointer' }"
-              />
-              <div class="mt-2 flex gap-2 flex-wrap">
-                <img  
-                  v-for="(img, i) in form.images"  
-                  :src="img" 
-                  :key="i"
-                  alt="Product on display" 
-                  class="w-16 h-16 object-cover border"
-                  >
-              </div>
-            </div>
-          </div>
+          <td class="py-3">
+            <span class="whitespace-nowrap tabular-nums"> 6 </span>
+          </td>
+        </tr>
+        <!-- <tr v-if="!filtered.length">
+            <td colspan="7" class="py-6 text-center text-gray-500">
+              No products found.
+            </td>
+          </tr> -->
+      </tbody>
+    </table>
+  </section>
 
-          <div class="mt-6 flex justify-end gap-2">
-            <UButton
-              type="button"
-              class="px-4 py-2 bg-red-600 rounded border"
-              @click="close()"
-              >
-              Cancel
-            </UButton>
-
-            <UButton
-              color="primary"
-              type="button"
-              class="px-4 py-2 rounded border bg-green-600 text-white"
-              @click="save()"
-              >
-              {{ editing ? 'Save' : 'Create' }}
-            </UButton>
-          </div>
-        </div>
-     </div>
-  </div>
-
-
-
-
+  <!-- Add Product Modal -->
+  <UModal
+    v-model:open="showAddProductForm"
+    class="bg-background text-black pb-4 font-manrope"
+    title="Add a product"
+    description="Fill the form below to add a new product"
+    color="neutral"
+    :close="{
+      color: 'primary',
+      variant: 'outline',
+      class: 'rounded-full',
+    }"
+    :ui="{
+      content: 'text-black',
+      title: 'text-black',
+      description: 'text-black',
+    }"
+  >
+    <template #body>
+      <CustomForm
+        :formFieldsSchema="productsFormSchema"
+        :formState="productsForm"
+        submitButtonText="Add Product"
+        @formSubmit="addProduct"
+      />
+    </template>
+  </UModal>
 </template>
 
 <script setup>
-import { ref, toRaw } from "vue";
-const query = ref('')
-const showAdd = ref(false)
-const editing = ref(false)
-const editingId = ref(null)
+import { updateUserProfile } from "@/composables/auth/updateUserProfile";
+import { useProfileStore } from "@/stores/profileStore";
 
-// A mock reactive array of products
-const products = ref([
-  // {
-  //   id: 'P-1001',
-  //   name: 'MCU Bread',
-  //   price: '1100100', // String to be removed later on
-  //   qty: '10',
-  //   active: true
-  // }
-])
+definePageMeta({
+  middleware: ["check-user-and-profiles", "check-selected-profile"],
+  specificUserType: ["vendor"],
+});
 
-const form = reactive({
-  name: '',
-  description: '',
-  price: 0,
-  qty: 0,
-  images: []
-})
+const profileStore = useProfileStore();
 
-const filtered = computed(() => {
-  const search = query.value.trim().toLowerCase()
-  return products.value.filter(product => !search || product.name.toLowerCase().includes(search) || product.id.toLowerCase().includes(search))
-})
+const productsForm = reactive({
+  name: undefined,
+  description: undefined,
+  price: undefined,
+  quantityAvailable: undefined,
+  productType: undefined,
+  productTypeList: ["Food", "Beverage", "Snack", "Other"],
+});
 
+const productsFormSchema = ref([
+  {
+    label: "Product Name",
+    placeholder: "A short but descriptive name",
+    name: "name",
+    type: "text",
+    valueVariableName: "name",
+  },
+  {
+    label: "Description",
+    placeholder: "A brief description of the product",
+    name: "description",
+    type: "text",
+    valueVariableName: "description",
+  },
+  {
+    label: "Price (₦)",
+    placeholder: "Price in Naira",
+    name: "price",
+    type: "number",
+    valueVariableName: "price",
+  },
+  {
+    label: "Quantity Available",
+    placeholder: "Number of items available in stock",
+    name: "quantityAvailable",
+    type: "number",
+    valueVariableName: "quantityAvailable",
+  },
+  {
+    label: "Product Type",
+    placeholder: "e.g Food, Beverage, Snack etc.",
+    name: "productType",
+    type: "select",
+    valueVariableName: "productType",
+    listVariableName: "productTypeList",
+  },
+]);
 
-// A file input handler function for the images in the modal
-function onFiles(event) {
-  const files = Array.from(event.target.files || [])
-  form.images = files.map(f => URL.createObjectURL(f))
-}
+const showAddProductForm = ref(false);
 
-// Function for closing or exiting the Modal
-function close() {
-  showAdd.value = false
-  editing.value = false
-  Object.assign(
-    form, 
-    { 
-      name: '',
-      description: '',
-      price: 0,
-      qty: 0,
-      images: []
-  })
-}
-
-
-// Function for saving a product
-function save() {
-  if(!form.name || form.price < 0) return
-  if(editing.value) {
-    const index = products.value.findIndex(product => product.id === editingId.value)
-    if(index > -1) products.value[index] = { 
-                                          ...products.value[index],
-                                          ...toRaw(form)
-                                          }
-          } else {
-            products.value.unshift({
-              id: `P-${Date.now()}`,
-              ...toRaw(form)
-            })
-          }
-  close()
-}
-
-// Function for editing a product
-function edit(product){
-  editing.value = true
-  editingId.value = product.id
-  Object.assign(form, JSON.parse(JSON.stringify(product)))
-  showAdd.value = true
-}
-
-// Function for deleting a product
-function remove(id) {
-  products.value = products.value.filter(product => product.id !== id)
-}
-
+const addProduct = async () => {
+  try {
+    const vendorProfile = profileStore.getProfile("vendor");
+    if (!vendorProfile || !vendorProfile?.id) {
+      return navigateTo("/");
+    }
+    const profile = await updateUserProfile({
+      profileType: "vendor",
+      profileId: vendorProfile.id,
+      data: {
+        products: [
+          {
+            name: productsForm.name?.trim(),
+            description: productsForm.description?.trim(),
+            price: productsForm.price,
+            quantityAvailable: productsForm.quantityAvailable,
+            productType: productsForm.productType,
+          },
+        ],
+      },
+    });
+    console.log(profile);
+  } catch (error) {
+    console.log(error);
+  }
+};
 </script>
-
-

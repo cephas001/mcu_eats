@@ -1,4 +1,3 @@
-import { createProfileSchema } from "../../../../validators/profile/validateProfileData.js";
 import {
   ValidationError,
   LocalStorageError,
@@ -20,21 +19,6 @@ export default function retrieveUserProfiles(browserProfileRepo) {
     }
 
     for (const userProfile of userProfiles) {
-      const validationResult = createProfileSchema.safeParse(userProfile);
-
-      if (!validationResult.success) {
-        const errorList = validationResult.error.errors.map((e) => ({
-          inputName: e.path.join(".") || "unknown",
-          errorMessage: e.message,
-        }));
-
-        throw new ValidationError(
-          "The user's profiles data has been tampered with",
-          null,
-          errorList
-        );
-      }
-
       if (userProfile.userId !== userId) {
         throw new ValidationError(
           "The profiles stored do not belong to the requesting user"

@@ -27,7 +27,7 @@
         class="size-20 text-gray-500"
         :ui="{ wrapper: 'text-center' }"
       />
-      <h1 class="text-black tracking-wide">
+      <h1 class="text-black tracking-wide text-center">
         Search dishes, restaurants or cuisines
       </h1>
     </div>

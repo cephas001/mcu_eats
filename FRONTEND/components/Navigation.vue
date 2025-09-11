@@ -220,12 +220,6 @@ const appendProfileSpecificRoutes = (selectedProfile) => {
         to: "/vendor/details",
         color: "info",
       },
-      {
-        label: "Error-404",
-        icon: "i-material-symbols-light:error-rounded",
-        to: "/error-page/error404",
-        color: "info",
-      },
     ]);
     return;
   }
@@ -245,7 +239,7 @@ const appendProfileSpecificRoutes = (selectedProfile) => {
       //   to: "/delivery-person/deliverySettings",
       //   color: "info",
       // },
-    ])
+    ]);
   }
 };
 

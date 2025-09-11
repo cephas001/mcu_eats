@@ -132,15 +132,12 @@
     </template>
   </PopOverSection>
 
-  <LoadingIconSpinner
-    :loading="loadingUser || sendingEmail || updatingUser"
-   
-  />
+  <LoadingIconSpinner :loading="loadingUser || sendingEmail || updatingUser" />
 </template>
 
 <script setup>
 import { useUserStore } from "@/stores/userStore";
-import { useLogInStore } from "@/stores/logInStore";
+import { useAuthStore } from "@/stores/authStore";
 import { storeToRefs } from "pinia";
 
 definePageMeta({
@@ -154,8 +151,8 @@ const route = useRoute();
 const userStore = useUserStore();
 const { user } = storeToRefs(userStore);
 
-const { clearError, displayError } = useLogInStore();
-const { registrationForm, loginForm } = useLogInStore();
+const { clearError, displayError } = useAuthStore();
+const { registrationForm, loginForm } = useAuthStore();
 const loadingUser = ref(true);
 const updatingUser = ref(false);
 
