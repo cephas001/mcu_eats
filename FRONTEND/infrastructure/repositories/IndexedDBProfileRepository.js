@@ -24,7 +24,7 @@ export default class IndexedDBProfileRepository extends ProfileRepository {
     }
   }
 
-  async addProfileToStoredUserProfiles(userProfile) {
+  async storeUserProfile(userProfile) {
     try {
       const formattedProfile = formatProfileDataForStorage(userProfile);
 
@@ -151,9 +151,14 @@ export default class IndexedDBProfileRepository extends ProfileRepository {
     }
   }
 
-  async updateStoredUserProfile(profileId, newProfileValue) {
-    await this.db.profiles.update(profileId, newProfileValue);
-    const profile = await this.db.profiles.get(profileId);
-    return profile;
+  async overwriteStoredUserProfile(profileId, newProfileValue) {
+    try {
+      await this.db.profiles.put({ id: profileId, ...newProfileValue });
+      const profile = await this.db.profiles.get(profileId);
+      return profile;
+    } catch (error) {
+      console.log(error);
+      throw error;
+    }
   }
 }

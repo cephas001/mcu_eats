@@ -25,13 +25,10 @@ const productSchema = new Schema(
     name: {
       type: String,
       required: true,
-      minlength: 1,
-      maxlength: 100,
       match: /^[^0-9]*$/,
     },
     description: {
       type: String,
-      maxlength: 500,
     },
     price: {
       type: Number,
@@ -41,7 +38,6 @@ const productSchema = new Schema(
     productType: {
       type: String,
       required: true,
-      minlength: 1,
     },
     quantityAvailable: {
       type: Number,

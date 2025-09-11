@@ -4,7 +4,7 @@ import {
   LocalStorageError,
 } from "../../../../domain/Error.js";
 
-export default function updateStoredUserProfile(
+export default function overwriteStoredUserProfile(
   browserUserRepo,
   browserProfileRepo
 ) {
@@ -26,7 +26,7 @@ export default function updateStoredUserProfile(
     }
 
     try {
-      return await browserProfileRepo.updateStoredUserProfile(
+      return await browserProfileRepo.overwriteStoredUserProfile(
         profileId,
         newProfileValue
       );

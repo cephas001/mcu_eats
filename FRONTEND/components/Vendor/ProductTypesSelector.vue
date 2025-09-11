@@ -1,11 +1,11 @@
 <template>
   <div class="flex gap-4 overflow-x-scroll hide-scrollbar">
     <h1
-      v-for="(type, index) in types"
+      v-for="(type, index) in sortedTypes"
       :key="index"
       class="text-gray-900 text-sm whitespace-nowrap py-1 px-3 rounded-full cursor-pointer"
       :class="[type.selected ? 'bg-primary_light' : '']"
-      @click="select(type.id)"
+      @click="select(type.name)"
     >
       {{ type.name }}
     </h1>
@@ -24,13 +24,29 @@ const props = defineProps({
   },
 });
 
-const select = (id) => {
-  props.types.map((type) => {
-    if (id !== type.id) {
-      return (type.selected = false);
+const uniqueByName = (arr) => {
+  const seen = new Map();
+  return arr.filter((item) => {
+    if (!seen.has(item.name)) {
+      seen.set(item.name, true);
+      return true;
     }
-    selectedProductType.value = type;
-    return (type.selected = true);
+    return false;
+  });
+};
+
+const sortedTypes = ref(uniqueByName(props.types));
+
+const select = (name) => {
+  sortedTypes.value = sortedTypes.value.map((type) => {
+    const isSelected = type.name === name;
+    type.selected = isSelected;
+
+    if (isSelected) {
+      selectedProductType.value = type;
+    }
+
+    return type;
   });
 };
 </script>

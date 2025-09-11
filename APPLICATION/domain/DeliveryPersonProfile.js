@@ -25,9 +25,8 @@ export default class DeliveryPersonProfile extends BaseProfile {
     createdAt = new Date(),
     updatedAt = new Date(),
   }) {
-    super({ id, userId, createdAt, updatedAt });
+    super({ id, userId, createdAt, updatedAt, type: "delivery_person" });
 
-    this.type = "delivery_person";
     this.username = username;
     this.gender = gender;
     this.hostel = hostel;

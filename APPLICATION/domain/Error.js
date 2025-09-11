@@ -65,9 +65,14 @@ export class UnauthorizedError extends Error {
 }
 
 export class LocalStorageError extends Error {
-  constructor(message) {
+  constructor(message, cause = null) {
     super(message);
     this.name = "LocalStorageError";
     this.type = "LocalStorageError";
+    this.cause = cause;
+
+    if (cause instanceof Error && cause.stack) {
+      this.stack += `\nCaused by: ${cause.stack}`;
+    }
   }
 }

@@ -16,9 +16,8 @@ export default class ConsumerProfile extends BaseProfile {
     addresses = [],
     notes = [],
   }) {
-    super({ id, userId, createdAt, updatedAt });
+    super({ id, userId, createdAt, updatedAt, type: "consumer" });
 
-    this.type = "consumer";
     this.username = username;
     this.gender = gender;
     this.hostel = hostel;

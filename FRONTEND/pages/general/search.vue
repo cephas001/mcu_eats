@@ -5,7 +5,7 @@
         name="i-material-symbols-arrow-back"
         size="30"
         class="text-primary cursor-pointer"
-        @click.prevent="navigateTo('/')"
+        @click.prevent="router.back()"
       />
       <UInput
         size="xl"
@@ -35,6 +35,9 @@
 </template>
 
 <script setup>
+import { useRouter } from "#vue-router";
+const router = useRouter();
+
 definePageMeta({
   layout: "blank",
 });

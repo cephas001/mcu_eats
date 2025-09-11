@@ -6,8 +6,15 @@ const renameMongoIdFields = (data) => {
   if (data && typeof data === "object") {
     const result = {};
     for (const [key, value] of Object.entries(data)) {
-      const newKey = key === "_id" ? "id" : key;
-      result[newKey] = renameMongoIdFields(value);
+      let newKey = key === "_id" ? "id" : key;
+      let newValue = renameMongoIdFields(value);
+
+      // Convert ObjectId to string if key is _id
+      if (key === "_id" && typeof value === "object" && value?.toString) {
+        newValue = value.toString();
+      }
+
+      result[newKey] = newValue;
     }
     return result;
   }

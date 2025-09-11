@@ -1,5 +1,5 @@
 <template>
-  <section v-if="!fetchingData">
+  <section v-if="!fetchingVendor">
     <div class="relative">
       <div
         class="absolute top-[15px] left-5 bg-primary p-1 flex items-center rounded-full z-150"
@@ -55,17 +55,20 @@
     </div>
   </section>
 
-  <section v-if="!fetchingData" class="px-5 py-3 border-y-1 border-y-gray-300">
-    <VendorProductTypesSelector :types="vendor.types" />
+  <section
+    v-if="!fetchingVendor"
+    class="px-5 py-3 border-y-1 border-y-gray-300"
+  >
+    <VendorProductTypesSelector :types="vendor.productTypes" />
   </section>
 
   <h1
-    v-if="!fetchingData"
+    v-if="!fetchingVendor"
     class="px-5 py-5 text-sm font-manrope bg-gray-100 tracking-wider"
   >
     {{ selectedProductType.name }}
   </h1>
-  <section v-if="!fetchingData" class="px-5 pb-15 relative">
+  <section v-if="!fetchingVendor" class="px-5 pb-15 relative">
     <div
       class="py-5 border-b-1 border-gray-100"
       v-for="product in filteredProducts"
@@ -81,7 +84,7 @@
     <CartOpenButton />
   </section>
 
-  <LoadingIconLarge :loading="fetchingData" />
+  <LoadingIconCustom :loading="fetchingVendor" />
 
   <UModal v-model:open="open" class="bg-white pb-4" title="Action Required">
     <template #content>
@@ -106,14 +109,14 @@ import { storeToRefs } from "pinia";
 import { useUserStore } from "@/stores/userStore";
 import { useCartStore } from "@/stores/cartStore";
 import { navigateTo } from "nuxt/app";
-import {
-  returnFavouriteVendorIds,
-  returnFavouriteProductIds,
-} from "@/composables/returnFavouriteIds";
+// import {
+//   returnFavouriteVendorIds,
+//   returnFavouriteProductIds,
+// } from "@/composables/returnFavouriteIds";
 
 definePageMeta({
   middleware: ["check-user-and-profiles"],
-  specificType: ["consumer"],
+  specificUserType: ["consumer"],
 });
 
 const cartStore = useCartStore();
@@ -134,13 +137,12 @@ const favouriteVendorComponent = (id) => {
 };
 
 // To toggle loading icon
-const fetchingData = ref(true);
+const fetchingVendor = ref(true);
 
 const route = useRoute();
-const id = route.params.id;
 
 const vendorStore = useVendorStore();
-const { vendor } = storeToRefs(vendorStore);
+const { vendor, vendors } = storeToRefs(vendorStore);
 const vendorFavourited = ref(false);
 
 const { selectedProductType } = storeToRefs(vendorStore);
@@ -148,7 +150,11 @@ const { selectedProductType } = storeToRefs(vendorStore);
 // To filter products based on selected type
 const filteredProducts = computed(() => {
   return vendor.value.products.filter((product) => {
-    if (product.type == selectedProductType.value.name) {
+    if (selectedProductType.value.name == "All") {
+      return true;
+    }
+
+    if (product.productType == selectedProductType.value.name) {
       return true;
     } else {
       return false;
@@ -156,82 +162,102 @@ const filteredProducts = computed(() => {
   });
 });
 
-onMounted(async () => {
-  try {
-    const found = await vendorStore.findVendorById(id);
-    if (!found) {
-      const fetched = await vendorStore.fetchVendorById(id);
-      if (!fetched) {
-        await navigateTo("/");
-        return;
-      }
-    }
+// onMounted(async () => {
+//   try {
+//     const found = await vendorStore.findVendorById(id);
+//     if (!found) {
+//       const fetched = await vendorStore.fetchVendorById(id);
+//       if (!fetched) {
+//         await navigateTo("/");
+//         return;
+//       }
+//     }
 
-    const { favouriteProductIds } = await returnFavouriteProductIds();
-    const { favouriteVendorIds } = await returnFavouriteVendorIds();
+//     const { favouriteProductIds } = await returnFavouriteProductIds();
+//     const { favouriteVendorIds } = await returnFavouriteVendorIds();
 
-    if (favouriteVendorIds.includes(vendor.value._id)) {
-      vendorFavourited.value = true;
-    }
+//     if (favouriteVendorIds.includes(vendor.value._id)) {
+//       vendorFavourited.value = true;
+//     }
 
-    // Initializes the types of products a vendor offers
-    vendor.value.types = [];
+//     // Initializes the types of products a vendor offers
+//     vendor.value.types = [];
 
-    cartStore.getCartValues();
-    cartStore.computeTotalCartPrice();
+//     cartStore.getCartValues();
+//     cartStore.computeTotalCartPrice();
 
-    vendor.value.products.forEach((product, index) => {
-      // Checks if a product is favourited by the user
-      if (favouriteProductIds.includes(product._id)) {
-        product.favourited = true;
-      } else {
-        product.favourited = false;
-      }
+//     vendor.value.products.forEach((product, index) => {
+//       // Checks if a product is favourited by the user
+//       if (favouriteProductIds.includes(product._id)) {
+//         product.favourited = true;
+//       } else {
+//         product.favourited = false;
+//       }
 
-      // Checks if a product is in cart and using the quantity already store for the product count
-      const productInCart = cart?.value?.find((item) => {
-        return item._id == product._id;
-      });
+//       // Checks if a product is in cart and using the quantity already store for the product count
+//       const productInCart = cart?.value?.find((item) => {
+//         return item._id == product._id;
+//       });
 
-      if (productInCart) {
-        product["count"] = productInCart.quantity;
-      } else {
-        product["count"] = 0;
-      }
+//       if (productInCart) {
+//         product["count"] = productInCart.quantity;
+//       } else {
+//         product["count"] = 0;
+//       }
 
-      // New product type object
-      const objectToAdd = {
+//       // New product type object
+//       const objectToAdd = {
+//         id: Date.now().toString(36) + Math.random().toString(36).substring(2),
+//         name: product.type,
+//         selected: index === 0,
+//       };
+
+//       // Check if a vendor product type already exists before adding to the array of vendor product types
+//       if (!vendor.value.types.some((type) => type.name === product.type)) {
+//         vendor.value.types.push(objectToAdd);
+//       }
+//     });
+
+//     if (route.query.type !== "") {
+//       const type = vendor.value.types.find((type) => {
+//         return type.name === route.query.type;
+//       });
+//       if (type) {
+//         vendor.value.types[0].selected = false;
+//         type.selected = true;
+//         selectedProductType.value = type;
+//       } else {
+//         // Sets the default selected value to the first vendor type
+//         selectedProductType.value = vendor.value.types[0];
+//       }
+//     } else {
+//       // Sets the default selected value to the first vendor type
+//       selectedProductType.value = vendor.value.types[0];
+//     }
+//   } catch (error) {
+//     console.error("Error fetching vendor:", error);
+//   } finally {
+//     fetchingVendor.value = false;
+//   }
+// });
+
+onMounted(() => {
+  const id = route.params.id;
+  const foundVendor = vendorStore.findVendorById(id);
+
+  if (!foundVendor) return navigateTo("/");
+
+  foundVendor.productTypes = [];
+  if (foundVendor.products?.length > 0) {
+    foundVendor.productTypes = foundVendor.products.map((product, index) => {
+      return {
         id: Date.now().toString(36) + Math.random().toString(36).substring(2),
-        name: product.type,
+        name: index === 0 ? "All" : product.productType,
         selected: index === 0,
       };
-
-      // Check if a vendor product type already exists before adding to the array of vendor product types
-      if (!vendor.value.types.some((type) => type.name === product.type)) {
-        vendor.value.types.push(objectToAdd);
-      }
     });
-
-    if (route.query.type !== "") {
-      const type = vendor.value.types.find((type) => {
-        return type.name === route.query.type;
-      });
-      if (type) {
-        vendor.value.types[0].selected = false;
-        type.selected = true;
-        selectedProductType.value = type;
-      } else {
-        // Sets the default selected value to the first vendor type
-        selectedProductType.value = vendor.value.types[0];
-      }
-    } else {
-      // Sets the default selected value to the first vendor type
-      selectedProductType.value = vendor.value.types[0];
-    }
-  } catch (error) {
-    console.error("Error fetching vendor:", error);
-  } finally {
-    fetchingData.value = false;
   }
+  vendorStore.setVendor(foundVendor);
+  fetchingVendor.value = false;
 });
 </script>

@@ -28,9 +28,8 @@ export default class VendorProfile extends BaseProfile {
     createdAt = new Date(),
     updatedAt = new Date(),
   }) {
-    super({ id, userId, createdAt, updatedAt });
+    super({ id, userId, createdAt, updatedAt, type: "vendor" });
 
-    this.type = "vendor";
     this.vendorName = vendorName;
     this.vendorType = vendorType;
     this.description = description;

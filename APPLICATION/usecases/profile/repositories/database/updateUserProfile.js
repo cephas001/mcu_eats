@@ -79,12 +79,14 @@ export default function updateUserProfile(userRepo, profileRepo) {
     const validatedData = validationResult.data;
 
     try {
+      console.log(validatedData);
       return await profileRepo.updateUserProfile(
         profileId,
         profileType,
         validatedData
       );
     } catch (error) {
+      console.log(error);
       throw new UnexpectedError("An unexpected error occurred");
     }
   };

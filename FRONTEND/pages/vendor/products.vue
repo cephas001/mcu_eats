@@ -1,6 +1,6 @@
 <template>
   <!-- Product Listings -->
-  <section class="mt-15 px-6 pb-2">
+  <section class="mt-15 px-6 pb-2" v-if="!creatingProduct">
     <h1 class="text-2xl font-bold text-black mb-6 text-center tracking-wide">
       Products
     </h1>
@@ -15,8 +15,8 @@
         :ui="{
           base: 'bg-transparent text-black rounded-full cursor-pointer',
         }"
-        @click.prevent="navigateTo('/search')"
-        @keydown.enter.prevent="navigateTo('/search')"
+        @click.prevent="navigateTo('/general/search')"
+        @keydown.enter.prevent="navigateTo('/general/search')"
       />
       <div class="flex justify-between items-center">
         <UButton
@@ -47,11 +47,15 @@
     </p>
   </section>
 
-  <section class="overflow-x-auto mt-3 px-6 min-h-[50vh]">
-    <table class="min-w-full text-sm font-manrope">
+  <section
+    class="overflow-x-auto mt-3 px-6 min-h-[50vh]"
+    v-if="!creatingProduct"
+  >
+    <table class="min-w-full text-sm font-manrope" v-if="products.length !== 0">
       <thead>
         <tr class="text-center text-black border-b border-gray-300">
-          <th class="py-2 pr-4">Select</th>
+          <th class="py-2 pr-4"></th>
+          <th class="py-2 pr-4">S/N</th>
           <th class="py-2 pr-4">Name</th>
           <th class="py-2 pr-4">Price</th>
           <th class="py-2">Stock</th>
@@ -59,28 +63,36 @@
       </thead>
 
       <tbody class="text-center">
-        <tr class="border-b border-gray-300">
+        <tr
+          class="border-b border-gray-300"
+          v-for="(product, index) in products"
+        >
           <td class="py-3 pr-4 flex justify-center">
             <UCheckbox class="" color="primary" />
           </td>
-
-          <td class="py-3 pr-4 font-medium">Bread</td>
+          <td class="py-3 pr-4">{{ index + 1 }}</td>
+          <td class="py-3 pr-4 font-medium truncate">
+            {{ product?.name }}
+          </td>
 
           <td class="py-3 pr-4">
-            <span class="whitespace-nowrap tabular-nums"> ₦1,100 </span>
+            <span class="whitespace-nowrap tabular-nums">
+              ₦{{ product?.price?.toLocaleString() }}
+            </span>
           </td>
 
           <td class="py-3">
-            <span class="whitespace-nowrap tabular-nums"> 6 </span>
+            <span class="whitespace-nowrap tabular-nums">
+              {{ product?.quantityAvailable }}
+            </span>
           </td>
         </tr>
-        <!-- <tr v-if="!filtered.length">
-            <td colspan="7" class="py-6 text-center text-gray-500">
-              No products found.
-            </td>
-          </tr> -->
       </tbody>
     </table>
+
+    <div class="text-center" v-else>
+      <h1 class="text-md">Add your first product!</h1>
+    </div>
   </section>
 
   <!-- Add Product Modal -->
@@ -100,21 +112,25 @@
       title: 'text-black',
       description: 'text-black',
     }"
+    v-if="!creatingProduct"
   >
     <template #body>
       <CustomForm
         :formFieldsSchema="productsFormSchema"
         :formState="productsForm"
         submitButtonText="Add Product"
-        @formSubmit="addProduct"
+        @formSubmit="createProduct"
       />
     </template>
   </UModal>
+
+  <LoadingIconCustom :loading="creatingProduct" />
 </template>
 
 <script setup>
 import { updateUserProfile } from "@/composables/auth/updateUserProfile";
 import { useProfileStore } from "@/stores/profileStore";
+import { onMounted } from "vue";
 
 definePageMeta({
   middleware: ["check-user-and-profiles", "check-selected-profile"],
@@ -122,6 +138,9 @@ definePageMeta({
 });
 
 const profileStore = useProfileStore();
+
+const creatingProduct = ref(false);
+const products = ref([]);
 
 const productsForm = reactive({
   name: undefined,
@@ -173,8 +192,10 @@ const productsFormSchema = ref([
 
 const showAddProductForm = ref(false);
 
-const addProduct = async () => {
+const createProduct = async () => {
   try {
+    creatingProduct.value = true;
+
     const vendorProfile = profileStore.getProfile("vendor");
     if (!vendorProfile || !vendorProfile?.id) {
       return navigateTo("/");
@@ -184,6 +205,7 @@ const addProduct = async () => {
       profileId: vendorProfile.id,
       data: {
         products: [
+          ...vendorProfile.data.products,
           {
             name: productsForm.name?.trim(),
             description: productsForm.description?.trim(),
@@ -194,9 +216,25 @@ const addProduct = async () => {
         ],
       },
     });
-    console.log(profile);
+    setProducts();
+    showAddProductForm.value = false;
   } catch (error) {
     console.log(error);
+  } finally {
+    creatingProduct.value = false;
   }
 };
+
+const setProducts = () => {
+  const vendorProfile = profileStore.getProfile("vendor");
+  if (!vendorProfile) {
+    return navigateTo("/");
+  }
+
+  products.value = vendorProfile.data.products;
+};
+
+onMounted(() => {
+  setProducts();
+});
 </script>

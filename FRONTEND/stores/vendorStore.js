@@ -16,8 +16,9 @@ export const useVendorStore = defineStore("vendor", () => {
 
   const selectedProductType = ref({});
 
-  const setVendors = (vendors) => {
-    vendors.value = vendors;
+  const setVendors = (payload) => {
+    vendors.value = payload;
+    console.log(vendors.value);
   };
 
   const setRestaurants = (payload) => {
@@ -30,6 +31,13 @@ export const useVendorStore = defineStore("vendor", () => {
 
   const setRetailers = (payload) => {
     retailers.value = payload;
+  };
+
+  const findVendorById = (id) => {
+    if (!vendors.value) return null;
+
+    const vendor = vendors.value.find((vendor) => vendor.id === id);
+    return vendor;
   };
 
   // const fetchVendors = async () => {
@@ -102,18 +110,18 @@ export const useVendorStore = defineStore("vendor", () => {
     }
   };
 
-  const findVendorById = async (id) => {
-    const indexDBVendor = await db.vendors.get(id);
-    if (indexDBVendor) {
-      vendor.value = parseArrays([indexDBVendor])[0];
-      return true;
-    } else {
-      return false;
-    }
-  };
+  // const findVendorById = async (id) => {
+  //   const indexDBVendor = await db.vendors.get(id);
+  //   if (indexDBVendor) {
+  //     vendor.value = parseArrays([indexDBVendor])[0];
+  //     return true;
+  //   } else {
+  //     return false;
+  //   }
+  // };
 
-  const setVendor = (newVendor) => {
-    vendor.value = newVendor;
+  const setVendor = (payload) => {
+    vendor.value = payload;
   };
 
   return {

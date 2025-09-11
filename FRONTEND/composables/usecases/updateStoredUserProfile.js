@@ -1,3 +1,4 @@
+// DELETE IF NOT IN USE
 export const updateStoredUserProfile = async (profileId, newProfileValue) => {
   const { $updateStoredUserProfileUseCase } = useNuxtApp();
 

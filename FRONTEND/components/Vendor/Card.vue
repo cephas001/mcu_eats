@@ -125,7 +125,7 @@ const favourited = ref(false);
 const openVendor = () => {
   if (isOpen.value) {
     setVendor(null);
-    navigateTo(`/vendors/${props.vendor._id}`);
+    navigateTo(`/vendors/${props.vendor.id}`);
   }
 };
 </script>

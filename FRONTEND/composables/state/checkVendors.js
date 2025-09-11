@@ -31,7 +31,6 @@ export const checkVendors = async () => {
   } = useNuxtApp();
 
   if (vendors.value) {
-    console.log("here");
     return;
   }
 
@@ -39,7 +38,6 @@ export const checkVendors = async () => {
     const vendors = await $retrieveVendorProfilesUseCase();
 
     if (vendors) {
-      console.log(vendors);
       setVendors(vendors);
       return;
     }
@@ -55,7 +53,6 @@ export const checkVendors = async () => {
     if (!fetchedVendors || fetchedVendors?.length == 0) {
       return;
     }
-    console.log(fetchedVendors);
     setVendors(fetchedVendors);
   } catch (error) {
     console.log(error);
