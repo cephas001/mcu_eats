@@ -10,11 +10,11 @@ import { setUserAndProfiles } from "../state/setUserAndProfiles";
 import { storeUserAndProfiles } from "../usecases/storeUserAndProfiles";
 
 export const checkLoggedInUser = async (redirectTo) => {
-  const { $expressAuthBackendService } = useNuxtApp();
+  const { $authApiService } = useNuxtApp();
 
   const navigationRoutes = {
     select_profile: "/general/select-profile",
-    unathorized_route: "/general/unauthorized",
+    unauthorized_route: "/general/unauthorized", // fixed typo
     logout_route: "/auth/logout",
     login_route: "/auth/login",
     register_route: "/auth/register",
@@ -25,94 +25,75 @@ export const checkLoggedInUser = async (redirectTo) => {
   const userStore = useUserStore();
   const profileStore = useProfileStore();
 
-  const guest = userStore.checkGuest();
-
-  if (guest) {
-    if (redirectTo == "/consumer") {
-      return;
-    }
-    return await navigateTo(navigationRoutes["unathorized_route"]);
-  }
-
   const user = userStore.getUser();
-
   const profiles = profileStore.getProfiles();
   const selectedProfile = profileStore.getSelectedProfile();
 
   // Early exit if data exists
   if (user && profiles) {
     if (!selectedProfile?.type) {
-      return await navigateTo(navigationRoutes["select_profile"]);
+      return await navigateTo(navigationRoutes.select_profile);
     }
-    if (redirectTo) return await navigateTo(redirectTo);
 
-    return await navigateTo(navigationRoutes["consumer_route"]);
+    if (redirectTo) return await navigateTo(redirectTo);
   }
 
   // Verify Token first
+  let userID = null;
   try {
-    const response = await $expressAuthBackendService.verifyToken();
-
-    var { id: userId } = response;
+    const response = await $authApiService.verifyToken();
+    userID = response?.id;
   } catch (error) {
     await logoutUser();
 
-    switch (error.type) {
-      case "TokenExistenceError":
-        return navigateTo(navigationRoutes["consumer_route"]);
-      case "InvalidTokenError":
-        return navigateTo(navigationRoutes["login_route"]);
-      default:
-        return navigateTo(navigationRoutes["consumer_route"]);
+    if (error?.type === "InvalidTokenError") {
+      return navigateTo(navigationRoutes.login_route);
     }
+
+    return navigateTo(navigationRoutes.consumer_route);
   }
 
   // Attempt to load cached data
   try {
-    await retrieveUserAndProfiles(userId);
+    await retrieveUserAndProfiles(userID);
 
     if (redirectTo) return await navigateTo(redirectTo);
-
-    return await navigateTo(navigationRoutes["consumer_route"]);
   } catch (error) {
     console.log(error);
-    if (error.type === "ProfileExistenceError") {
-      return await navigateTo(navigationRoutes["select_profile"]);
-    }
-
-    if (error.type === "ValidationError") {
-      await logoutUser();
+    if (error?.type === "ProfileSelectionError") {
+      return await navigateTo(navigationRoutes.select_profile);
     }
   }
 
   // Fallback: Fetch fresh data
+  let fetchedUser = null;
+  let fetchedProfiles = null;
   try {
     const { user, profiles } = await fetchUserAndProfiles();
 
+    fetchedUser = user;
+    fetchedProfiles = profiles;
+
     setUserAndProfiles(user, profiles, false);
   } catch (error) {
-    switch (error.type) {
-      case "InvalidTokenError":
-        return navigateTo(navigationRoutes["login_route"]);
+    switch (error?.type) {
       case "UserExistenceError":
-        return navigateTo(navigationRoutes["register_route"]);
+        return navigateTo(navigationRoutes.register_route);
       case "ProfileExistenceError":
-        return navigateTo(navigationRoutes["profile_register_route"]);
-      default:
-        userStore.setGuest(true);
-        return navigateTo(navigationRoutes["consumer_route"]);
+        return navigateTo(navigationRoutes.profile_register_route);
     }
   }
 
   try {
-    await storeUserAndProfiles(userStore.getUser(), profileStore.getProfiles());
+    if (fetchedUser && fetchedProfiles) {
+      await storeUserAndProfiles(fetchedUser, fetchedProfiles); // use fetched data directly
 
-    return await navigateTo(navigationRoutes["select_profile"]);
+      return await navigateTo(navigationRoutes.select_profile);
+    }
   } catch (error) {
-    console.log(error);
+    console.error("Failed to store user and profiles:", error);
   }
 
-  if (redirectTo) return await navigateTo(redirectTo);
-
-  return await navigateTo(navigationRoutes["consumer_route"]);
+  userStore.setGuest(true);
+  return await navigateTo(navigationRoutes.consumer_route);
 };

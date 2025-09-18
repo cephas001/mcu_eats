@@ -20,6 +20,7 @@ export const createApiClient = () => {
 
         return response.data;
       } catch (error) {
+        console.log(error);
         const res = error?.response;
         const data = res?.data || {};
 

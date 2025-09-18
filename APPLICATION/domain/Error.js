@@ -33,10 +33,15 @@ export class InvalidCredentialsError extends Error {
 }
 
 export class UnexpectedError extends Error {
-  constructor(message) {
+  constructor(message, cause = null) {
     super(message);
     this.name = "UnexpectedError";
     this.type = "UnexpectedError";
+    this.cause = cause;
+
+    if (cause instanceof Error && cause.stack) {
+      this.stack += `\nCaused by: ${cause.stack}`;
+    }
   }
 }
 
@@ -71,6 +76,19 @@ export class LocalStorageError extends Error {
     this.type = "LocalStorageError";
     this.cause = cause;
 
+    if (cause instanceof Error && cause.stack) {
+      this.stack += `\nCaused by: ${cause.stack}`;
+    }
+  }
+}
+
+export class ProfileSelectionError extends Error {
+  constructor(message, cause = null) {
+    super(message);
+    this.name = "ProfileSelectionError";
+    this.type = "ProfileSelectionError";
+
+    
     if (cause instanceof Error && cause.stack) {
       this.stack += `\nCaused by: ${cause.stack}`;
     }

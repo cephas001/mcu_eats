@@ -5,65 +5,75 @@ import express from "express";
 const router = express.Router();
 
 import {
-  createUserProfileUseCase,
-  getProfilesDataByProfileIdsUseCase,
-  getProfilesDataByTypeUseCase,
-  getUserProfilesUseCase,
-  updateUserProfileUseCase,
+  DeleteProfileUseCase,
+  DeleteProfilesByTypeUseCase,
+  FindProfileByUserAndTypeUseCase,
+  GetProfileByIdUseCase,
+  GetProfilesByTypeUseCase,
+  GetUserProfilesUseCase,
 } from "../services/index.js";
 
-router.post("/profile", async (req, res) => {
+// Get a profile by ID
+router.get("/profiles/:profileId", async (req, res, next) => {
   try {
-    const profileData = req.body?.profileData;
-    const { savedProfile, updatedUser } = await createUserProfileUseCase(
-      profileData
+    const profile = await GetProfileByIdUseCase(req.params.profileId);
+    res.json(profile);
+  } catch (error) {
+    next(error);
+  }
+});
+
+// Get all profiles for a user
+router.get("/users/:userId/profiles", async (req, res, next) => {
+  try {
+    const profiles = await GetUserProfilesUseCase(req.params.userId);
+    res.json(profiles);
+  } catch (error) {
+    next(error);
+  }
+});
+
+// Get profiles by type
+router.get("/profiles/type/:type", async (req, res, next) => {
+  try {
+    const profiles = await GetProfilesByTypeUseCase(req.params.type);
+    res.json(profiles);
+  } catch (error) {
+    next(error);
+  }
+});
+
+// Find a profile by user and type
+router.get("/users/:userId/profiles/type/:type", async (req, res, next) => {
+  try {
+    const profile = await FindProfileByUserAndTypeUseCase(
+      req.params.userId,
+      req.params.type
     );
-    res.status(200).json({ savedProfile, updatedUser });
+    res.json(profile);
   } catch (error) {
-    throw error;
+    next(error);
   }
 });
 
-router.post("/user/profiles", async (req, res) => {
+// Delete a profile by ID
+router.delete("/profiles/:profileId", async (req, res, next) => {
   try {
-    const userId = req.body?.userId;
-    const profileTypes = req.body?.profileTypes;
-
-    const profileData = await getUserProfilesUseCase(userId, profileTypes);
-
-    res.json(profileData);
+    await DeleteProfileUseCase(req.params.profileId);
+    res.sendStatus(204);
   } catch (error) {
-    throw error;
+    next(error);
   }
 });
 
-router.post("/get/profile/data/type", async (req, res) => {
+// Delete all profiles of a specific type
+router.delete("/profiles/type/:type", async (req, res, next) => {
   try {
-    const userId = req.body?.userId;
-    const type = req.body?.type;
-
-    const profileData = await getProfilesDataByTypeUseCase(userId, type);
-
-    return res.json(profileData);
+    await DeleteProfilesByTypeUseCase(req.params.type);
+    res.sendStatus(204);
   } catch (error) {
-    throw error;
+    next(error);
   }
-});
-
-router.put("/user/profile", async (req, res) => {
-  const userId = req.body?.userId;
-  const profileType = req.body?.profileType;
-  const profileId = req.body?.profileId;
-  const dataToUpdateUserProfileWith = req.body?.data;
-
-  const updatedUserProfile = await updateUserProfileUseCase({
-    userId,
-    profileType,
-    profileId,
-    dataToUpdateUserProfileWith,
-  });
-
-  res.json(updatedUserProfile);
 });
 
 export default router;

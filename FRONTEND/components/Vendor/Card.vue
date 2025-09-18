@@ -35,7 +35,7 @@
       <UAvatar src="/avatars/avatar.jpg" />
     </div>
     <div class="ml-2 w-[70%]">
-      <h1 class="font-semibold tracking-wide">{{ vendor.name }}</h1>
+      <h1 class="font-semibold tracking-wide">{{ vendor.vendorName }}</h1>
       <p
         class="text-gray-700 text-sm whitespace-nowrap overflow-hidden text-ellipsis"
       >

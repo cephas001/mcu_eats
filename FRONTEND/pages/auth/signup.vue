@@ -64,10 +64,10 @@ const handleSignUp = async () => {
   clearError();
   tryingToSignIn.value = true;
   try {
-    const { $signUpUserWithEmailAndPasswordUseCase } = useNuxtApp();
+    const { $signupUserWithEmailAndPasswordUseCase } = useNuxtApp();
 
     // Sign User Up
-    const { token } = await $signUpUserWithEmailAndPasswordUseCase({
+    const { token } = await $signupUserWithEmailAndPasswordUseCase({
       email: signUpForm.email,
       password: signUpForm.password,
       confirmPassword: signUpForm.confirmPassword,

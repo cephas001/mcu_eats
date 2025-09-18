@@ -1,16 +1,10 @@
 export const fetchUserAndProfiles = async (token) => {
   try {
-    const { $expressAuthBackendService, $expressUserBackendService } =
-      useNuxtApp();
+    const { $authApiService, $profileApiService } = useNuxtApp();
 
-    const user = await $expressAuthBackendService.login(token);
+    const user = await $authApiService.login(token);
 
-    const profileTypes = user.profiles.map((profile) => profile.type);
-
-    const profiles = await $expressUserBackendService.getUserProfiles(
-      user.id,
-      profileTypes
-    );
+    const profiles = await $profileApiService.getUserProfiles(user?.id);
 
     return { user, profiles };
   } catch (error) {

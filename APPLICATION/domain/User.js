@@ -7,7 +7,7 @@ export default class User {
     verifiedEmail = false,
     role = "user", // 'user' | 'admin' | 'superadmin'
     category = "student", // 'staff' | 'student' | 'visitor'
-    profiles = [],
+    profiles = [], // ARRAY OF USER PROFILE LINKS (CHECK DOMAIN)
     status = "active", // 'active' | 'inactive' | 'banned'
     createdAt = new Date(),
     updatedAt = new Date(),

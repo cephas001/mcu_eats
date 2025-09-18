@@ -1,4 +1,4 @@
-import MessageRepository from "../../../APPLICATION/interfaces/repositories/local/MessageRepository.js";
+import MessageRepository from "../../../APPLICATION/interfaces/repositories/browser/MessageRepository.js";
 
 export default class IndexedDBMessageRepository extends MessageRepository {
   constructor(db) {

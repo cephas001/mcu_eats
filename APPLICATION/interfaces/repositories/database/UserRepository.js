@@ -3,7 +3,7 @@ export default class UserRepository {
    * @param {Object} userData
    * @returns {Promise<Object>}
    */
-  async create(userData) {
+  async createUser(userData) {
     throw new Error("Method not implemented.");
   }
 
@@ -16,11 +16,19 @@ export default class UserRepository {
   }
 
   /**
-   * @param {String} profileId
-   * @param {String} userId
+   * @param {String} email
    * @returns {Promise<Object|null>}
    */
-  async linkProfile(userId, profileId) {
+  async findByEmail(email) {
+    throw new Error("Method not implemented.");
+  }
+
+  /**
+   * @param {String} userId
+   * @param {String} profileId
+   * @returns {Promise<Object>}
+   */
+  async linkProfileToUser(userId, profileId) {
     throw new Error("Method not implemented.");
   }
 
@@ -29,7 +37,7 @@ export default class UserRepository {
    * @param {Object} updateData
    * @returns {Promise<Object>}
    */
-  async update(id, updateData) {
+  async updateUser(id, updateData) {
     throw new Error("Method not implemented.");
   }
 
@@ -37,15 +45,23 @@ export default class UserRepository {
    * @param {String} id
    * @returns {Promise<Boolean>}
    */
-  async delete(id) {
+  async deleteUser(id) {
     throw new Error("Method not implemented.");
   }
 
   /**
-   * @param {Object} user
+   * @param {String} userId
    * @returns {Promise<Boolean>}
    */
-  async userHasProfile(user) {
+  async hasUserProfile(userId) {
+    throw new Error("Method not implemented.");
+  }
+
+  /**
+   * @param {String} query
+   * @returns {Promise<Array>}
+   */
+  async searchUsers(query) {
     throw new Error("Method not implemented.");
   }
 }

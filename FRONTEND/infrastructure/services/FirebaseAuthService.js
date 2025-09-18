@@ -34,9 +34,9 @@ export default class FirebaseAuthService extends AuthService {
     }
   }
 
-  async signUpUserWithProvider(provider) {
+  async socialSignIn(provider) {
     try {
-      var serviceProvider = null;
+      let serviceProvider = null;
       if (provider == "google") {
         serviceProvider = new GoogleAuthProvider();
       }

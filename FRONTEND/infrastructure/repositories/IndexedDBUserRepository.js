@@ -1,4 +1,4 @@
-import UserRepository from "../../../APPLICATION/interfaces/repositories/local/UserRepository";
+import UserRepository from "../../../APPLICATION/interfaces/repositories/browser/UserRepository";
 import { stringifyArrays } from "../../utils/stringifyArrays.js";
 import { parseArrays } from "../../utils/parseArrays.js";
 
@@ -8,8 +8,9 @@ export default class IndexedDBUserRepository extends UserRepository {
     this.db = db;
   }
 
-  async storeUser(user) {
+  async createUser(user) {
     try {
+      await this.db.user.clear();
       await this.db.user.put(stringifyArrays(user));
       return parseArrays(await this.db.user.toArray());
     } catch (error) {
@@ -17,7 +18,7 @@ export default class IndexedDBUserRepository extends UserRepository {
     }
   }
 
-  async clearUser() {
+  async deleteUser() {
     try {
       await this.db.user.clear();
     } catch (error) {
@@ -25,7 +26,7 @@ export default class IndexedDBUserRepository extends UserRepository {
     }
   }
 
-  async retrieveUserById(id) {
+  async findById(id) {
     try {
       const user = await this.db.user.get(id);
       return user ? parseArrays(user) : null;

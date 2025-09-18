@@ -1,8 +1,8 @@
 export const storeUserAndProfiles = async (user, profiles) => {
-  const { $storeUserUseCase, $storeUserProfilesUseCase } = useNuxtApp();
+  const { $CreateUserUseCase, $CreateUserProfilesUseCase } = useNuxtApp();
   try {
-    await $storeUserUseCase(user);
-    await $storeUserProfilesUseCase(profiles);
+    await $CreateUserUseCase(user);
+    await $CreateUserProfilesUseCase(user?.id, profiles);
   } catch (error) {
     throw error;
   }

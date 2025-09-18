@@ -6,15 +6,14 @@ export const createUserProfile = async (profileType, profileObject) => {
 
   const profileStore = useProfileStore();
   try {
-    const { $expressUserBackendService, $expressAuthBackendService } =
-      useNuxtApp();
+    const { $userApiService, $authApiService } = useNuxtApp();
 
-    const response = await $expressAuthBackendService.verifyToken();
+    const response = await $authApiService.verifyToken();
 
     const { id } = response;
 
     const { createdProfile, updatedUser } =
-      await $expressUserBackendService.createUserProfile({
+      await $userApiService.createUserProfile({
         type: profileType,
         userId: id,
         ...profileObject,

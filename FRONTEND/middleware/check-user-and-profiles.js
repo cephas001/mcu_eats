@@ -7,7 +7,7 @@ export default defineNuxtRouteMiddleware((to, from) => {
   const userStore = useUserStore();
   const profileStore = useProfileStore();
 
-  if (userStore.isGuest !== null && userStore.isGuest) {
+  if (userStore.isGuest) {
     if (to.meta.allowAnonymous) {
       return;
     } else {
@@ -20,7 +20,6 @@ export default defineNuxtRouteMiddleware((to, from) => {
     if (!profileStore.selectedProfile?.type) {
       return navigateTo("/general/select-profile");
     }
-    return;
   } else {
     return navigateTo(`/?redirectTo=${to.fullPath}`);
   }

@@ -1,12 +1,14 @@
-import { db } from "../../utils/db";
+import { db } from "@/utils/db";
 
 // Infrastructure
 import IndexedDBUserRepository from "../../infrastructure/repositories/IndexedDBUserRepository.js";
 import IndexedDBProfileRepository from "../../infrastructure/repositories/IndexedDBProfileRepository.js";
 import IndexedDBMessageRepository from "../../infrastructure/repositories/IndexedDBMessageRepository.js";
 
+// NEW
+import CreateUser from "../../../APPLICATION/usecases/user/CreateUser.js";
+
 // User Use Cases
-import storeUser from "../../../APPLICATION/usecases/user/repositories/browser/storeUser.js";
 import retrieveUserById from "../../../APPLICATION/usecases/user/repositories/browser/retrieveUserById.js";
 import clearUser from "../../../APPLICATION/usecases/user/repositories/browser/clearUser.js";
 
@@ -32,7 +34,7 @@ export default defineNuxtPlugin(() => {
   return {
     provide: {
       // User Use Cases
-      storeUserUseCase: storeUser(indexedDBUserRepo),
+      storeUserUseCase: CreateUser(indexedDBUserRepo),
       retrieveUserByIdUseCase: retrieveUserById(indexedDBUserRepo),
       clearUserUseCase: clearUser(indexedDBUserRepo),
 

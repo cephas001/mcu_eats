@@ -33,5 +33,6 @@ export const handleProfileCreationErrors = (error) => {
     return navigateTo("/auth/login");
   }
 
-  profileRegistrationErrors.value = "An unexpected error occurred";
+  profileRegistrationErrors.value =
+    "An unexpected error occurred. Please try again later.";
 };

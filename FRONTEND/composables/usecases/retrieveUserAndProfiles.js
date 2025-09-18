@@ -4,17 +4,17 @@ import { setSelectedProfile } from "../state/setSelectedProfile";
 export const retrieveUserAndProfiles = async (userId) => {
   try {
     const {
-      $retrieveUserByIdUseCase,
-      $retrieveUserProfilesUseCase,
-      $retrieveUserSelectedProfileUseCase,
+      $GetUserByIdUseCase,
+      $GetUserProfilesUseCase,
+      $GetSelectedProfileUseCase,
     } = useNuxtApp();
 
-    const user = await $retrieveUserByIdUseCase(userId);
-    const profiles = await $retrieveUserProfilesUseCase(userId);
+    const user = await $GetUserByIdUseCase(userId);
+    const profiles = await $GetUserProfilesUseCase(userId);
 
     setUserAndProfiles(user, profiles, false);
 
-    const selectedProfile = await $retrieveUserSelectedProfileUseCase(userId);
+    const selectedProfile = await $GetSelectedProfileUseCase(userId);
 
     setSelectedProfile(selectedProfile.type);
   } catch (error) {

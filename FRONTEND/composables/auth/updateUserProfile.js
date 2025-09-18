@@ -2,22 +2,19 @@ import { useProfileStore } from "@/stores/profileStore";
 
 export const updateUserProfile = async ({ profileType, profileId, data }) => {
   const profileStore = useProfileStore();
-  const { $expressUserBackendService, $expressAuthBackendService } =
-    useNuxtApp();
+  const { $userApiService, $authApiService } = useNuxtApp();
 
   try {
-    const response = await $expressAuthBackendService.verifyToken();
+    const response = await $authApiService.verifyToken();
 
     var { id } = response;
 
-    var updatedUserProfile = await $expressUserBackendService.updateUserProfile(
-      {
-        userId: id,
-        profileType,
-        profileId,
-        data,
-      }
-    );
+    var updatedUserProfile = await $userApiService.updateUserProfile({
+      userId: id,
+      profileType,
+      profileId,
+      data,
+    });
 
     if (!updatedUserProfile)
       throw new Error("An error occurred while updating");
@@ -37,9 +34,7 @@ export const updateUserProfile = async ({ profileType, profileId, data }) => {
   }
 
   try {
-    var profiles = await $expressUserBackendService.getUserProfiles(id, [
-      profileType,
-    ]);
+    var profiles = await $userApiService.getUserProfiles(id, [profileType]);
     if (!profiles) {
       throw new Error("Profile not fetched");
     }

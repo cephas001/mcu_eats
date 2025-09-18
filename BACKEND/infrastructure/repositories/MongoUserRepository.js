@@ -1,36 +1,37 @@
 import UserRepository from "../../../APPLICATION/interfaces/repositories/database/UserRepository.js";
+import renameMongoIdFields from "../presenters/renameMongoIdFields.js";
 
 export default class MongoUserRepository extends UserRepository {
   constructor(
     userRepo,
-    profileRepo,
     consumerProfileRepo,
     deliveryPersonProfileRepo,
     vendorProfileRepo
   ) {
     super();
     this.userRepo = userRepo;
-    this.profileRepo = profileRepo;
     this.consumerProfileRepo = consumerProfileRepo;
     this.deliveryPersonProfileRepo = deliveryPersonProfileRepo;
     this.vendorProfileRepo = vendorProfileRepo;
   }
 
-  async create(userData) {
+  async createUser(userData) {
     try {
       const { id, ...restOfUserData } = userData;
       const user = new this.userRepo({ _id: id, ...restOfUserData });
       const savedUser = await user.save();
-      const { _id, ...restOfSavedUser } = savedUser.toObject();
-      return { id: _id, ...restOfSavedUser };
+      return renameMongoIdFields(savedUser.toObject());
     } catch (error) {
-      console.error("Error creating user:", error);
-      throw new Error("Failed to create user");
+      throw error;
     }
   }
 
   async findById(id) {
-    return await this.userRepo.findById(id).lean();
+    try {
+      return await this.userRepo.findById(id).lean();
+    } catch (error) {
+      throw error;
+    }
   }
 
   async linkProfileToUser(userId, profileId, profileType) {
@@ -57,19 +58,19 @@ export default class MongoUserRepository extends UserRepository {
     }
   }
 
-  async userHasProfile(user) {
+  async hasUserProfile(userId) {
     try {
       const hasConsumerProfile = !!(await this.consumerProfileRepo.exists({
-        userId: user._id,
+        userId,
       }));
 
       const hasDeliveryPersonProfile =
         !!(await this.deliveryPersonProfileRepo.exists({
-          userId: user._id,
+          userId,
         }));
 
       const hasVendorProfile = !!(await this.vendorProfileRepo.exists({
-        userId: user._id,
+        userId,
       }));
 
       return hasConsumerProfile || hasDeliveryPersonProfile || hasVendorProfile;
@@ -78,7 +79,7 @@ export default class MongoUserRepository extends UserRepository {
     }
   }
 
-  async update(id, updateData) {
+  async updateUser(id, updateData) {
     try {
       const user = await this.userRepo.findByIdAndUpdate(id, updateData, {
         new: true,

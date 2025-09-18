@@ -15,10 +15,17 @@ import cookieParser from "cookie-parser";
 
 import authenticateWebSocket from "./middlewares/websocketAuth.js";
 
-import vendorApi from "./routes/vendorApi.js";
-import userApi from "./routes/userApi.js";
-import profileApi from "./routes/profileApi.js";
 import authApi from "./routes/authApi.js";
+import cartApi from "./routes/cartApi.js";
+import consumerApi from "./routes/consumerApi.js";
+import deliverypersonApi from "./routes/deliverypersonApi.js";
+import notificationApi from "./routes/notificationApi.js";
+import orderApi from "./routes/orderApi.js";
+import paymentApi from "./routes/paymentApi.js";
+import productApi from "./routes/productApi.js";
+import profileApi from "./routes/profileApi.js";
+import userApi from "./routes/userApi.js";
+import vendorApi from "./routes/vendorApi.js";
 
 import { errorHandler } from "./middlewares/errorHandler.js";
 
@@ -42,14 +49,19 @@ app.set("views", path.join(__dirname, "views"));
 
 app.use("/uploads", express.static("./uploads"));
 
-app.use("", vendorApi);
-app.use("", userApi);
-app.use("", profileApi);
 app.use("", authApi);
+app.use("", cartApi);
+app.use("", consumerApi);
+app.use("", deliverypersonApi);
+app.use("", notificationApi);
+app.use("", orderApi);
+app.use("", paymentApi);
+app.use("", productApi);
+app.use("", profileApi);
+app.use("", userApi);
+app.use("", vendorApi);
 
 app.use(errorHandler);
-
-const serverPemPath = path.resolve(__dirname, "config", "server.pem");
 
 const server = http.createServer(app);
 const io = new Server(server);

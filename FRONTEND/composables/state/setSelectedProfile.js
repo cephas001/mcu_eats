@@ -4,8 +4,8 @@ export const setSelectedProfile = (type) => {
   const profileStore = useProfileStore();
 
   try {
-    const saved_profile = profileStore.selectProfile(type);
-    if (!saved_profile) {
+    const profile = profileStore.selectProfile(type);
+    if (!profile) {
       throw new Error("Profile does not exist");
     }
   } catch (error) {

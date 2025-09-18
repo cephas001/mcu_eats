@@ -4,14 +4,12 @@ import renameMongoIdFields from "../presenters/renameMongoIdFields.js";
 export default class MongoProfileRepository extends ProfileRepository {
   constructor(
     userRepo,
-    profileRepo,
     consumerProfileRepo,
     deliveryPersonProfileRepo,
     vendorProfileRepo
   ) {
     super();
     this.userRepo = userRepo;
-    this.profileRepo = profileRepo;
     this.consumerProfileRepo = consumerProfileRepo;
     this.deliveryPersonProfileRepo = deliveryPersonProfileRepo;
     this.vendorProfileRepo = vendorProfileRepo;
@@ -178,7 +176,7 @@ export default class MongoProfileRepository extends ProfileRepository {
     }
   }
 
-  async getUserProfiles(userId, profileTypes) {
+  async getUserProfiles(userId) {
     const repoMap = {
       consumer: this.consumerProfileRepo,
       delivery_person: this.deliveryPersonProfileRepo,
@@ -187,11 +185,12 @@ export default class MongoProfileRepository extends ProfileRepository {
 
     const profiles = [];
 
-    for (const type of profileTypes) {
-      const repo = repoMap[type];
+    for (const [type, repo] of Object.entries(repoMap)) {
       if (repo) {
         const profile = await repo.findOne({ userId }).lean();
-        if (profile) profiles.push({ ...profile, type, id: profile._id });
+        if (profile) {
+          profiles.push(renameMongoIdFields(profile));
+        }
       }
     }
 

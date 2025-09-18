@@ -1,4 +1,4 @@
-import ProfileRepository from "../../../APPLICATION/interfaces/repositories/local/ProfileRepository";
+import ProfileRepository from "../../../APPLICATION/interfaces/repositories/browser/ProfileRepository";
 import { stringifyArrays } from "../../utils/stringifyArrays.js";
 import { parseArrays } from "../../utils/parseArrays.js";
 
@@ -10,7 +10,7 @@ export default class IndexedDBProfileRepository extends ProfileRepository {
     this.db = db;
   }
 
-  async storeUserProfiles(userProfiles) {
+  async createUserProfiles(userProfiles) {
     try {
       const stringifiedUserProfiles = userProfiles.map((profileData) =>
         stringifyArrays(profileData)
@@ -48,7 +48,7 @@ export default class IndexedDBProfileRepository extends ProfileRepository {
     }
   }
 
-  async clearUserProfiles() {
+  async deleteUserProfiles() {
     try {
       await this.db.profiles.clear();
     } catch (error) {
@@ -56,7 +56,7 @@ export default class IndexedDBProfileRepository extends ProfileRepository {
     }
   }
 
-  async retrieveUserProfiles(userId) {
+  async getUserProfiles(userId) {
     try {
       const profiles = await this.db.profiles.toArray();
       if (profiles && profiles.length > 0) {
@@ -80,7 +80,7 @@ export default class IndexedDBProfileRepository extends ProfileRepository {
     }
   }
 
-  async retrieveUserProfileByType(type) {
+  async getUserProfileByType(userId, type) {
     try {
       const profile = await this.db.profiles.where({ type }).toArray();
       return profile?.length > 0 ? parseArrays(profile[0]) : null;
@@ -105,7 +105,7 @@ export default class IndexedDBProfileRepository extends ProfileRepository {
     }
   }
 
-  async retrieveUserSelectedProfile() {
+  async getSelectedProfile() {
     try {
       const selectedProfile = await this.db.selectedProfile.toArray();
       return selectedProfile ? parseArrays(selectedProfile[0]) : null;
@@ -117,35 +117,6 @@ export default class IndexedDBProfileRepository extends ProfileRepository {
   async clearVendorProfiles() {
     try {
       await this.db.vendors.clear();
-    } catch (error) {
-      throw error;
-    }
-  }
-
-  async storeVendorProfiles(vendorProfiles) {
-    try {
-      const stringifiedVendorProfiles = vendorProfiles.map((profileData) =>
-        stringifyArrays(profileData)
-      );
-
-      await this.db.vendors.bulkPut(stringifiedVendorProfiles);
-
-      return parseArrays(await this.db.vendors.toArray());
-    } catch (error) {
-      throw error;
-    }
-  }
-
-  async retrieveVendorProfiles() {
-    try {
-      const vendorProfiles = await this.db.vendors.toArray();
-      if (vendorProfiles && vendorProfiles.length > 0) {
-        const profilesToReturn = vendorProfiles.map((profile) =>
-          parseArrays(profile)
-        );
-        return profilesToReturn;
-      }
-      return null;
     } catch (error) {
       throw error;
     }

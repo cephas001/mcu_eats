@@ -13,11 +13,26 @@ export default defineNuxtConfig({
     fetch: {
       credentials: "include",
     },
+    head: {
+      title: "MCU EATS",
+      htmlAttrs: {
+        lang: "en",
+      },
+      meta: [
+        {
+          name: "description",
+          content:
+            "This is a food delivery application for McPherson University",
+        },
+      ],
+    },
   },
   plugins: [
     "~/plugins/services/firebase.client.js",
-    "~/plugins/services/express.client.js",
-    "~/plugins/services/indexedDB.client.js",
+    "~/plugins/services/backend.client.js",
+    "~/plugins/services/indexedDB/profile.client.js",
+    "~/plugins/services/indexedDB/user.client.js",
+    "~/plugins/services/indexedDB/vendor.client.js",
   ],
   css: ["~/assets/css/main.css"],
 

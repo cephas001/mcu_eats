@@ -5,77 +5,91 @@ import express from "express";
 const router = express.Router();
 
 import {
-  loginUserFullAuthFlowUseCase,
-  deleteUserAuthUseCase,
-  verifyTokenUseCase,
-  getUserByEmailUseCase,
-  getEmailVerificationLinkUseCase,
-  getUserUseCase,
+  LoginUserFullAuthFlowUseCase,
+  VerifyTokenUseCase,
+  GetUserByEmailUseCase,
+  ConfirmEmailUseCase,
+  ChangePasswordUseCase,
+  RefreshTokenUseCase,
+  ResendConfirmationEmailUseCase,
+  ResetPasswordUseCase,
+  SendPasswordResetLinkUseCase,
 } from "../services/index.js";
 
-import sendVerificationEmail from "../utils/sendVerificationEmail.js";
-
-router.post("/login/full", async (req, res) => {
+// Authenticate user with full login flow
+router.post("/auth/login", async (req, res, next) => {
   try {
     const { auth_token } = req.cookies || req.body;
-    const user = await loginUserFullAuthFlowUseCase(auth_token);
+    const user = await LoginUserFullAuthFlowUseCase(auth_token);
     res.json(user);
   } catch (error) {
-    throw error;
+    next(error);
   }
 });
 
-router.post("/auth/delete-user", async (req, res) => {
-  try {
-    const { id } = req.body;
-    await deleteUserAuthUseCase(id);
-    res.json({
-      deleted: true,
-    });
-  } catch (error) {
-    res.json({ deleted: false, message: error.message });
-  }
-});
-
-router.post("/verify/token", async (req, res) => {
+// Verify authentication token (e.g. JWT)
+router.post("/auth/verify-token", async (req, res, next) => {
   try {
     const { auth_token } = req.cookies || req.body;
-    const token = auth_token;
-    const { id, email, verifiedEmail } = await verifyTokenUseCase(token);
+    const { id, email, verifiedEmail } = await VerifyTokenUseCase(auth_token);
     res.json({ id, email, verifiedEmail });
   } catch (error) {
-    throw error;
+    next(error);
   }
 });
 
-router.post("/get/user/email", async (req, res) => {
+// Retrieve user by email (secure lookup)
+router.post("/auth/users/lookup-by-email", async (req, res, next) => {
   try {
     const { email } = req.body;
-    const user = await getUserByEmailUseCase(email);
+    const user = await GetUserByEmailUseCase(email);
     res.json(user);
   } catch (error) {
-    return res.json(null);
+    next(error);
   }
 });
 
-router.post("/verify/email", async (req, res) => {
+// Confirm user's email address
+router.post("/auth/confirm-email", async (req, res, next) => {
   try {
-    const token = req.cookies?.auth_token || req.body?.auth_token;
-
-    const { urlFrom, userId } = req.body;
-
-    const { id, link } = await getEmailVerificationLinkUseCase(
-      token,
-      `${process.env.FRONTEND_URL}/redirected?from=${urlFrom}&mode=verifyEmail&id=${userId}`
-    );
-
-    const user = await getUserUseCase(id);
-    console.log(link);
-    const sent = await sendVerificationEmail(user.email, user.name, link);
-
-    res.json(sent);
+    const { email } = req.body;
+    const result = await ConfirmEmailUseCase(email);
+    res.json(result);
   } catch (error) {
-    throw error;
+    next(error);
+  }
+});
+
+// Refresh authentication token
+router.post("/auth/refresh-token", async (req, res, next) => {
+  try {
+    const { refreshToken } = req.cookies || req.body;
+    const newToken = await RefreshTokenUseCase(refreshToken);
+    res.json({ token: newToken });
+  } catch (error) {
+    next(error);
+  }
+});
+
+// Resend email confirmation
+router.post("/auth/resend-confirmation-email", async (req, res, next) => {
+  try {
+    const { email } = req.body;
+    await ResendConfirmationEmailUseCase(email);
+    res.sendStatus(204);
+  } catch (error) {
+    next(error);
+  }
+});
+
+// Send password reset link
+router.post("/auth/send-password-reset-link", async (req, res, next) => {
+  try {
+    const { email } = req.body;
+    await SendPasswordResetLinkUseCase(email);
+    res.sendStatus(204);
+  } catch (error) {
+    next(error);
   }
 });
 

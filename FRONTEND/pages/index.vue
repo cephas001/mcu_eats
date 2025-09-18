@@ -10,6 +10,7 @@ import { checkLoggedInUser } from "@/composables/auth/checkLoggedInUser";
 const route = useRoute();
 
 onMounted(async () => {
-  await checkLoggedInUser(route.query?.redirectTo);
+  const redirectTo = route.query?.redirectTo || "/consumer";
+  await checkLoggedInUser(redirectTo);
 });
 </script>

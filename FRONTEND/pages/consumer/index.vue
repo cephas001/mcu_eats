@@ -60,7 +60,7 @@ import { storeToRefs } from "pinia";
 import { checkVendors } from "@/composables/state/checkVendors";
 
 definePageMeta({
-  middleware: ["check-user-and-profiles", "check-selected-profile"],
+  middleware: ["check-selected-profile", "check-user-and-profiles"],
   allowAnonymous: true,
   specificUserType: ["consumer"],
 });
@@ -75,23 +75,4 @@ const { restaurants, retailers, shops } = storeToRefs(vendorStore);
 onMounted(async () => {
   await checkVendors();
 });
-
-// onMounted(async () => {
-//   const { favouriteVendorIds } = await returnFavouriteVendorIds();
-//   favouriteIds.value = favouriteVendorIds;
-
-//   if (!restaurants?.value) {
-//     fetchingData.value = true;
-//     try {
-//       await vendorStore.fetchVendors();
-//     } catch (error) {
-//       console.error("Error fetching vendors:", error);
-//     } finally {
-//       fetchingData.value = false;
-//     }
-//     return;
-//   }
-
-//   fetchingData.value = false;
-// });
 </script>

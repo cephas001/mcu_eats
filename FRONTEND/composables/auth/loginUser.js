@@ -18,6 +18,8 @@ export const loginUser = async (token, callBack, shouldNotHandleErrors) => {
     const { user, profiles } = await fetchUserAndProfiles();
 
     setUserAndProfiles(user, profiles);
+
+    return { user, profiles };
   } catch (error) {
     if (shouldNotHandleErrors) {
       throw error;

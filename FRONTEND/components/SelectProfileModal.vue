@@ -44,13 +44,15 @@
 
 <script setup>
 import { useProfileStore } from "@/stores/profileStore";
+import { useUserStore } from "@/stores/userStore";
+
+import { navigateTo } from "nuxt/app";
+import { watch } from "vue";
 import { useRoute } from "vue-router";
 import { storeToRefs } from "pinia";
 
 import { setSelectedProfile } from "@/composables/state/setSelectedProfile";
 import { storeSelectedProfileUsingType } from "@/composables/usecases/storeSelectedProfileUsingType";
-import { navigateTo } from "nuxt/app";
-import { watch } from "vue";
 
 const route = useRoute();
 
@@ -67,6 +69,9 @@ const profileStore = useProfileStore();
 const { showSelectProfileModal, selectedProfile } = storeToRefs(profileStore);
 const selectingProfile = ref(false);
 
+const userStore = useUserStore();
+const { user } = storeToRefs(userStore);
+
 const handleSelectProfile = async () => {
   if (selectedProfileType.value == "") {
     return;
@@ -81,7 +86,10 @@ const handleSelectProfile = async () => {
   try {
     selectingProfile.value = true;
 
-    await storeSelectedProfileUsingType(selectedProfileType.value);
+    await storeSelectedProfileUsingType(
+      user.value.id,
+      selectedProfileType.value
+    );
   } catch (error) {
     console.log(error);
     selectingProfile.value = false;
@@ -130,7 +138,7 @@ watch(showSelectProfileModal, (newVal, oldVal) => {
 
     return {
       label: `${getProfileNameFromType(profile.type)} Profile`,
-      description: `${profile.data.username || profile.data.vendorName}`,
+      description: `${profile.username || profile.vendorName}`,
       value: profile.type,
     };
   });

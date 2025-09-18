@@ -22,6 +22,8 @@
 import GoogleIcon from "@/assets/images/google.73c708cb.svg";
 import FacebookIcon from "@/assets/images/facebook.e4480188.svg";
 
+import { storeToRefs } from "pinia";
+
 import { useNuxtApp } from "nuxt/app";
 
 import { useAuthStore } from "@/stores/authStore";
@@ -41,19 +43,23 @@ const emit = defineEmits([
 const providerSignIn = async (provider) => {
   clearError();
 
+  let fetchedUser = null;
+  let fetchedProfiles = null;
   try {
     const { $signUpUserWithProviderUseCase } = useNuxtApp();
 
     const { token } = await $signUpUserWithProviderUseCase(provider);
 
-    await loginUser(token);
+    const { user, profiles } = await loginUser(token);
+    fetchedUser = user;
+    fetchedProfiles = profiles;
   } catch (error) {
     emit("error", error.message);
     return;
   }
 
   try {
-    await storeUserAndProfiles();
+    await storeUserAndProfiles(fetchedUser, fetchedProfiles);
   } catch (error) {
     emit("showModal", true);
   }

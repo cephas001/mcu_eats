@@ -24,5 +24,5 @@ export const handleSignupErrors = (error) => {
     return;
   }
 
-  signUpErrors.value = "An unexpected error occurred";
+  signUpErrors.value = "An unexpected error occurred. Please try again later.";
 };

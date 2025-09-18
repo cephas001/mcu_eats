@@ -1,9 +1,9 @@
 import { navigateTo } from "nuxt/app";
 
-export const storeSelectedProfileUsingType = async (type) => {
+export const storeSelectedProfileUsingType = async (userId, type) => {
   try {
-    const { $selectUserProfileUseCase } = useNuxtApp();
-    await $selectUserProfileUseCase(type);
+    const { $SelectUserProfileUseCase } = useNuxtApp();
+    await $SelectUserProfileUseCase(userId, type);
   } catch (error) {
     throw error;
   }

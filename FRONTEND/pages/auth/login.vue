@@ -44,7 +44,6 @@ import { navigateTo, useNuxtApp } from "nuxt/app";
 import { onMounted } from "vue";
 import { useAuthStore } from "@/stores/authStore";
 import { useProfileStore } from "@/stores/profileStore";
-import { useUserStore } from "@/stores/userStore";
 import { storeToRefs } from "pinia";
 import { getRedirectUrlFromSelectedProfile } from "@/utils/getRedirectUrlFromSelectedProfile";
 import { loginUser } from "@/composables/auth/loginUser";
@@ -57,21 +56,17 @@ const { loginForm, clearError } = useAuthStore();
 const { loginErrors, loginFormSchema } = storeToRefs(authStore);
 
 const profileStore = useProfileStore();
-const { profiles } = storeToRefs(profileStore);
 
 const tryingToLogin = ref(false);
 const settingBrowserStorage = ref(false);
 const showBrowserStorageErrorModal = ref(false);
-
-const userStore = useUserStore();
-const { user } = storeToRefs(userStore);
 
 const route = useRoute();
 
 const getUrlAndRedirect = () => {
   tryingToLogin.value = true;
 
-  var redirectToURL = route.query?.redirectTo;
+  let redirectToURL = route.query?.redirectTo;
 
   if (redirectToURL) return navigateTo(`${redirectToURL}`);
 
@@ -91,6 +86,8 @@ const handleLogin = async () => {
   tryingToLogin.value = true;
   showBrowserStorageErrorModal.value = false;
 
+  let fetchedUser = null;
+  let fetchedProfiles = null;
   try {
     const { $loginUserWithEmailAndPasswordUseCase } = useNuxtApp();
 
@@ -99,8 +96,12 @@ const handleLogin = async () => {
       password: loginForm.password?.trim(),
     });
 
-    await loginUser(token);
+    const { user, profiles } = await loginUser(token);
+
+    fetchedUser = user;
+    fetchedProfiles = profiles;
   } catch (error) {
+    console.log(error);
     handleLoginErrors(error);
     return;
   } finally {
@@ -110,7 +111,7 @@ const handleLogin = async () => {
   try {
     settingBrowserStorage.value = true;
 
-    await storeUserAndProfiles(user.value, profiles.value);
+    await storeUserAndProfiles(fetchedUser, fetchedProfiles);
   } catch (error) {
     console.log(error);
     showBrowserStorageErrorModal.value = true;

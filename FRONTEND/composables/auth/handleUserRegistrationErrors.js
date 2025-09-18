@@ -28,5 +28,6 @@ export const handleUserRegistrationErrors = (error) => {
     return navigateTo("/auth/login");
   }
 
-  registrationErrors.value = "An unexpected error occurred";
+  registrationErrors.value =
+    "An unexpected error occurred. Please try again later.";
 };

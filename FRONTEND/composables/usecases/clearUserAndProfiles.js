@@ -1,9 +1,9 @@
 export const clearUserAndProfilesUsecase = async () => {
-  const { $clearUserUseCase, $clearUserProfilesUseCase } = useNuxtApp();
+  const { $DeleteUserUseCase, $DeleteUserProfiles } = useNuxtApp();
 
   try {
-    await $clearUserUseCase();
-    await $clearUserProfilesUseCase();
+    await $DeleteUserUseCase();
+    await $DeleteUserProfiles();
   } catch (error) {
     throw error;
   }

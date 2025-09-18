@@ -25,5 +25,5 @@ export const handleLoginErrors = (error) => {
     return;
   }
 
-  loginErrors.value = "An unexpected error occurred";
+  loginErrors.value = "An unexpected error occurred. Please try again later.";
 };

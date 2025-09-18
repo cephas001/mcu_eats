@@ -109,14 +109,11 @@ import { storeToRefs } from "pinia";
 import { useUserStore } from "@/stores/userStore";
 import { useCartStore } from "@/stores/cartStore";
 import { navigateTo } from "nuxt/app";
-// import {
-//   returnFavouriteVendorIds,
-//   returnFavouriteProductIds,
-// } from "@/composables/returnFavouriteIds";
 
 definePageMeta({
   middleware: ["check-user-and-profiles"],
   specificUserType: ["consumer"],
+  allowAnonymous: true,
 });
 
 const cartStore = useCartStore();
@@ -150,7 +147,11 @@ const { selectedProductType } = storeToRefs(vendorStore);
 // To filter products based on selected type
 const filteredProducts = computed(() => {
   return vendor.value.products.filter((product) => {
-    if (selectedProductType.value.name == "All") {
+    if (
+      !selectedProductType.value.name ||
+      selectedProductType.value.name == "All"
+    ) {
+      console.log(product);
       return true;
     }
 
@@ -162,85 +163,6 @@ const filteredProducts = computed(() => {
   });
 });
 
-// onMounted(async () => {
-//   try {
-//     const found = await vendorStore.findVendorById(id);
-//     if (!found) {
-//       const fetched = await vendorStore.fetchVendorById(id);
-//       if (!fetched) {
-//         await navigateTo("/");
-//         return;
-//       }
-//     }
-
-//     const { favouriteProductIds } = await returnFavouriteProductIds();
-//     const { favouriteVendorIds } = await returnFavouriteVendorIds();
-
-//     if (favouriteVendorIds.includes(vendor.value._id)) {
-//       vendorFavourited.value = true;
-//     }
-
-//     // Initializes the types of products a vendor offers
-//     vendor.value.types = [];
-
-//     cartStore.getCartValues();
-//     cartStore.computeTotalCartPrice();
-
-//     vendor.value.products.forEach((product, index) => {
-//       // Checks if a product is favourited by the user
-//       if (favouriteProductIds.includes(product._id)) {
-//         product.favourited = true;
-//       } else {
-//         product.favourited = false;
-//       }
-
-//       // Checks if a product is in cart and using the quantity already store for the product count
-//       const productInCart = cart?.value?.find((item) => {
-//         return item._id == product._id;
-//       });
-
-//       if (productInCart) {
-//         product["count"] = productInCart.quantity;
-//       } else {
-//         product["count"] = 0;
-//       }
-
-//       // New product type object
-//       const objectToAdd = {
-//         id: Date.now().toString(36) + Math.random().toString(36).substring(2),
-//         name: product.type,
-//         selected: index === 0,
-//       };
-
-//       // Check if a vendor product type already exists before adding to the array of vendor product types
-//       if (!vendor.value.types.some((type) => type.name === product.type)) {
-//         vendor.value.types.push(objectToAdd);
-//       }
-//     });
-
-//     if (route.query.type !== "") {
-//       const type = vendor.value.types.find((type) => {
-//         return type.name === route.query.type;
-//       });
-//       if (type) {
-//         vendor.value.types[0].selected = false;
-//         type.selected = true;
-//         selectedProductType.value = type;
-//       } else {
-//         // Sets the default selected value to the first vendor type
-//         selectedProductType.value = vendor.value.types[0];
-//       }
-//     } else {
-//       // Sets the default selected value to the first vendor type
-//       selectedProductType.value = vendor.value.types[0];
-//     }
-//   } catch (error) {
-//     console.error("Error fetching vendor:", error);
-//   } finally {
-//     fetchingVendor.value = false;
-//   }
-// });
-
 onMounted(() => {
   const id = route.params.id;
   const foundVendor = vendorStore.findVendorById(id);
@@ -248,8 +170,10 @@ onMounted(() => {
   if (!foundVendor) return navigateTo("/");
 
   foundVendor.productTypes = [];
+  let count = 0;
   if (foundVendor.products?.length > 0) {
     foundVendor.productTypes = foundVendor.products.map((product, index) => {
+      count = index + count;
       return {
         id: Date.now().toString(36) + Math.random().toString(36).substring(2),
         name: index === 0 ? "All" : product.productType,
