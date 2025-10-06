@@ -17,7 +17,7 @@
       />
     </div>
 
-    <SubmitButton @click="emits('formSubmit', true)" :text="submitButtonText" />
+    <SubmitButton @click="emits('formSubmit', true)" :text="submitButtonText" v-if="!hideSubmitButton" />
   </UForm>
 </template>
 
@@ -39,6 +39,10 @@ const props = defineProps({
   classList: {
     type: String,
     default: "",
+  },
+  hideSubmitButton: {
+    type: Boolean,
+    default: false,
   },
 });
 </script>

@@ -17,5 +17,21 @@ export const useProductStore = defineStore("product", () => {
 
   const productCreationError = ref("");
 
-  return { productsForm, showAddProductForm,productCreationError };
+  const productsFilterForm = reactive({
+    productState: undefined,
+    productStateOptions: ["All", "Archived", "Unarchived"],
+    isAvailable: undefined,
+  });
+
+  const productsFilterFormSchema = [
+   {
+    name: "productState",
+    type: "select",
+    valueVariableName: "productState",
+    listVariableName: "productStateOptions",
+  },
+    
+  ];  
+
+  return { productsForm, showAddProductForm,productCreationError, productsFilterForm, productsFilterFormSchema};
 });

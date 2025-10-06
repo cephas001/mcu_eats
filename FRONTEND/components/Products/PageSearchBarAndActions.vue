@@ -23,7 +23,7 @@
       >
         Add Product
       </UButton>
-      <div class="flex items-center gap-1">
+      <div class="flex items-center gap-1 relative">
         <UIcon
           name="i-material-symbols-archive-outline-rounded"
           class="text-black text-2xl"
@@ -31,11 +31,26 @@
         </UIcon>
         <UIcon name="i-material-symbols-delete" class="text-red-600 text-2xl">
         </UIcon>
+        <UIcon
+          name="material-symbols-filter-alt-outline"
+          class="text-black text-2xl"
+        >
+        </UIcon>
       </div>
+    </div>
+    <div>
+      <CustomForm
+        :formFieldsSchema="productsFilterFormSchema"
+        :formState="productsFilterForm"
+        :hideSubmitButton="true"
+      />
     </div>
   </div>
 </template>
 
 <script setup>
+import { useProductStore } from "~/stores/productStore";
+const productStore = useProductStore();
+const { productsFilterForm, productsFilterFormSchema } = productStore;
 const emit = defineEmits(["addProductButtonClicked"]);
 </script>
