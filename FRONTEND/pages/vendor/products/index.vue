@@ -25,7 +25,7 @@
   </section>
 
   <!-- Add Product Modal -->
-  <ProductCreationModal
+  <ProductsCreationModal
     @createProduct="createProduct"
     v-if="!creatingProduct"
   />
