@@ -1,6 +1,6 @@
 <template>
   <UModal
-    v-model:open="show"
+    v-model:open="showAddProductForm"
     class="bg-background text-black pb-4 font-manrope"
     title="Add a product"
     description="Fill the form below to add a new product"
@@ -21,7 +21,7 @@
         :formFieldsSchema="productsFormSchema"
         :formState="productsForm"
         submitButtonText="Add Product"
-        @click="emit('createProduct', true)"
+        @formSubmit="emit('createProduct', true)"
       />
     </template>
   </UModal>
@@ -30,18 +30,13 @@
 <script setup>
 import { useProductStore } from "@/stores/productStore";
 import { watch } from "vue";
+import { storeToRefs } from "pinia";
 
 const productStore = useProductStore();
 const { productsForm } = productStore;
+const { showAddProductForm } = storeToRefs(productStore);
 
-const props = defineProps({
-  showAddProductForm: {
-    type: Boolean,
-    required: true,
-  },
-})
-
-const show = watch(()=>props.showAddProductForm);
+const show = ref(false);
 const emit = defineEmits(["createProduct"]);
 
 const productsFormSchema = ref([
@@ -59,13 +54,13 @@ const productsFormSchema = ref([
     type: "text",
     valueVariableName: "description",
   },
-  {
-    label: "Is this product a combo?",
-    placeholder: "A combo is a combination of several products you offer",
-    name: "description",
-    type: "text",
-    valueVariableName: "description",
-  },
+  // {
+  //   label: "Is this product a combo?",
+  //   placeholder: "A combo is a combination of several products you offer",
+  //   name: "description",
+  //   type: "text",
+  //   valueVariableName: "description",
+  // },
   {
     label: "Price (₦)",
     placeholder: "Price in Naira",
@@ -73,20 +68,28 @@ const productsFormSchema = ref([
     type: "number",
     valueVariableName: "price",
   },
+  // {
+  //   label: "Quantity Available",
+  //   placeholder: "Number of items available in stock",
+  //   name: "quantityAvailable",
+  //   type: "number",
+  //   valueVariableName: "quantityAvailable",
+  // },
   {
-    label: "Quantity Available",
-    placeholder: "Number of items available in stock",
-    name: "quantityAvailable",
-    type: "number",
-    valueVariableName: "quantityAvailable",
+    label: "Product Category",
+    placeholder: "e.g Food, Beverage, Snack etc.",
+    name: "category",
+    type: "select",
+    valueVariableName: "category",
+    listVariableName: "productCategoryList",
   },
   {
-    label: "Product Type",
-    placeholder: "e.g Food, Beverage, Snack etc.",
-    name: "productType",
+    label: "Is this product available?",
+    placeholder: "Is this product available for purchase?",
+    name: "isAvailable",
     type: "select",
-    valueVariableName: "productType",
-    listVariableName: "productTypeList",
+    valueVariableName: "available",
+    listVariableName: "isAvailableList",
   },
 ]);
 </script>

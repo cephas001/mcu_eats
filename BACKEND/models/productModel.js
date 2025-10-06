@@ -37,14 +37,14 @@ const ProductSchema = new mongoose.Schema(
       required: true,
       min: 0,
     },
-    isCombo: {
-      type: Boolean,
-      required: true,
-    },
-    comboItems: {
-      type: [comboItemSchema],
-      default: [],
-    },
+    // isCombo: {
+    //   type: Boolean,
+    //   required: true,
+    // },
+    // comboItems: {
+    //   type: [comboItemSchema],
+    //   default: [],
+    // },
     category: {
       type: String,
       required: true,

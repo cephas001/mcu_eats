@@ -5,8 +5,8 @@ export default class Product {
     name,
     description,
     price,
-    isCombo,
-    comboItems = [], // ARRAY OF COMBO ITEMS (CHECK DOMAIN)
+    // isCombo,
+    // comboItems = [], // ARRAY OF COMBO ITEMS (CHECK DOMAIN)
     category,
     isAvailable,
     isArchived = false,
@@ -18,8 +18,8 @@ export default class Product {
     this.name = name;
     this.description = description;
     this.price = price;
-    this.isCombo = isCombo;
-    this.comboItems = comboItems;
+    // this.isCombo = isCombo;
+    // this.comboItems = comboItems;
     this.category = category;
     this.isArchived = isArchived;
     this.isAvailable = isAvailable;

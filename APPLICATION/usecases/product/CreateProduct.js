@@ -46,8 +46,7 @@ export default function CreateProduct(vendorRepo, productRepo) {
       const productToSave = new Product(validatedProductData);
 
       const { product, productId } = await productRepo.createProduct(
-        vendorId,
-        productToSave
+       productToSave
       );
 
       createdProduct = product;

@@ -10,10 +10,10 @@ export const createProductSchema = z.object({
   name: z.string().min(1, "Product name is required"),
   description: z.string().optional(),
   price: z.number().positive("Price must be a positive number"),
-  isCombo: z.boolean(),
-  comboItems: z.array(comboItemSchema).optional(),
+  // isCombo: z.boolean(),
+  // comboItems: z.array(comboItemSchema).optional(),
   category: z.string().min(1, "Category is required"),
-  isAvailable: z.boolean(),
+  isAvailable: z.boolean("This field is required"),
   isArchived: z.boolean().default(false),
 });
 

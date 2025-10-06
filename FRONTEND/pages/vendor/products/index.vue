@@ -1,4 +1,9 @@
 <template>
+  <FormErrorMessage
+    :errorMessage="productCreationError"
+    classList="text-center mb-4"
+  />
+
   <!-- Product Listings -->
   <section class="mt-15 px-6 pb-2" v-if="!creatingProduct">
     <h1 class="text-2xl font-bold text-black mb-6 text-center tracking-wide">
@@ -6,7 +11,7 @@
     </h1>
 
     <ProductsPageSearchBarAndActions
-      @addProductButtonClicked="showModal"
+      @addProductButtonClicked="showAddProductForm = !showAddProductForm"
     />
 
     <p
@@ -27,7 +32,6 @@
   <!-- Add Product Modal -->
   <ProductsCreationModal
     @createProduct="createProduct"
-    :showAddProductForm
     v-if="!creatingProduct"
   />
 
@@ -37,13 +41,21 @@
 <script setup>
 import { updateUserProfile } from "@/composables/auth/updateUserProfile";
 import { useProfileStore } from "@/stores/profileStore";
+import { useProductStore } from "@/stores/productStore";
 import { navigateTo, useNuxtApp } from "nuxt/app";
-import { onMounted } from "vue";
+import { computed, onMounted } from "vue";
+import { storeToRefs } from "pinia";
+import { handleProductCreationErrors } from "@/composables/auth/handleProductCreationError";
 
 definePageMeta({
   middleware: ["check-user-and-profiles", "check-selected-profile"],
   specificUserType: ["vendor"],
 });
+
+
+const productStore = useProductStore();
+const { productsForm } = productStore;
+const { showAddProductForm, productCreationError } = storeToRefs(productStore);
 
 const profileStore = useProfileStore();
 
@@ -56,30 +68,45 @@ const unarchivedProducts = ref([]);
 
 const { $productApiService } = useNuxtApp();
 
-const showAddProductForm = ref(false);
-
 const createProduct = async () => {
   try {
     creatingProduct.value = true;
+
+    const vendor = profileStore.getProfile("vendor");
+console.log(vendor)
+    if(!vendor) throw new Error("No vendor profile found");
+
     const { updatedVendor, createdProduct, createdProductId } =
-      $productApiService.createProduct({
+      await $productApiService.createProduct({
         name: productsForm.name,
         description: productsForm.description,
         price: productsForm.price,
-      });
+        category: productsForm.category,
+        isAvailable: isAvailable.value,
+        vendorId: vendor.id,
+      }, vendor.id);
+
+    console.log({ updatedVendor, createdProduct, createdProductId });
+
+      return;
     setProducts();
     showAddProductForm.value = false;
   } catch (error) {
+    handleProductCreationErrors(error);
     console.log(error);
   } finally {
     creatingProduct.value = false;
   }
 };
 
-const showModal = () => {
-  console.log("here")
-  showAddProductForm.value = true;
-};
+const isAvailable = computed(() => {
+  if(productsForm.available == "Yes") {
+    return true;
+  } else if(productsForm.available == "No") {
+    return false;
+  }
+  return null;
+});
 
 const setProducts = async () => {
   const vendorProfile = profileStore.getProfile("vendor");

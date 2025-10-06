@@ -8,15 +8,10 @@ export default class MongoProductRepository extends ProductRepository {
     this.vendorProfileRepo = vendorProfileRepo;
   }
 
-  async createProduct(vendorId, product) {
+  async createProduct(product) {
     try {
-      const productToSave = {
-        ...product,
-        vendorId,
-      }
-
-      const product = new this.productRepo(productToSave);
-      const savedProduct = await product.save();
+      const productToSave = new this.productRepo(product);
+      const savedProduct = await productToSave.save();
 
       return {
         product: renameMongoIdFields(savedProduct.toObject()),
