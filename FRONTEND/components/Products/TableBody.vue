@@ -21,7 +21,8 @@
 
       <td class="py-3">
         <span class="whitespace-nowrap tabular-nums">
-          {{ product?.quantityAvailable }}
+          <!-- {{ product?.quantityAvailable }} -->
+            {{  product?.category  }}
         </span>
       </td>
     </tr>

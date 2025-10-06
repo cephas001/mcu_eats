@@ -26,7 +26,7 @@
     class="overflow-x-auto mt-3 px-6 min-h-[50vh]"
     v-if="!creatingProduct"
   >
-    <ProductsTable :products />
+    <ProductsTable :products="allProducts" />
   </section>
 
   <!-- Add Product Modal -->
@@ -88,7 +88,6 @@ console.log(vendor)
 
     console.log({ updatedVendor, createdProduct, createdProductId });
 
-      return;
     setProducts();
     showAddProductForm.value = false;
   } catch (error) {
@@ -124,6 +123,8 @@ const setProducts = async () => {
   archivedProducts.value = vendorProducts.archivedProducts;
   unarchivedProducts.value = vendorProducts.unarchivedProducts;
   allProducts.value = vendorProducts.allProducts;
+
+  console.log(vendorProducts);
 };
 
 onMounted(() => {
