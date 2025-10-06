@@ -17,17 +17,17 @@ import {
   UpdateVendorAvailabilityUseCase,
 } from "../services/index.js";
 
+import verifyToken from "../middlewares/verifyToken.js";
+
 // Create a new vendor
-router.post("/vendors", async (req, res, next) => {
+router.post("/vendors", verifyToken, async (req, res, next) => {
   try {
-    const { name, email, businessName, category } = req.body;
-    const vendor = await CreateVendorUseCase({
-      name,
-      email,
-      businessName,
-      category,
-    });
-    res.status(201).json(vendor);
+    const { vendorProfileData } = req.body;
+    const { savedProfile, updatedUser } = await CreateVendorUseCase(
+      vendorProfileData,
+      req.user.id
+    );
+    res.status(201).json({ savedProfile, updatedUser });
   } catch (error) {
     next(error);
   }

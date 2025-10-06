@@ -113,12 +113,12 @@ const setUserNavigationItems = (user, selectedProfile) => {
         to: `/?redirectTo=${redirectTo ? redirectTo : "consumer"}`,
         color: "info",
       },
-      {
-        label: "Favourites",
-        icon: "i-material-symbols-favorite",
-        color: "info",
-        to: "/profile/favourites",
-      },
+      // {
+      //   label: "Favourites",
+      //   icon: "i-material-symbols-favorite",
+      //   color: "info",
+      //   to: "/profile/favourites",
+      // },
     ],
     [
       {

@@ -4,7 +4,7 @@
 
     <FormErrorMessage
       :errorMessage="profileRegistrationErrors"
-      classList="text-center mb-4 mt-4"
+      classList="text-center mb-3 mt-3"
     />
 
     <CustomForm

@@ -6,7 +6,7 @@
       {{ capitalizeWords(vendor.category) }}
     </div>
     <Media
-      src="/restaurant/food1.jpg"
+      src="/restaurant/food.jpg"
       class="rounded-t-md"
       @click.self="openVendor()"
     />

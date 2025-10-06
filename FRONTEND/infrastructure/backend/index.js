@@ -1,13 +1,13 @@
-import AuthBackend from "./AuthBackend";
-import ConsumerBackend from "./ConsumerBackend";
-import DeliveryPersonBackend from "./DeliveryPersonBackend";
-import NotificationBackend from "./NotificationBackend";
-import OrderBackend from "./OrderBackend";
-import PaymentBackend from "./PaymentBackend";
-import ProductBackend from "./ProductBackend";
-import ProfileBackend from "./ProfileBackend";
-import UserBackend from "./UserBackend";
-import VendorBackend from "./VendorBackend";
+import AuthBackend from "./AuthBackend.js";
+import ConsumerBackend from "./ConsumerBackend.js";
+import DeliveryPersonBackend from "./DeliveryPersonBackend.js";
+import NotificationBackend from "./NotificationBackend.js";
+import OrderBackend from "./OrderBackend.js";
+import PaymentBackend from "./PaymentBackend.js";
+import ProductBackend from "./ProductBackend.js";
+import ProfileBackend from "./ProfileBackend.js";
+import UserBackend from "./UserBackend.js";
+import VendorBackend from "./VendorBackend.js";
 
 export {
   AuthBackend,

@@ -9,6 +9,7 @@ import {
   UnauthorizedError,
   UnexpectedError,
 } from "../../domain/Error.js";
+import { inputErrorHandler } from "../../utils/errorHandler.js";
 
 function checkCategoryAndReturnSchema(userCategory) {
   if (userCategory == "staff") {
@@ -26,7 +27,7 @@ export default function UpdateConsumer(userRepo, consumerRepo) {
       throw new UserExistenceError("This user does not exists");
     }
 
-    const profile = await consumerRepo.getConsumerById(profileId);
+    const profile = await consumerRepo.findById(profileId);
 
     if (!profile) {
       throw new ProfileExistenceError("This profile does not exists");
@@ -38,18 +39,10 @@ export default function UpdateConsumer(userRepo, consumerRepo) {
 
     const consumerSchema = checkCategoryAndReturnSchema(existingUser.category);
 
-    const consumerDataValidation = consumerSchema.safeParse(consumerData);
-
-    if (!consumerDataValidation.success) {
-      const errorList = consumerDataValidation.error.errors.map((e) => ({
-        inputName: e.path.join(".") || "unknown",
-        errorMessage: e.message,
-      }));
-
-      throw new ValidationError("Validation failed", null, errorList);
-    }
-
-    const validatedConsumerData = consumerDataValidation.data;
+    const validatedConsumerData = inputErrorHandler(
+      consumerSchema,
+      consumerData
+    );
 
     try {
       return await consumerRepo.updateConsumer(

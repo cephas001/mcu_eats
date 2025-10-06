@@ -4,11 +4,11 @@ export default class DeliveryPersonBackend {
   }
 
   // Create a new delivery person
-  async createDeliveryPerson({ name, phone, area }) {
+  async createDeliveryPerson(deliveryPersonProfileData) {
     try {
       return await this.api.request("/delivery-persons", {
         method: "POST",
-        body: { name, phone, area },
+        body: { deliveryPersonProfileData },
       });
     } catch (error) {
       throw error;

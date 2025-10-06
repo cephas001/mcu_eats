@@ -9,8 +9,9 @@ export default class Product {
     comboItems = [], // ARRAY OF COMBO ITEMS (CHECK DOMAIN)
     category,
     isAvailable,
-    createdAt,
-    updatedAt,
+    isArchived = false,
+    createdAt = new Date(),
+    updatedAt = new Date(),
   }) {
     this.id = id;
     this.vendorId = vendorId;
@@ -20,6 +21,7 @@ export default class Product {
     this.isCombo = isCombo;
     this.comboItems = comboItems;
     this.category = category;
+    this.isArchived = isArchived;
     this.isAvailable = isAvailable;
     this.createdAt = createdAt;
     this.updatedAt = updatedAt;

@@ -6,6 +6,7 @@ import {
   UnexpectedError,
   ProfileExistenceError,
 } from "../../domain/Error.js";
+import { inputErrorHandler } from "../../utils/errorHandler.js";
 
 export default function CreateDeliveryPerson(deliveryPersonRepo, userRepo) {
   return async function (deliveryPersonProfileData, userId) {
@@ -34,19 +35,10 @@ export default function CreateDeliveryPerson(deliveryPersonRepo, userRepo) {
       );
     }
 
-    const deliveryPersonDataValidation =
-      createDeliveryPersonProfileSchema.safeParse(deliveryPersonProfileData);
-
-    if (!deliveryPersonDataValidation.success) {
-      const errorList = deliveryPersonDataValidation.error.errors.map((e) => ({
-        inputName: e.path.join(".") || "unknown",
-        errorMessage: e.message,
-      }));
-
-      throw new ValidationError("Validation failed", null, errorList);
-    }
-
-    const validatedDeliveryPersonData = deliveryPersonDataValidation.data;
+    const validatedDeliveryPersonData = inputErrorHandler(
+      createDeliveryPersonProfileSchema,
+      deliveryPersonProfileData
+    );
 
     let createdProfile = null;
     let createdProfileId = null;

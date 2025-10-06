@@ -4,18 +4,11 @@ export default class ProductBackend {
   }
 
   // Create a new product
-  async createProduct({
-    name,
-    description,
-    price,
-    categoryId,
-    vendorId,
-    available,
-  }) {
+  async createProduct(productData, vendorId) {
     try {
       return await this.api.request("/products", {
         method: "POST",
-        body: { name, description, price, categoryId, vendorId, available },
+        body: { productData, vendorId },
       });
     } catch (error) {
       throw error;
@@ -48,6 +41,17 @@ export default class ProductBackend {
   async getProductsByVendor(vendorId) {
     try {
       return await this.api.request(`/products/vendor/${vendorId}`, {
+        method: "GET",
+      });
+    } catch (error) {
+      throw error;
+    }
+  }
+
+  // Get all products that belong to a vendor
+  async getAllVendorProducts(vendorId) {
+    try {
+      return await this.api.request(`/all-products/vendor/${vendorId}`, {
         method: "GET",
       });
     } catch (error) {

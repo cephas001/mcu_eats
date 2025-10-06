@@ -2,6 +2,8 @@ import CreateCombo from "./CreateCombo.js";
 import CreateProduct from "./CreateProduct.js";
 import DeleteCombo from "./DeleteCombo.js";
 import DeleteProduct from "./DeleteProduct.js";
+import DeleteProducts from "./DeleteProducts.js";
+import GetAllVendorProducts from "./GetAllVendorProducts.js";
 import GetProductById from "./GetProductById.js";
 import GetProductsByCategory from "./GetProductsByCategory.js";
 import GetProductsByVendor from "./GetProductsByVendor.js";
@@ -16,6 +18,8 @@ export {
   CreateProduct,
   DeleteCombo,
   DeleteProduct,
+  DeleteProducts,
+  GetAllVendorProducts,
   GetProductById,
   GetProductsByCategory,
   GetProductsByVendor,

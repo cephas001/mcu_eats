@@ -1,5 +1,22 @@
 import * as ConsumerUseCases from "../../APPLICATION/usecases/consumer/index.js";
 
+import MongoConsumerRepository from "../infrastructure/repositories/MongoConsumerRepository.js";
+import MongoUserRepository from "../infrastructure/repositories/MongoUserRepository.js";
+
+import * as Models from "../models/index.js";
+
+const vendorRepo = new MongoConsumerRepository(
+  Models.User,
+  Models.VendorProfile
+);
+
+const userRepo = new MongoUserRepository(
+  Models.User,
+  Models.ConsumerProfile,
+  Models.DeliveryPersonProfile,
+  Models.VendorProfile
+);
+
 export const CreateConsumerUseCase = ConsumerUseCases.CreateConsumer();
 export const CreateFavoriteUseCase = ConsumerUseCases.CreateFavorite();
 export const DeleteConsumerUseCase = ConsumerUseCases.DeleteConsumer();

@@ -9,6 +9,7 @@ import {
   UnexpectedError,
   ProfileExistenceError,
 } from "../../domain/Error.js";
+import { inputErrorHandler } from "../../utils/errorHandler.js";
 
 function checkCategoryAndReturnSchema(userCategory) {
   if (userCategory == "staff") {
@@ -48,27 +49,19 @@ export default function CreateConsumer(consumerRepo, userRepo) {
     const consumerSchema = checkCategoryAndReturnSchema(existingUser.category);
 
     if (!consumerSchema) {
-      throw new ValidationError("Invalid user category sent");
+      throw new ValidationError("Invalid user category");
     }
 
-    const consumerDataValidation =
-      consumerSchema.safeParse(consumerProfileData);
-
-    if (!consumerDataValidation.success) {
-      const errorList = consumerDataValidation.error.errors.map((e) => ({
-        inputName: e.path.join(".") || "unknown",
-        errorMessage: e.message,
-      }));
-
-      throw new ValidationError("Validation failed", null, errorList);
-    }
-
-    const validatedConsumerData = consumerDataValidation.data;
+    const validatedConsumerData = inputErrorHandler(
+      consumerSchema,
+      consumerProfileData
+    );
 
     let createdProfile = null;
     let createdProfileId = null;
     try {
       const consumerProfile = new Consumer(validatedConsumerData);
+
       const { savedProfile, profileId } = await consumerRepo.createConsumer(
         consumerProfile
       );

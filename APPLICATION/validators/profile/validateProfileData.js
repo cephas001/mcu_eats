@@ -29,7 +29,10 @@ const completedOrderSchema = orderRefSchema.extend({
 
 const timeSchema = z.object({
   hour: z
-    .number({ invalid_type_error: "Time must be a number" })
+    .number({
+      required_error: "This field is required",
+      invalid_type_error: "Time must be a number",
+    })
     .int()
     .min(0, "Hour must be between 0 and 23")
     .max(23, "Hour must be between 0 and 23"),

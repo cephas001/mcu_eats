@@ -6,6 +6,7 @@ import {
   UnauthorizedError,
   UnexpectedError,
 } from "../../domain/Error.js";
+import { inputErrorHandler } from "../../utils/errorHandler.js";
 
 export default function UpdateVendor(userRepo, vendorRepo) {
   return async function ({ userId, profileId, vendorData }) {
@@ -25,19 +26,10 @@ export default function UpdateVendor(userRepo, vendorRepo) {
       throw new UnauthorizedError("This profile does not belong to this user");
     }
 
-    const vendorDataValidation =
-      updateVendorProfileSchema.safeParse(vendorData);
-
-    if (!vendorDataValidation.success) {
-      const errorList = vendorDataValidation.error.errors.map((e) => ({
-        inputName: e.path.join(".") || "unknown",
-        errorMessage: e.message,
-      }));
-
-      throw new ValidationError("Validation failed", null, errorList);
-    }
-
-    const validatedVendorData = vendorDataValidation.data;
+    const validatedVendorData = inputErrorHandler(
+      updateVendorProfileSchema,
+      vendorData
+    );
 
     try {
       return await vendorRepo.updateVendor(profileId, validatedVendorData);

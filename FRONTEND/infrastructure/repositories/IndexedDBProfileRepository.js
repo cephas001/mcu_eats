@@ -91,6 +91,7 @@ export default class IndexedDBProfileRepository extends ProfileRepository {
 
   async selectUserProfile(userProfile) {
     try {
+      await this.db.selectedProfile.clear();
       await this.db.selectedProfile.put(stringifyArrays(userProfile));
     } catch (error) {
       throw error;

@@ -15,11 +15,10 @@
   <div class="px-6 pt-2">
     <!-- Header -->
     <header class="text-center mb-6">
-      <div class="flex justify-between items-start">
+      <div class="flex justify-between items-center">
         <div class="text-left">
           <h1 class="text-2xl font-bold text-black mb-2">
-            Welcome, <br />
-            Godwin and Sons Confectionery
+            {{ vendorProfile?.vendorName }}
           </h1>
           <div class="flex items-center gap-2">
             <span class="text-sm text-gray-500">Status:</span>
@@ -38,7 +37,7 @@
             </select>
           </div>
         </div>
-        <Media src="/vendor.jpg" class="w-20 rounded-full" />
+        <img src="@/assets/images/vendor.jpg" class="w-20 rounded-full" />
       </div>
     </header>
 
@@ -123,11 +122,22 @@
 </template>
 
 <script setup>
+import { useProfileStore } from "@/stores/profileStore";
+import { onMounted, ref } from "vue";
+
 definePageMeta({
   middleware: ["check-user-and-profiles", "check-selected-profile"],
   specificUserType: ["vendor"],
 });
 
-import { ref } from "vue";
+const profileStore = useProfileStore();
+const vendorProfile = ref(null);
+
 const status = ref("Closed");
+
+onMounted(() => {
+  const profile = profileStore.getProfile("vendor");
+  vendorProfile.value = profile;
+  console.log(vendorProfile.value);
+});
 </script>

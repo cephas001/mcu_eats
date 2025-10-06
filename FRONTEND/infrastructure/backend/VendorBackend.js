@@ -1,14 +1,16 @@
 export default class VendorBackend {
   constructor(api) {
     this.api = api;
+    this.name = "Peter";
   }
 
   // Create a new vendor
-  async createVendor({ name, email, businessName, category }) {
+  async createVendor(vendorProfileData) {
     try {
+      console.log(this);
       return await this.api.request("/vendors", {
         method: "POST",
-        body: { name, email, businessName, category },
+        body: { vendorProfileData },
       });
     } catch (error) {
       throw error;

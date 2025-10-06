@@ -6,8 +6,9 @@ import {
   UnexpectedError,
   ProfileExistenceError,
 } from "../../domain/Error.js";
+import { inputErrorHandler } from "../../utils/errorHandler.js";
 
-export default function CreateVendor(vendorRepo, userRepo) {
+export default function CreateVendor({ userRepo, vendorRepo }) {
   return async function (vendorProfileData, userId) {
     if (!vendorProfileData) {
       throw new ValidationError("The vendor profile data is not defined");
@@ -25,26 +26,16 @@ export default function CreateVendor(vendorRepo, userRepo) {
       userId,
       "vendor"
     );
-
     if (existingProfile) {
       throw new ProfileExistenceError(
         "This profile already exists for this user"
       );
     }
 
-    const vendorDataValidation =
-      createVendorProfileSchema.safeParse(vendorProfileData);
-
-    if (!vendorDataValidation.success) {
-      const errorList = vendorDataValidation.error.errors.map((e) => ({
-        inputName: e.path.join(".") || "unknown",
-        errorMessage: e.message,
-      }));
-
-      throw new ValidationError("Validation failed", null, errorList);
-    }
-
-    const validatedVendorData = vendorDataValidation.data;
+    const validatedVendorData = inputErrorHandler(createVendorProfileSchema, {
+      userId,
+      ...vendorProfileData,
+    });
 
     let createdProfile = null;
     let createdProfileId = null;

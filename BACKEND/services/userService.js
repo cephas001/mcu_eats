@@ -1,18 +1,14 @@
 import MongoUserRepository from "../infrastructure/repositories/MongoUserRepository.js";
 
-// NEW
 import * as UserUseCases from "../../APPLICATION/usecases/user/index.js";
 
-import User from "../models/userModel.js";
-import ConsumerProfile from "../models/consumerProfileModel.js";
-import DeliveryPersonProfile from "../models/deliveryPersonProfileModel.js";
-import VendorProfile from "../models/vendorProfileModel.js";
+import * as Models from "../models/index.js";
 
 const userRepo = new MongoUserRepository(
-  User,
-  ConsumerProfile,
-  DeliveryPersonProfile,
-  VendorProfile
+  Models.User,
+  Models.ConsumerProfile,
+  Models.DeliveryPersonProfile,
+  Models.VendorProfile
 );
 
 export const CreateUserUseCase = UserUseCases.CreateUser(userRepo);

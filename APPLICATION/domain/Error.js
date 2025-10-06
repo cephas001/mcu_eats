@@ -88,9 +88,16 @@ export class ProfileSelectionError extends Error {
     this.name = "ProfileSelectionError";
     this.type = "ProfileSelectionError";
 
-    
     if (cause instanceof Error && cause.stack) {
       this.stack += `\nCaused by: ${cause.stack}`;
     }
+  }
+}
+
+export class ProductExistenceError extends Error {
+  constructor(message) {
+    super(message);
+    this.name = "ProductExistenceError";
+    this.type = "ProductExistenceError";
   }
 }

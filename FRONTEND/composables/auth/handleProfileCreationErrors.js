@@ -11,7 +11,10 @@ export const handleProfileCreationErrors = (error) => {
   if (error.type == "ValidationError") {
     if (error.errorList) {
       const { inputName, errorMessage } = error.errorList[0];
-      displayError(errorMessage, inputName);
+      displayError(
+        errorMessage,
+        inputName.includes(".") ? inputName.split(".")[0] : inputName
+      );
     } else {
       displayError(error.message, error.inputName);
     }
@@ -20,7 +23,7 @@ export const handleProfileCreationErrors = (error) => {
   }
 
   if (error.type == "ProfileExistenceError") {
-    profileRegistrationErrors.value = error.message;
+    profileRegistrationErrors.value = error.message + ". Please login instead.";
     return;
   }
 

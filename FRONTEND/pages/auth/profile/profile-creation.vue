@@ -1,38 +1,21 @@
 <template>
-  <template
-    v-if="
-      profileType == 'delivery_person' &&
-      !creatingProfile &&
-      !settingBrowserStorage
-    "
-  >
+  <template v-if="profileType == 'delivery_person' && notLoading">
     <PageDeliveryPerson />
   </template>
 
-  <template
-    v-else-if="
-      profileType == 'vendor' && !creatingProfile && !settingBrowserStorage
-    "
-  >
+  <template v-else-if="profileType == 'vendor' && notLoading">
     <PageVendor />
   </template>
 
-  <template
-    v-else-if="
-      profileType == 'consumer' && !creatingProfile && !settingBrowserStorage
-    "
-  >
+  <template v-else-if="profileType == 'consumer' && notLoading">
     <PageConsumer />
   </template>
 
   <template v-else>
-    <LoadingIconSpinner
-      :loading="true"
-      v-if="!creatingProfile && !settingBrowserStorage"
-    />
+    <LoadingIconCustom :loading="true" v-if="notLoading" />
   </template>
 
-  <LoadingIconSpinner :loading="creatingProfile || settingBrowserStorage" />
+  <LoadingIconSpinner :loading="!notLoading" />
 
   <BrowserStorageErrorModal
     v-if="showBrowserStorageErrorModal"
@@ -57,6 +40,10 @@ const authStore = useAuthStore();
 const { clearError } = authStore;
 const { creatingProfile, showBrowserStorageErrorModal, settingBrowserStorage } =
   storeToRefs(authStore);
+
+const notLoading = computed(
+  () => !creatingProfile.value && !settingBrowserStorage.value
+);
 
 onMounted(() => {
   clearError();

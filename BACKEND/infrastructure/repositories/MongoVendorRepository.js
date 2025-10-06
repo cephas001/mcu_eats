@@ -9,6 +9,31 @@ export default class MongoVendorRepository extends VendorRepository {
     this.vendorProfileRepo = vendorProfileRepo;
   }
 
+  async createVendor(profileData) {
+    try {
+      const vendorProfile = new this.vendorProfileRepo(profileData);
+
+      const savedProfile = await vendorProfile.save();
+
+      return {
+        savedProfile: renameMongoIdFields(savedProfile.toObject()),
+        profileId: savedProfile._id,
+      };
+    } catch (error) {
+      throw error;
+    }
+  }
+
+  async findById(profileId) {
+    try {
+      const profile = await this.vendorProfileRepo.findById(profileId).lean();
+
+      return renameMongoIdFields(profile);
+    } catch (error) {
+      throw error;
+    }
+  }
+
   async getVendors() {
     try {
       const vendors = await this.vendorProfileRepo.find({}).lean();
@@ -20,4 +45,38 @@ export default class MongoVendorRepository extends VendorRepository {
       throw error;
     }
   }
+
+  async getVendorById(profileId) {
+    try {
+      const vendor = await this.vendorProfileRepo.findById(profileId).lean();
+
+      return renameMongoIdFields(vendor);
+    } catch (error) {
+      throw error;
+    }
+  }
+
+  async updateVendor(profileId, vendorData) {
+    try {
+      const updatedProfile = await this.vendorProfileRepo.findByIdAndUpdate(
+        profileId,
+        { $set: vendorData },
+        { new: true, runValidators: true }
+      );
+
+      if (!updatedProfile) {
+        throw new Error(`Consumer profile with ID ${profileId} not found`);
+      }
+
+      return renameMongoIdFields(updatedProfile);
+    } catch (error) {
+      throw error;
+    }
+  }
+
+  async linkProductToVendor(vendorId, createdProductId) {}
+
+  async unlinkProductFromVendor(vendorId, productId) {}
+
+  async unlinkMultipleProductsFromVendor(vendorId, productIds) {}
 }

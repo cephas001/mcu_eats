@@ -1,6 +1,8 @@
 import express from "express";
 const router = express.Router();
 
+import verifyToken from "../middlewares/verifyToken.js";
+
 import {
   AcceptDeliveryUseCase,
   AssignDeliveryUseCase,
@@ -16,15 +18,14 @@ import {
 } from "../services/index.js";
 
 // Create a new delivery person
-router.post("/delivery-persons", async (req, res, next) => {
+router.post("/delivery-persons", verifyToken, async (req, res, next) => {
   try {
-    const { name, phone, area } = req.body;
-    const deliveryPerson = await CreateDeliveryPersonUseCase({
-      name,
-      phone,
-      area,
-    });
-    res.status(201).json(deliveryPerson);
+    const { deliveryPersonProfileData } = req.body;
+    const { savedProfile, updatedUser } = await CreateDeliveryPersonUseCase(
+      deliveryPersonProfileData,
+      req.user.id
+    );
+    res.status(201).json({ savedProfile, updatedUser });
   } catch (error) {
     next(error);
   }

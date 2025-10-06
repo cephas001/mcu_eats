@@ -14,12 +14,17 @@ import {
   UpdateConsumerUseCase,
 } from "../services/index.js";
 
+import verifyToken from "../middlewares/verifyToken.js";
+
 // Create a new consumer
-router.post("/consumers", async (req, res, next) => {
+router.post("/consumers", verifyToken, async (req, res, next) => {
   try {
-    const { name, email, password } = req.body;
-    const consumer = await CreateConsumerUseCase({ name, email, password });
-    res.status(201).json(consumer);
+    const { consumerProfileData } = req.body;
+    const { savedProfile, updatedUser } = await CreateConsumerUseCase(
+      consumerProfileData,
+      req.user.id
+    );
+    res.status(201).json({ savedProfile, updatedUser });
   } catch (error) {
     next(error);
   }

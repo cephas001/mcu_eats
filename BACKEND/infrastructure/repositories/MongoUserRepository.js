@@ -28,7 +28,8 @@ export default class MongoUserRepository extends UserRepository {
 
   async findById(id) {
     try {
-      return await this.userRepo.findById(id).lean();
+      const user = await this.userRepo.findById(id).lean();
+      return renameMongoIdFields(user);
     } catch (error) {
       throw error;
     }
@@ -51,8 +52,7 @@ export default class MongoUserRepository extends UserRepository {
         )
         .lean();
 
-      const { _id, ...restOfUpdatedUser } = updatedUser;
-      return { id: _id, ...restOfUpdatedUser };
+      return renameMongoIdFields(updatedUser);
     } catch (error) {
       throw error;
     }
@@ -97,5 +97,25 @@ export default class MongoUserRepository extends UserRepository {
   async delete(id) {
     const res = await this.userRepo.deleteOne({ _id: id });
     return res.deletedCount > 0;
+  }
+
+  async getProfileByUserIdAndType(userId, profileType) {
+    try {
+      switch (profileType) {
+        case "consumer":
+          return await this.consumerProfileRepo.findOne({ userId });
+
+        case "delivery_person":
+          return await this.deliveryPersonProfileRepo.findOne({ userId });
+
+        case "vendor":
+          return await this.vendorProfileRepo.findOne({ userId });
+
+        default:
+          throw new Error(`Invalid profile type: ${profileType}`);
+      }
+    } catch (error) {
+      throw error;
+    }
   }
 }

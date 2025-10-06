@@ -3,7 +3,7 @@ import { UnexpectedError } from "../../domain/Error.js";
 export default function GetVendors(vendorRepo) {
   return async function () {
     try {
-      const vendorProfiles = await vendorRepo.getVendors("vendor");
+      const vendorProfiles = await vendorRepo.getVendors();
 
       if (!vendorProfiles || vendorProfiles?.length == 0) {
         return [];

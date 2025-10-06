@@ -4,11 +4,11 @@ export default class AuthBackend {
   }
 
   // Create a new consumer
-  async createConsumer({ name, email, password }) {
+  async createConsumer(consumerProfileData) {
     try {
       return await this.api.request("/consumers", {
         method: "POST",
-        body: { name, email, password },
+        body: { consumerProfileData },
       });
     } catch (error) {
       throw error;

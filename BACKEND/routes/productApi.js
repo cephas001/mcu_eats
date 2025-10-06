@@ -1,6 +1,8 @@
 import express from "express";
 const router = express.Router();
 
+import verifyToken from "../middlewares/verifyToken.js";
+
 import {
   CreateComboUseCase,
   CreateProductUseCase,
@@ -9,6 +11,7 @@ import {
   GetProductByIdUseCase,
   GetProductsByCategoryUseCase,
   GetProductsByVendorUseCase,
+  GetAllVendorProductsUseCase,
   ListCombosUseCase,
   SearchProductsUseCase,
   SetProductAvailaibiltyUseCase,
@@ -17,19 +20,16 @@ import {
 } from "../services/index.js";
 
 // Create a new product
-router.post("/products", async (req, res, next) => {
+router.post("/products", verifyToken, async (req, res, next) => {
   try {
-    const { name, description, price, categoryId, vendorId, available } =
-      req.body;
-    const product = await CreateProductUseCase({
-      name,
-      description,
-      price,
-      categoryId,
-      vendorId,
-      available,
-    });
-    res.status(201).json(product);
+    const { vendorId, productData } = req.body;
+    const { updatedVendor, createdProduct, createdProductId } =
+      await CreateProductUseCase({
+        userId: req.user.id,
+        vendorId,
+        productData,
+      });
+    res.status(201).json({ updatedVendor, createdProduct, createdProductId });
   } catch (error) {
     next(error);
   }
@@ -49,7 +49,6 @@ router.get("/products/:productId", async (req, res, next) => {
 router.get("/products/category/:categoryId", async (req, res, next) => {
   try {
     const products = await GetProductsByCategoryUseCase(req.params.categoryId);
-    res.json(products);
   } catch (error) {
     next(error);
   }
@@ -59,11 +58,29 @@ router.get("/products/category/:categoryId", async (req, res, next) => {
 router.get("/products/vendor/:vendorId", async (req, res, next) => {
   try {
     const products = await GetProductsByVendorUseCase(req.params.vendorId);
+    console.log(products);
     res.json(products);
   } catch (error) {
     next(error);
   }
 });
+
+// Get all products that belong to a vendor
+router.get(
+  "/all-products/vendor/:vendorId",
+  verifyToken,
+  async (req, res, next) => {
+    try {
+      const products = await GetAllVendorProductsUseCase({
+        userId: req.user.id,
+        vendorId: req.params.vendorId,
+      });
+      res.json(products);
+    } catch (error) {
+      next(error);
+    }
+  }
+);
 
 // Search products
 router.post("/products/search", async (req, res, next) => {
@@ -77,13 +94,15 @@ router.post("/products/search", async (req, res, next) => {
 });
 
 // Update product details
-router.patch("/products/:productId", async (req, res, next) => {
+router.patch("/products/:productId", verifyToken, async (req, res, next) => {
   try {
-    const updates = req.body;
-    const updatedProduct = await UpdateProductUseCase(
-      req.params.productId,
-      updates
-    );
+    const { updates, vendorId } = req.body;
+    const updatedProduct = await UpdateProductUseCase({
+      userId: req.user.id,
+      productId: req.params.productId,
+      productData: updates,
+      vendorId,
+    });
     res.json(updatedProduct);
   } catch (error) {
     next(error);
@@ -102,9 +121,14 @@ router.patch("/products/:productId/availability", async (req, res, next) => {
 });
 
 // Delete a product
-router.delete("/products/:productId", async (req, res, next) => {
+router.delete("/products/:productId", verifyToken, async (req, res, next) => {
   try {
-    await DeleteProductUseCase(req.params.productId);
+    const { vendorId } = req.body;
+    await DeleteProductUseCase({
+      userId: req.user.id,
+      vendorId,
+      productId: req.params.productId,
+    });
     res.sendStatus(204);
   } catch (error) {
     next(error);

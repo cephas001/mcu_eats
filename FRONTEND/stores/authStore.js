@@ -289,7 +289,6 @@ export const useAuthStore = defineStore("auth", () => {
       type: "text",
       valueVariableName: "address",
       placeholder: "Enter your business address",
-      dependentFieldName: "businessEmail",
     },
     {
       label: "Opening Time",
@@ -297,7 +296,6 @@ export const useAuthStore = defineStore("auth", () => {
       type: "time",
       valueVariableName: "openingTime",
       placeholder: "What time do you open?",
-      dependentFieldName: "address",
     },
     {
       label: "Closing Time",
@@ -305,7 +303,6 @@ export const useAuthStore = defineStore("auth", () => {
       type: "time",
       valueVariableName: "closingTime",
       placeholder: "What time do you close?",
-      dependentFieldName: "openingTime",
     },
   ]);
 

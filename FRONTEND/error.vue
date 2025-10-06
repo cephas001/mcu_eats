@@ -4,7 +4,7 @@
       class="min-h-screen flex items-center flex-col align-center justify-center space-y-4"
     >
       <div class="img-container">
-        <Media src="/404-error-img2.png" alt="404 Error Page" />
+        <Media src="/404-error-img.png" alt="404 Error Page" />
       </div>
       <div class="flex flex-col space-y-3 text-center">
         <h1 class="text-2xl">Oops! This page is not found.</h1>
