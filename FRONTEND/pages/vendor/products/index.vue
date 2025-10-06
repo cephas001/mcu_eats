@@ -6,7 +6,7 @@
     </h1>
 
     <ProductsPageSearchBarAndActions
-      @addProductButtonClicked="showAddProductForm = !showAddProductForm"
+      @addProductButtonClicked="showModal"
     />
 
     <p
@@ -27,6 +27,7 @@
   <!-- Add Product Modal -->
   <ProductsCreationModal
     @createProduct="createProduct"
+    :showAddProductForm
     v-if="!creatingProduct"
   />
 
@@ -73,6 +74,11 @@ const createProduct = async () => {
   } finally {
     creatingProduct.value = false;
   }
+};
+
+const showModal = () => {
+  console.log("here")
+  showAddProductForm.value = true;
 };
 
 const setProducts = async () => {

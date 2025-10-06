@@ -74,7 +74,23 @@ export default class MongoVendorRepository extends VendorRepository {
     }
   }
 
-  async linkProductToVendor(vendorId, createdProductId) {}
+  async linkProductToVendor(vendorId, createdProductId) {
+    try {
+      const updatedVendor = await this.vendorProfileRepo.findByIdAndUpdate(
+        vendorId,
+        { $addToSet: { products: createdProductId } },
+        { new: true }
+      );
+
+      if (!updatedVendor) {
+        throw new Error(`Vendor with ID ${vendorId} not found`);
+      }
+
+      return renameMongoIdFields(updatedVendor.toObject());
+    } catch (error) {
+      throw error;
+    }
+  }
 
   async unlinkProductFromVendor(vendorId, productId) {}
 

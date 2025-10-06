@@ -1,6 +1,6 @@
 <template>
   <UModal
-    v-model:open="showAddProductForm"
+    v-model:open="show"
     class="bg-background text-black pb-4 font-manrope"
     title="Add a product"
     description="Fill the form below to add a new product"
@@ -29,11 +29,19 @@
 
 <script setup>
 import { useProductStore } from "@/stores/productStore";
+import { watch } from "vue";
 
 const productStore = useProductStore();
 const { productsForm } = productStore;
 
-const showAddProductForm = ref(false);
+const props = defineProps({
+  showAddProductForm: {
+    type: Boolean,
+    required: true,
+  },
+})
+
+const show = watch(()=>props.showAddProductForm);
 const emit = defineEmits(["createProduct"]);
 
 const productsFormSchema = ref([

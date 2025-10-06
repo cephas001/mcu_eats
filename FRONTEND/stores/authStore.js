@@ -118,6 +118,9 @@ export const useAuthStore = defineStore("auth", () => {
 
   const creatingProfile = ref(false);
 
+  const tryingToLogin = ref(false);
+  const settingBrowserStorage = ref(false);
+
   // Clears any error
   const clearError = () => {
     error.value.errorMessage = "";
@@ -130,7 +133,6 @@ export const useAuthStore = defineStore("auth", () => {
   };
 
   const showStaffFields = ref(false);
-  const settingBrowserStorage = ref(false);
   const showBrowserStorageErrorModal = ref(false);
 
   const deliveryPersonFormFieldsSchema = ref([
@@ -347,6 +349,8 @@ export const useAuthStore = defineStore("auth", () => {
     },
   ]);
 
+  
+
   return {
     signUpForm,
     registrationForm,
@@ -360,6 +364,7 @@ export const useAuthStore = defineStore("auth", () => {
     creatingProfile,
     showStaffFields,
     settingBrowserStorage,
+    tryingToLogin,
     showBrowserStorageErrorModal,
     deliveryPersonFormFieldsSchema,
     consumerFormFieldsSchemaGeneral,

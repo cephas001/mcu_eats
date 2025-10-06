@@ -24,24 +24,25 @@ import FacebookIcon from "@/assets/images/facebook.e4480188.svg";
 
 import { storeToRefs } from "pinia";
 
-import { useNuxtApp } from "nuxt/app";
+import { navigateTo, useNuxtApp } from "nuxt/app";
 
 import { useAuthStore } from "@/stores/authStore";
 
 import { loginUser } from "@/composables/auth/loginUser";
 import { storeUserAndProfiles } from "@/composables/usecases/storeUserAndProfiles";
 
-const { clearError } = useAuthStore();
+const authStore = useAuthStore();
+const { clearError } = authStore;
+const { tryingToLogin, settingBrowserStorage } = storeToRefs(authStore);
 
 const emit = defineEmits([
   "error",
-  "performingLoginSignup",
-  "settingStorage",
   "showModal",
 ]);
 
 const providerSignIn = async (provider) => {
   clearError();
+  tryingToLogin.value = true;
 
   let fetchedUser = null;
   let fetchedProfiles = null;
@@ -56,12 +57,19 @@ const providerSignIn = async (provider) => {
   } catch (error) {
     emit("error", error.message);
     return;
+  } finally {
+    tryingToLogin.value = false;
   }
 
   try {
+    settingBrowserStorage.value = true;
     await storeUserAndProfiles(fetchedUser, fetchedProfiles);
   } catch (error) {
     emit("showModal", true);
+  } finally {
+    settingBrowserStorage.value = false;
   }
+
+  return await navigateTo("/");
 };
 </script>

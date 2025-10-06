@@ -53,12 +53,10 @@ import { useRoute } from "vue-router";
 
 const authStore = useAuthStore();
 const { loginForm, clearError } = useAuthStore();
-const { loginErrors, loginFormSchema } = storeToRefs(authStore);
+const { loginErrors, loginFormSchema, tryingToLogin, settingBrowserStorage } = storeToRefs(authStore);
 
 const profileStore = useProfileStore();
 
-const tryingToLogin = ref(false);
-const settingBrowserStorage = ref(false);
 const showBrowserStorageErrorModal = ref(false);
 
 const route = useRoute();

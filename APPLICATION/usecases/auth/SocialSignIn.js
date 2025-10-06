@@ -10,7 +10,7 @@ export default function SocialSignIn(socialSignInService) {
       return { user, id, token };
     } catch (error) {
       throw new UnexpectedError(
-        "An error occurred while signing the user in with social service providers.",
+        "An error occurred while signing the user",
         error
       );
     }

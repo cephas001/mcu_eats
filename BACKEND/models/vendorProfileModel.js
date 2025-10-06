@@ -20,33 +20,6 @@ const timeSchema = new Schema(
   { _id: false }
 );
 
-const productSchema = new Schema(
-  {
-    name: {
-      type: String,
-      required: true,
-      match: /^[^0-9]*$/,
-    },
-    description: {
-      type: String,
-    },
-    price: {
-      type: Number,
-      required: true,
-      min: 0.01, // Ensures positive
-    },
-    productType: {
-      type: String,
-      required: true,
-    },
-    quantityAvailable: {
-      type: Number,
-      default: 0,
-      min: 0,
-    },
-  },
-  { _id: true }
-);
 
 const locationSchema = new Schema(
   {
@@ -187,7 +160,7 @@ const vendorProfileSchema = new Schema(
       minlength: 1,
     },
     products: {
-      type: [productSchema],
+      type: [String],
       default: [],
     },
     verificationStatus: {
