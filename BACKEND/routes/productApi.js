@@ -58,7 +58,6 @@ router.get("/products/category/:categoryId", async (req, res, next) => {
 router.get("/products/vendor/:vendorId", async (req, res, next) => {
   try {
     const products = await GetProductsByVendorUseCase(req.params.vendorId);
-    console.log(products);
     res.json(products);
   } catch (error) {
     next(error);

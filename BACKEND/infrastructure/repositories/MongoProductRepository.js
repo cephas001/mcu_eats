@@ -19,7 +19,7 @@ export default class MongoProductRepository extends ProductRepository {
       };
     } catch (error) {
       throw error;
-    } 
+    }
   }
 
   async deleteProduct(venodrId, productId) {}
@@ -32,6 +32,7 @@ export default class MongoProductRepository extends ProductRepository {
 
   async getProductsByVendor(vendorId) {
     const products = await this.productRepo.find({ vendorId }).lean();
+
     return renameMongoIdFields(products);
   }
 

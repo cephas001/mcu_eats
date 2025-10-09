@@ -72,9 +72,11 @@ const { vendor } = storeToRefs(vendorStore);
 
 const { selectedProductType } = storeToRefs(vendorStore);
 
+const products = ref([]);
+
 // To filter products based on selected type
 const filteredProducts = computed(() => {
-  return vendor.value.products.filter((product) => {
+  return products.value.filter((product) => {
     if (
       !selectedProductType.value.name ||
       selectedProductType.value.name == "All"
@@ -82,7 +84,7 @@ const filteredProducts = computed(() => {
       return true;
     }
 
-    if (product.productType == selectedProductType.value.name) {
+    if (product.category == selectedProductType.value.name) {
       return true;
     } else {
       return false;
@@ -94,24 +96,44 @@ onMounted(async () => {
   const id = route.params.id;
   const foundVendor = vendorStore.findVendorById(id);
 
-  console.log(foundVendor);
-
   if (!foundVendor) return navigateTo("/");
 
   try {
-    const products = await $productApiService.getProductsByVendor(
+    const fetchedProducts = await $productApiService.getProductsByVendor(
       foundVendor.id
     );
 
-    console.log(products);
+    if (fetchedProducts.length == 0) {
+      console.log("here");
+      vendorStore.setVendor(foundVendor);
+      products.value = [];
+      fetchingVendor.value = false;
+      return;
+    }
+
+    let productTypes = [];
+    productTypes = fetchedProducts.map((product, index) => {
+      return {
+        id: product.id,
+        name: product.category,
+      };
+    });
+
+    productTypes = productTypes.filter(
+      (type, index, self) =>
+        index === self.findIndex((t) => t.name === type.name)
+    );
+
+    productTypes.unshift({ id: 0, name: "All", selected: true });
+
+    vendorStore.setVendor({ ...foundVendor, productTypes });
+
+    products.value = fetchedProducts;
   } catch (error) {
     productFetchErrorMessage.value =
       "An error occurred while trying to get products";
   }
 
-  foundVendor.productTypes = [];
-
-  vendorStore.setVendor(foundVendor);
   fetchingVendor.value = false;
 });
 </script>
