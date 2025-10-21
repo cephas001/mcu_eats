@@ -53,7 +53,8 @@ import { useRoute } from "vue-router";
 
 const authStore = useAuthStore();
 const { loginForm, clearError } = useAuthStore();
-const { loginErrors, loginFormSchema, tryingToLogin, settingBrowserStorage } = storeToRefs(authStore);
+const { loginErrors, loginFormSchema, tryingToLogin, settingBrowserStorage } =
+  storeToRefs(authStore);
 
 const profileStore = useProfileStore();
 
@@ -62,8 +63,6 @@ const showBrowserStorageErrorModal = ref(false);
 const route = useRoute();
 
 const getUrlAndRedirect = () => {
-  tryingToLogin.value = true;
-
   let redirectToURL = route.query?.redirectTo;
 
   if (redirectToURL) return navigateTo(`${redirectToURL}`);

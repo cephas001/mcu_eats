@@ -14,7 +14,7 @@ export const checkLoggedInUser = async (redirectTo) => {
 
   const navigationRoutes = {
     select_profile: "/general/select-profile",
-    unauthorized_route: "/general/unauthorized", // fixed typo
+    unauthorized_route: "/general/unauthorized",
     logout_route: "/auth/logout",
     login_route: "/auth/login",
     register_route: "/auth/register",
@@ -49,7 +49,6 @@ export const checkLoggedInUser = async (redirectTo) => {
     if (error?.type === "InvalidTokenError") {
       return navigateTo(navigationRoutes.login_route);
     }
-
     return navigateTo(navigationRoutes.consumer_route);
   }
 

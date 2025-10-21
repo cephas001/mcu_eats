@@ -5,7 +5,8 @@ import FirebaseAuthService from "@/infrastructure/services/FirebaseAuthService.j
 
 import * as AuthUseCases from "../../../APPLICATION/usecases/auth/index.js";
 
-import ExpressUserBackend from "@/infrastructure/backend/UserBackend.js";
+import UserBackend from "@/infrastructure/backend/UserBackend.js";
+import AuthBackend from "@/infrastructure/backend/AuthBackend.js";
 
 import { createApiClient } from "@/utils/api";
 
@@ -23,9 +24,10 @@ export default defineNuxtPlugin((nuxtApp) => {
   const auth = getAuth(app);
 
   const api = createApiClient();
-  const expressUserBackendService = new ExpressUserBackend(api);
+  const userBackendService = new UserBackend(api);
+  const authBackendService = new AuthBackend(api);
 
-  const authService = new FirebaseAuthService(auth, expressUserBackendService);
+  const authService = new FirebaseAuthService(auth, authBackendService);
 
   return {
     provide: {

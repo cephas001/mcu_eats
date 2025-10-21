@@ -7,8 +7,8 @@ export const clearUserAndProfilesState = () => {
 
   try {
     userStore.clearUser();
-    userStore.setGuest(true);
     profileStore.clearProfiles();
+    userStore.setGuest(true);
   } catch (error) {
     throw error;
   }

@@ -81,6 +81,7 @@ const handleSignUp = async () => {
       true
     );
   } catch (error) {
+    console.log(error);
     handleSignupErrors(error);
   } finally {
     tryingToSignIn.value = false;

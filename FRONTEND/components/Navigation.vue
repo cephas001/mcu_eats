@@ -220,6 +220,12 @@ const appendProfileSpecificRoutes = (selectedProfile) => {
         to: "/vendor/details",
         color: "info",
       },
+      {
+        label: "Live Profile View",
+        icon: "i-material-symbols-fiber-manual-record-outline",
+        to: `/vendors/${selectedProfile.id}`,
+        color: "info",
+      },
     ]);
     return;
   }

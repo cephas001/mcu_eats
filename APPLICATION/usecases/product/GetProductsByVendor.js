@@ -29,11 +29,11 @@ export default function GetProductsByVendor(vendorRepo, productRepo) {
     try {
       const products = await productRepo.getProductsByVendor(vendorId);
 
-      const unarchivedProducts = products.filter(
-        (product) => product.isArchived === false
+      const availableUnarchivedProducts = products.filter(
+        (product) => !product.isArchived && product.isAvailable
       );
 
-      return unarchivedProducts;
+      return availableUnarchivedProducts;
     } catch (error) {
       throw new UnexpectedError(
         "An unexpected error occurred while trying to add the product id to vendor",

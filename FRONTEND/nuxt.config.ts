@@ -33,6 +33,7 @@ export default defineNuxtConfig({
     "~/plugins/services/indexedDB/profile.client.js",
     "~/plugins/services/indexedDB/user.client.js",
     "~/plugins/services/indexedDB/vendor.client.js",
+    "~/plugins/services/indexedDB/cart.client.js",
   ],
   css: ["~/assets/css/main.css"],
 

@@ -101,3 +101,16 @@ export class ProductExistenceError extends Error {
     this.type = "ProductExistenceError";
   }
 }
+
+export class CartOperationError extends Error {
+  constructor(message, cause = null) {
+    super(message);
+    this.name = "CartOperationError";
+    this.type = "CartOperationError";
+    this.cause = cause;
+
+    if (cause instanceof Error && cause.stack) {
+      this.stack += `\nCaused by: ${cause.stack}`;
+    }
+  }
+}

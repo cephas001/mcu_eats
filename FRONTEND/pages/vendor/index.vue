@@ -138,6 +138,5 @@ const status = ref("Closed");
 onMounted(() => {
   const profile = profileStore.getProfile("vendor");
   vendorProfile.value = profile;
-  console.log(vendorProfile.value);
 });
 </script>

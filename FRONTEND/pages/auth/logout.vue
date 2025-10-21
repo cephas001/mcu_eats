@@ -5,7 +5,6 @@
 <script setup>
 import { logoutUser } from "@/composables/auth/logoutUser";
 
-const router = useRouter();
 const route = useRoute();
 
 onMounted(async () => {

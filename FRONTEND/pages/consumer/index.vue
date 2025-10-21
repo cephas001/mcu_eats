@@ -56,7 +56,6 @@
 import { onMounted } from "vue";
 import { useVendorStore } from "@/stores/vendorStore";
 import { storeToRefs } from "pinia";
-// import { returnFavouriteVendorIds } from "@/composables/returnFavouriteIds";
 import { checkVendors } from "@/composables/state/checkVendors";
 
 definePageMeta({

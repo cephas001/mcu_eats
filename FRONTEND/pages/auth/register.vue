@@ -82,13 +82,11 @@ const handleRegister = async () => {
   tryingToRegister.value = true;
 
   try {
-    const { $expressAuthBackendService, $expressUserBackendService } =
-      useNuxtApp();
+    const { $authApiService, $userApiService } = useNuxtApp();
 
-    const { id, email, verifiedEmail } =
-      await $expressAuthBackendService.verifyToken();
+    const { id, email, verifiedEmail } = await $authApiService.verifyToken();
 
-    const user = await $expressUserBackendService.registerUser({
+    const user = await $userApiService.createUser({
       id,
       email,
       name: registrationForm.name,

@@ -14,50 +14,15 @@
     <p class="text-sm font-bold tracking-wider font-manrope">
       &#8358;{{ product.price.toLocaleString() }}
     </p>
-    <div class="flex w-fit rounded-md gap-1 pt-3 text-xl" v-if="!favouritePage">
-      <div class="bg-primary_light rounded-full p-1 flex items-center">
-        <UIcon
-          name="i-material-symbols-add-2-rounded"
-          @click="
-            updateCart(
-              product,
-              product.vendorId || vendorId,
-              product.vendorName || vendorName,
-              'increase'
-            )
-          "
-        />
-      </div>
-      <div class="bg-primary_light rounded-full p-1 flex items-center">
-        <UIcon
-          name="i-material-symbols-remove"
-          @click="
-            updateCart(
-              product,
-              product.vendorId || vendorId,
-              product.vendorName || vendorName,
-              'decrease'
-            )
-          "
-        />
-      </div>
-      <input
-        type="text"
-        disabled
-        class="w-[50px] ml-3 font-manrope"
-        :class="[product.count < 1 ? 'hidden' : 'visible']"
-        v-model="product.count"
-      />
-    </div>
-    <UIcon
-      :name="`i-material-symbols-favorite${
-        product.favourited ? '' : '-outline'
-      }`"
-      class="text-black absolute right-0 top-0 font-bold text-3xl"
-      :class="animate ? 'animate-[var(--animate-pingOnce)]' : ''"
-      @click.self="favouriteProduct"
+
+    <VendorProductActionIconsAndInput
+      @update:productCount="updateCart"
+      v-if="!favouritePage"
+      :productCount="product.count"
+      :product
     />
   </div>
+
   <UModal v-model:open="open" class="bg-white pb-4" title="Action Required">
     <template #content>
       <div class="text-center px-5 py-10">
@@ -85,31 +50,24 @@
 
 <script setup>
 import { defineProps, defineEmits } from "vue";
-
-import { useUserStore } from "@/stores/userStore";
-import { useCartStore } from "@/stores/cartStore";
-import { storeToRefs } from "pinia";
 import { useVendorStore } from "@/stores/vendorStore";
+import { useCartStore } from "../../stores/cartStore";
 import { compareTime } from "@/utils/compareTime";
-import { useUserFavouritesStore } from "@/stores/userFavouritesStore";
-
-const userFavouritesStore = useUserFavouritesStore();
-
-const userStore = useUserStore();
-const { user } = storeToRefs(userStore);
-const { setUser } = userStore;
-
-const cartStore = useCartStore();
-const { updateCart } = cartStore;
 
 const vendorStore = useVendorStore();
 const { setVendor } = vendorStore;
+
+const cartStore = useCartStore();
 
 const open = ref(false);
 
 const openModal = ref(false);
 
-const animate = ref(false);
+const {
+  $AddItemToCartUseCase,
+  $CheckProductInCartUseCase,
+  $UpdateCartItemUseCase,
+} = useNuxtApp();
 
 const props = defineProps({
   product: {
@@ -129,25 +87,6 @@ const props = defineProps({
 
 const emit = defineEmits(["unfavourite"]);
 
-const favouriteProduct = async () => {
-  const user = await db.user.toArray();
-  if (!user || user.length === 0) {
-    open.value = true;
-    return;
-  }
-  animate.value = true;
-
-  try {
-    userFavouritesStore.favouriteProduct(
-      props.vendorId,
-      props.product,
-      user[0]._id
-    );
-  } catch (error) {
-    console.log(error);
-  }
-};
-
 const checkAndNavigate = () => {
   if (props.favouritePage) {
     var open = compareTime(
@@ -163,6 +102,41 @@ const checkAndNavigate = () => {
     } else {
       openModal.value = true;
     }
+  }
+};
+
+const updateCart = async (count) => {
+  props.product.count = count;
+
+  try {
+    const inCart = await $CheckProductInCartUseCase(null, props.product.id);
+
+    if (inCart) {
+      await $UpdateCartItemUseCase(null, props.product.id, {
+        quantity: props.product.count,
+      });
+
+      cartStore.updateItemInCart(props.product.id, {
+        quantity: props.product.count,
+      });
+
+      console.log(cartStore.getCart());
+
+      return;
+    }
+
+    const { cartItem } = await $AddItemToCartUseCase(props.product.id, {
+      id: props.product.id,
+      productId: props.product.id,
+      vendorId: props.vendorId,
+      vendorName: props.vendorName,
+      quantity: props.product.count,
+      unitPrice: props.product.price,
+    });
+
+    cartStore.addItemToCart(cartItem);
+  } catch (error) {
+    console.error("Error", error);
   }
 };
 </script>

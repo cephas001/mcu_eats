@@ -62,7 +62,7 @@ const productsFormSchema = ref([
   //   valueVariableName: "description",
   // },
   {
-    label: "Price (₦)",
+    label: "Price (₦) Per Unit",
     placeholder: "Price in Naira",
     name: "price",
     type: "number",

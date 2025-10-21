@@ -24,10 +24,7 @@ export const DeleteVendorUseCase = VendorUseCases.DeleteVendor(
   userRepo,
   vendorRepo
 );
-export const GetVendorByIdUseCase = VendorUseCases.GetVendorById(
-  userRepo,
-  vendorRepo
-);
+export const GetVendorByIdUseCase = VendorUseCases.GetVendorById(vendorRepo);
 export const GetVendorOrdersUseCase = VendorUseCases.GetVendorOrders(
   userRepo,
   vendorRepo

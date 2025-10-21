@@ -56,11 +56,11 @@ import { navigateTo, useNuxtApp } from "nuxt/app";
 
 definePageMeta({
   middleware: ["check-user-and-profiles"],
-  specificUserType: ["consumer"],
+  specificUserType: ["consumer", "vendor"],
   allowAnonymous: true,
 });
 
-const { $productApiService } = useNuxtApp();
+const { $productApiService, $vendorApiService } = useNuxtApp();
 
 // To toggle loading icon
 const fetchingVendor = ref(true);
@@ -92,48 +92,92 @@ const filteredProducts = computed(() => {
   });
 });
 
+const setProductTypes = (fetchedProducts) => {
+  let productTypes = [];
+  productTypes = fetchedProducts.map((product, index) => {
+    return {
+      id: product.id,
+      name: product.category,
+    };
+  });
+
+  productTypes = productTypes.filter(
+    (type, index, self) => index === self.findIndex((t) => t.name === type.name)
+  );
+
+  productTypes.unshift({ id: 0, name: "All", selected: true });
+
+  return productTypes;
+};
+
+const addPropertiesToProducts = (fetchedProducts, propertiesToSet) => {
+  return fetchedProducts.map((product) => ({
+    ...product,
+    ...propertiesToSet,
+  }));
+};
+
+const fetchVendorFromStoreOrApi = async (id) => {
+  let foundVendor = null;
+
+  foundVendor = vendorStore.findVendorById(id);
+
+  if (!foundVendor) {
+    try {
+      foundVendor = await $vendorApiService.getVendorById(id);
+    } catch (error) {
+      throw error;
+    }
+  }
+
+  return foundVendor;
+};
+
 onMounted(async () => {
   const id = route.params.id;
-  const foundVendor = vendorStore.findVendorById(id);
 
-  if (!foundVendor) return navigateTo("/");
+  let vendor = null;
+
+  try {
+    vendor = await fetchVendorFromStoreOrApi(id);
+
+    if (!vendor) {
+      return navigateTo("/");
+    }
+  } catch (error) {
+    console.error("Error fetching vendor:", error);
+
+    return navigateTo("/");
+  }
 
   try {
     const fetchedProducts = await $productApiService.getProductsByVendor(
-      foundVendor.id
+      vendor.id
     );
 
     if (fetchedProducts.length == 0) {
-      console.log("here");
-      vendorStore.setVendor(foundVendor);
+      vendorStore.setVendor({
+        ...vendor,
+        productTypes: [{ id: 0, name: "All", selected: true }],
+      });
       products.value = [];
-      fetchingVendor.value = false;
       return;
     }
 
-    let productTypes = [];
-    productTypes = fetchedProducts.map((product, index) => {
-      return {
-        id: product.id,
-        name: product.category,
-      };
+    const productTypes = setProductTypes(fetchedProducts);
+
+    products.value = addPropertiesToProducts(fetchedProducts, {
+      vendorId: vendor.id,
+      vendorName: vendor.name,
+      count: 0,
     });
 
-    productTypes = productTypes.filter(
-      (type, index, self) =>
-        index === self.findIndex((t) => t.name === type.name)
-    );
-
-    productTypes.unshift({ id: 0, name: "All", selected: true });
-
-    vendorStore.setVendor({ ...foundVendor, productTypes });
-
-    products.value = fetchedProducts;
+    vendorStore.setVendor({ ...vendor, productTypes });
   } catch (error) {
     productFetchErrorMessage.value =
       "An error occurred while trying to get products";
+  } finally {
+    fetchingVendor.value = false;
   }
-
-  fetchingVendor.value = false;
 });
 </script>

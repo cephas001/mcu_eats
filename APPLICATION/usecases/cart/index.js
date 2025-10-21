@@ -4,6 +4,8 @@ import EstimateDeliveryCost from "./EstimateDeilveryCost.js";
 import GetCartByUser from "./GetCartByUser.js";
 import SaveCartForLater from "./SaveCartForLater.js";
 import RetrieveSavedCart from "./RetrieveSavedCart.js";
+import CheckProductInCart from "./CheckProductInCart.js";
+import GetProductInCart from "./GetProductInCart.js";
 
 export {
   CreateCart,
@@ -12,4 +14,6 @@ export {
   GetCartByUser,
   SaveCartForLater,
   RetrieveSavedCart,
+  CheckProductInCart,
+  GetProductInCart,
 };
