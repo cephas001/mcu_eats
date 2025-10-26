@@ -5,9 +5,9 @@ import MongoUserRepository from "../infrastructure/repositories/MongoUserReposit
 
 import * as Models from "../models/index.js";
 
-const vendorRepo = new MongoConsumerRepository(
+const consumerRepo = new MongoConsumerRepository(
   Models.User,
-  Models.VendorProfile
+  Models.ConsumerProfile
 );
 
 const userRepo = new MongoUserRepository(
@@ -17,7 +17,10 @@ const userRepo = new MongoUserRepository(
   Models.VendorProfile
 );
 
-export const CreateConsumerUseCase = ConsumerUseCases.CreateConsumer();
+export const CreateConsumerUseCase = ConsumerUseCases.CreateConsumer(
+  consumerRepo,
+  userRepo
+);
 export const CreateFavoriteUseCase = ConsumerUseCases.CreateFavorite();
 export const DeleteConsumerUseCase = ConsumerUseCases.DeleteConsumer();
 export const GetConsumerByIdUseCase = ConsumerUseCases.GetConsumerById();

@@ -34,7 +34,7 @@
     {{ selectedProductType.name }}
   </h1>
 
-  <section v-if="!fetchingVendor" class="px-5 pb-15 relative">
+  <section v-if="!fetchingVendor" class="px-3 pb-10 relative pt-5">
     <VendorProducts
       :products="filteredProducts"
       :vendorName="vendor.vendorName"

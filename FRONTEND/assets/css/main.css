@@ -1,5 +1,9 @@
 @import "tailwindcss";
 
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
 @import "@fontsource-variable/manrope";
 @import '@fontsource/poppins';
 @import '@fontsource-variable/montserrat';
@@ -8,7 +12,7 @@
 /* Remember to disable fonts */
 @import "@nuxt/ui";
 
-@theme {
+@theme extend {
     --font-manrope: "Manrope Variable", sans-serif;
     --font-poppins: "Poppins", sans-serif;
     --font-montserrat: "Montserrat", sans-serif;

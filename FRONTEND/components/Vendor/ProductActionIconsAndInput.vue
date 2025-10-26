@@ -22,12 +22,6 @@
       v-model="internalCount"
     />
   </div>
-
-  <UIcon
-    :name="`i-material-symbols-favorite${product.favourited ? '' : '-outline'}`"
-    class="text-black absolute right-0 top-0 font-bold text-3xl"
-    :class="false ? 'animate-[var(--animate-pingOnce)]' : ''"
-  />
 </template>
 
 <script setup>

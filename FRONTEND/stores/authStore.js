@@ -242,7 +242,7 @@ export const useAuthStore = defineStore("auth", () => {
     },
   ]);
 
-  const vendorFormFieldsSchema = ref([
+  const vendorFormFieldsSchemaOne = ref([
     {
       label: "Name",
       name: "vendorName",
@@ -271,6 +271,9 @@ export const useAuthStore = defineStore("auth", () => {
       valueVariableName: "vendorDescription",
       placeholder: "Short description of the services you provide",
     },
+  ]);
+
+  const vendorFormFieldsSchemaTwo = ref([
     {
       label: "Phone Number",
       name: "businessNumber",
@@ -305,6 +308,18 @@ export const useAuthStore = defineStore("auth", () => {
       type: "time",
       valueVariableName: "closingTime",
       placeholder: "What time do you close?",
+    },
+  ]);
+
+  const vendorFormFieldsSchemaThree = ref([
+    {
+      label: "Brand Image",
+      name: "image",
+      valueVariableName: "image",
+      fileUpload: true,
+      acceptFormats: "image/*",
+      description: "SVG, PNG, JPG or GIF",
+      trailingIcon: "i-material-symbols-add-photo-alternate-outline",
     },
   ]);
 
@@ -349,8 +364,6 @@ export const useAuthStore = defineStore("auth", () => {
     },
   ]);
 
-  
-
   return {
     signUpForm,
     registrationForm,
@@ -370,7 +383,9 @@ export const useAuthStore = defineStore("auth", () => {
     consumerFormFieldsSchemaGeneral,
     consumerFormFieldsSchemaStaffs,
     consumerFormFieldsSchemaStudents,
-    vendorFormFieldsSchema,
+    vendorFormFieldsSchemaOne,
+    vendorFormFieldsSchemaTwo,
+    vendorFormFieldsSchemaThree,
     loginFormSchema,
     signupFormFieldsSchema,
     displayError,

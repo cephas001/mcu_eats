@@ -21,7 +21,7 @@ router.post("/consumers", verifyToken, async (req, res, next) => {
   try {
     const { consumerProfileData } = req.body;
     const { savedProfile, updatedUser } = await CreateConsumerUseCase(
-      consumerProfileData,
+      { ...consumerProfileData, userId: req.user.id },
       req.user.id
     );
     res.status(201).json({ savedProfile, updatedUser });

@@ -1,5 +1,5 @@
 <template>
-  <UForm :class="`mb-5 flex flex-col gap-3 ${classList}`" :state="formState">
+  <UForm :class="`mb-2 flex flex-col gap-3 ${classList}`" :state="formState">
     <div v-for="formField in formFieldsSchema" :key="formField.name">
       <FormField
         :labelText="formField.label"
@@ -9,6 +9,7 @@
         :inputMode="formField.inputMode"
         :state="formState"
         :items="formState[formField.listVariableName]"
+        :fileUpload="formField.fileUpload"
         @update="formState[formField.valueVariableName] = $event"
         v-if="
           !formField.dependentFieldName ||
@@ -17,7 +18,11 @@
       />
     </div>
 
-    <SubmitButton @click="emits('formSubmit', true)" :text="submitButtonText" v-if="!hideSubmitButton" />
+    <SubmitButton
+      @click="emits('formSubmit', true)"
+      :text="submitButtonText"
+      v-if="!hideSubmitButton"
+    />
   </UForm>
 </template>
 

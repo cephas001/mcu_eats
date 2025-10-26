@@ -1,63 +1,64 @@
 <template>
-  <div class="relative">
-    <p
-      class="font-bold text-sm font-manrope uppercase mb-2 tracking-wide text-primary"
-      v-if="favouritePage"
-      @click="checkAndNavigate"
-    >
-      {{ product.vendorName }}
-    </p>
-    <h1 class="mb-4" @click="checkAndNavigate">{{ product.name }}</h1>
-    <p class="text-gray-600 text-sm">
-      {{ product.description }}
-    </p>
-    <p class="text-sm font-bold tracking-wider font-manrope">
-      &#8358;{{ product.price.toLocaleString() }}
-    </p>
+  <div
+    class="flex justify-between items-center mb-4 rounded-md gap-4 shadow-md hover:shadow-lg focus:shadow-lg relative border-t-1 border-t-gray-100"
+  >
+    <div class="py-4 px-4 w-[60%]">
+      <p
+        class="font-bold text-sm font-manrope uppercase mb-2 tracking-wide text-primary"
+        v-if="favouritePage"
+        @click="checkAndNavigate"
+      >
+        {{ product.vendorName }}
+      </p>
+      <h1 class="mb-3" @click="checkAndNavigate">{{ product.name }}</h1>
+      <p class="text-gray-600 text-sm line-clamp-2 mb-1">
+        {{ product.description }}
+      </p>
+      <p class="text-sm font-bold tracking-wider font-manrope">
+        &#8358;{{ product.price.toLocaleString() }}
+      </p>
 
-    <VendorProductActionIconsAndInput
-      @update:productCount="updateCart"
-      v-if="!favouritePage"
-      :productCount="product.count"
-      :product
-    />
+      <VendorProductActionIconsAndInput
+        @update:productCount="updateCart"
+        v-if="!favouritePage && selectedProfile.type !== 'vendor'"
+        :productCount="product.count"
+        :product
+      />
+    </div>
+
+    <div class="absolute top-0 right-0 bottom-0 w-[40%]">
+      <NuxtImg
+        src="/restaurant/food3.jpg"
+        alt="Product Image"
+        class="w-full h-[100%] object-cover cursor-pointer rounded-r-md bg-gradient-to-t from-black/90 to-transparent bg-blend-overlay"
+      />
+
+      <UIcon
+        :name="`i-material-symbols-favorite${
+          product.favourited ? '' : '-outline'
+        }`"
+        class="text-black font-bold text-3xl z-100 absolute top-3 right-2 cursor-pointer"
+        :class="false ? 'animate-[var(--animate-pingOnce)]' : ''"
+      />
+    </div>
   </div>
-
-  <UModal v-model:open="open" class="bg-white pb-4" title="Action Required">
-    <template #content>
-      <div class="text-center px-5 py-10">
-        <h1 class="mt-2 tracking-wide text-lg">Login to complete action</h1>
-        <div class="mt-3">
-          <NuxtLink
-            to="/login"
-            class="bg-black text-white text-sm tracking-wider p-2 rounded-md"
-            >Proceed</NuxtLink
-          >
-        </div>
-      </div>
-    </template>
-  </UModal>
-  <UModal v-model:open="openModal" class="bg-white pb-4" title="Message">
-    <template #content>
-      <div class="text-center px-5 py-10 flex items-center h-48">
-        <h1 class="mt-2 tracking-wide">
-          This vendor is not taking orders right now.
-        </h1>
-      </div>
-    </template>
-  </UModal>
 </template>
 
 <script setup>
 import { defineProps, defineEmits } from "vue";
 import { useVendorStore } from "@/stores/vendorStore";
+import { useProfileStore } from "@/stores/profileStore";
 import { useCartStore } from "../../stores/cartStore";
 import { compareTime } from "@/utils/compareTime";
+import { storeToRefs } from "pinia";
 
 const vendorStore = useVendorStore();
 const { setVendor } = vendorStore;
 
 const cartStore = useCartStore();
+
+const profileStore = useProfileStore();
+const { selectedProfile } = storeToRefs(profileStore);
 
 const open = ref(false);
 

@@ -3,9 +3,8 @@
     <label class="font-manrope font-semibold" v-if="labelText">{{
       labelText
     }}</label>
-
     <UInput
-      v-if="type !== 'select'"
+      v-if="type !== 'select' && !fileUpload"
       :placeholder
       :name="name.trim()"
       :trailing-icon="trailingIcon"
@@ -47,12 +46,26 @@
       validate-on="change"
       @change="updateValue"
     ></USelect>
+
     <FormErrorMessage
       :errorMessage="error.errorMessage"
       :errorList="error.errorList"
       v-if="error.inputName == name"
     />
   </UFormField>
+  <UFileUpload
+    v-model="state[`${name}`]"
+    class="w-full min-h-48 mt-1"
+    v-if="fileUpload"
+    :accept="acceptFormats"
+    :label="labelText"
+    :icon="trailingIcon"
+    :description="description"
+    :ui="{
+      base: 'bg-gray-100',
+      label: 'text-black',
+    }"
+  />
 </template>
 
 <script setup>
@@ -103,19 +116,27 @@ const props = defineProps({
     type: String,
     default: "",
   },
+  fileUpload: {
+    type: Boolean,
+    default: false,
+  },
+  acceptFormats: {
+    type: String,
+    default: "",
+  },
+  description: {
+    type: String,
+    default: "",
+  },
 });
 
 const computedType = computed(() => {
   // Toggles showing the password for password fields and renders other types
-  if (props.type == "password") {
-    if (showPassword.value) {
-      return "text";
-    } else {
-      return props.type;
-    }
-  } else {
-    return props.type;
-  }
+  if (props.type !== "password") return props.type;
+
+  if (!showPassword.value) return props.type;
+
+  return "text";
 });
 
 const emit = defineEmits(["update"]);

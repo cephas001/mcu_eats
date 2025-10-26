@@ -1,23 +1,19 @@
-// https://nuxt.com/docs/api/configuration/nuxt-config
-import { resolve } from "path";
 import { defineNuxtConfig } from "nuxt/config";
-import tailwindcss from "@tailwindcss/vite";
+import { resolve } from "path";
 
 export default defineNuxtConfig({
   compatibilityDate: "2024-11-01",
   devtools: { enabled: true },
+
   alias: {
     "@/": resolve(__dirname, "/"),
   },
+
   app: {
-    fetch: {
-      credentials: "include",
-    },
+    fetch: { credentials: "include" },
     head: {
       title: "MCU EATS",
-      htmlAttrs: {
-        lang: "en",
-      },
+      htmlAttrs: { lang: "en" },
       meta: [
         {
           name: "description",
@@ -27,6 +23,16 @@ export default defineNuxtConfig({
       ],
     },
   },
+
+  css: ["~/assets/css/main.css"],
+
+  postcss: {
+    plugins: {
+      "@tailwindcss/postcss": {},
+      autoprefixer: {},
+    },
+  },
+
   plugins: [
     "~/plugins/services/firebase.client.js",
     "~/plugins/services/backend.client.js",
@@ -35,11 +41,6 @@ export default defineNuxtConfig({
     "~/plugins/services/indexedDB/vendor.client.js",
     "~/plugins/services/indexedDB/cart.client.js",
   ],
-  css: ["~/assets/css/main.css"],
-
-  vite: {
-    plugins: [tailwindcss()],
-  },
 
   modules: [
     "@vueuse/nuxt",
@@ -51,12 +52,6 @@ export default defineNuxtConfig({
 
   ui: {
     fonts: false,
-  },
-
-  icon: {
-    serverBundle: {
-      collections: ["material-symbols"],
-    },
   },
 
   image: {

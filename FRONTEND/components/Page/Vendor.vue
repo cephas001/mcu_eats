@@ -7,12 +7,31 @@
       classList="text-center mb-3 mt-3"
     />
 
-    <CustomForm
+    <CustomFormsCarousel
+      :formFieldsSchemas="[
+        vendorFormFieldsSchemaOne,
+        vendorFormFieldsSchemaTwo,
+        vendorFormFieldsSchemaThree,
+      ]"
+      :correspondingFormStates="[
+        profileRegistrationForm,
+        profileRegistrationForm,
+        profileRegistrationForm,
+      ]"
+      :correspondingSubmitButtonTexts="[
+        'Next: Business Details',
+        'Next: Banner Image',
+        'Create Profile',
+      ]"
+      @formSubmit="handleFormSubmit(index)"
+    />
+
+    <!-- <CustomForm
       :formFieldsSchema="vendorFormFieldsSchema"
       :formState="profileRegistrationForm"
       @formSubmit="handleFormSubmit"
       submitButtonText="Create Profile"
-    />
+    /> -->
   </section>
 </template>
 
@@ -25,8 +44,13 @@ import { storeUserAndProfilesAndRedirect } from "@/composables/general/storeUser
 
 const authStore = useAuthStore();
 const { profileRegistrationForm } = authStore;
-const { profileRegistrationErrors, creatingProfile, vendorFormFieldsSchema } =
-  storeToRefs(authStore);
+const {
+  profileRegistrationErrors,
+  creatingProfile,
+  vendorFormFieldsSchemaOne,
+  vendorFormFieldsSchemaTwo,
+  vendorFormFieldsSchemaThree,
+} = storeToRefs(authStore);
 
 const handleFormSubmit = async () => {
   try {
