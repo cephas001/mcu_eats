@@ -1,5 +1,5 @@
 <template>
-  <div class="flex gap-4 flex-col mb-4">
+  <div class="flex gap-4 flex-col mb-4 relative">
     <UInput
       icon="i-material-symbols-search-rounded"
       size="lg"
@@ -34,11 +34,16 @@
         <UIcon
           name="material-symbols-filter-alt-outline"
           class="text-black text-2xl"
+          @click="showDropdown = !showDropdown"
         >
         </UIcon>
       </div>
     </div>
-    <div>
+    <div
+      class="absolute right-0 top-full w-35 bg-white"
+      v-if="showDropdown"
+      ref="target"
+    >
       <CustomForm
         :formFieldsSchema="productsFilterFormSchema"
         :formState="productsFilterForm"
@@ -50,7 +55,16 @@
 
 <script setup>
 import { useProductStore } from "~/stores/productStore";
+import { onClickOutside } from "@vueuse/core";
+
 const productStore = useProductStore();
 const { productsFilterForm, productsFilterFormSchema } = productStore;
+
 const emit = defineEmits(["addProductButtonClicked"]);
+const showDropdown = ref(false);
+
+const target = ref(null);
+onClickOutside(target, () => {
+  showDropdown.value = false;
+});
 </script>

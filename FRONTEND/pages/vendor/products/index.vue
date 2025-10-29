@@ -12,6 +12,7 @@
     <FormErrorMessage
       :errorMessage="productCreationError"
       classList="text-center mb-4"
+      v-if="productCreationError"
     />
 
     <p
@@ -26,7 +27,7 @@
     class="overflow-x-auto mt-3 px-6 min-h-[50vh]"
     v-if="!creatingProduct"
   >
-    <ProductsTable :products="allProducts" />
+    <ProductsTable :products />
   </section>
 
   <!-- Add Product Modal -->
@@ -53,17 +54,13 @@ definePageMeta({
 });
 
 const productStore = useProductStore();
-const { productsForm } = productStore;
-const { showAddProductForm, productCreationError } = storeToRefs(productStore);
+const { productsForm, productsFilterForm, setProducts } = productStore;
+const { showAddProductForm, productCreationError, products } =
+  storeToRefs(productStore);
 
 const profileStore = useProfileStore();
 
 const creatingProduct = ref(false);
-const products = ref([]);
-
-const allProducts = ref([]);
-const archivedProducts = ref([]);
-const unarchivedProducts = ref([]);
 
 const { $productApiService } = useNuxtApp();
 
@@ -114,25 +111,13 @@ const isAvailable = computed(() => {
   return null;
 });
 
-const setProducts = async () => {
-  const vendorProfile = profileStore.getProfile("vendor");
-
-  if (!vendorProfile) return;
-
-  const vendorProducts = await $productApiService.getAllVendorProducts(
-    vendorProfile.id
-  );
-
-  if (!vendorProducts) {
-    return navigateTo("/?redirectTo='/vendor/products'");
-  }
-
-  archivedProducts.value = vendorProducts.archivedProducts;
-  unarchivedProducts.value = vendorProducts.unarchivedProducts;
-  allProducts.value = vendorProducts.allProducts;
-
-  console.log(vendorProducts);
-};
+watch(
+  productsFilterForm,
+  (newValue) => {
+    productStore.filterProducts(newValue.productState);
+  },
+  { deep: true }
+);
 
 onMounted(() => {
   setProducts();

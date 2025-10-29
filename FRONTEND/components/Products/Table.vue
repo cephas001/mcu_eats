@@ -6,7 +6,7 @@
   </table>
 
   <div class="text-center" v-else>
-    <h1 class="text-md">Add your first product!</h1>
+    <h1 class="text-md">No products</h1>
   </div>
 </template>
 
