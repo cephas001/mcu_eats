@@ -1,5 +1,7 @@
 <template>
-  <div class="bg-black px-2 py-6 flex items-center justify-around">
+  <div
+    class="bg-black px-2 py-6 flex items-center justify-around border-b-1 border-primary/20"
+  >
     <div>
       <img
         src="/mcu_eats_logo_.png"

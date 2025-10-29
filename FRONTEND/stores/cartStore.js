@@ -3,6 +3,9 @@ import { defineStore } from "pinia";
 export const useCartStore = defineStore("cart", () => {
   const cart = ref([]);
 
+  // Delete later
+  const totalOrderAmount = ref(0);
+
   const addToCart = (item) => {
     cart.value.push(item);
   };
@@ -58,5 +61,6 @@ export const useCartStore = defineStore("cart", () => {
     getProductInCart,
     addItemToCart,
     updateItemInCart,
+    totalOrderAmount,
   };
 });

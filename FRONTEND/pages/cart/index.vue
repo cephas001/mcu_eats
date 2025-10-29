@@ -219,9 +219,8 @@ const loadFinalCartValue = () => {
   }
 };
 
-onMounted(async () => {
-  await cartStore.getCartValues();
-  await cartStore.computeTotalCartPrice();
+onMounted(() => {
+  cartStore.getCart();
   loadFinalCartValue();
 });
 </script>

@@ -4,7 +4,8 @@
     v-if="vendorsLength == 0"
   >
     <h1 class="font-manrope">
-      There are currently no {{ vendorType }} to display
+      No {{ vendorType }} yet. <br />Check back soon or explore other top
+      choices!
     </h1>
   </div>
 </template>

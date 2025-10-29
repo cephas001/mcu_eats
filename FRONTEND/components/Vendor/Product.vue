@@ -107,6 +107,7 @@ const checkAndNavigate = () => {
 };
 
 const updateCart = async (count) => {
+  console.log(count);
   props.product.count = count;
 
   try {

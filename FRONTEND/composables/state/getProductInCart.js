@@ -10,7 +10,7 @@ export const getProductInCart = async (id) => {
     product = cartStore.getProductInCart(id);
 
     if (product) {
-      return true;
+      return product;
     }
   } catch (error) {
     throw error;

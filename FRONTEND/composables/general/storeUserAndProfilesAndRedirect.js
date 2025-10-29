@@ -19,6 +19,7 @@ export const storeUserAndProfilesAndRedirect = async (navigateToURL) => {
 
     await navigateTo(navigateToURL);
   } catch (error) {
+    console.log(error);
     showBrowserStorageErrorModal.value = true;
   } finally {
     settingBrowserStorage.value = false;

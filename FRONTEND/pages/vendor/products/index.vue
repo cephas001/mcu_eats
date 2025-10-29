@@ -37,6 +37,17 @@
   />
 
   <LoadingIconCustom :loading="creatingProduct" />
+
+  <WarningModal
+    v-if="true"
+    :action="'Product creation'"
+    @firstButtonClick="
+      showAddProductForm = false;
+      productCreationError = null;
+    "
+    @secondButtonClick="createProduct"
+    @modalCloseAttempt="productCreationError = null"
+  />
 </template>
 
 <script setup>

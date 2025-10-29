@@ -7,17 +7,7 @@
       :description="vendor.description"
     />
 
-    <p class="flex items-center gap-4 px-5 pb-3">
-      <UIcon name="i-material-symbols-search" class="text-gray-500" />
-      <UInput
-        size="xl"
-        variant="ghost"
-        placeholder="Search menu items"
-        :ui="{
-          base: 'rounded-none text-sm pl-0 hover:bg-transparent cursor-pointer focus:bg-transparent focus:text-black',
-        }"
-      />
-    </p>
+    <VendorSearchFeature />
   </section>
 
   <section
@@ -49,7 +39,7 @@
 </template>
 
 <script setup>
-import { computed, onMounted, watch, ref, provide } from "vue";
+import { computed, onMounted } from "vue";
 import { useVendorStore } from "@/stores/vendorStore";
 import { storeToRefs } from "pinia";
 import { navigateTo, useNuxtApp } from "nuxt/app";
@@ -62,7 +52,6 @@ definePageMeta({
 
 const { $productApiService, $vendorApiService } = useNuxtApp();
 
-// To toggle loading icon
 const fetchingVendor = ref(true);
 const productFetchErrorMessage = ref("");
 const route = useRoute();
@@ -74,7 +63,6 @@ const { selectedProductType } = storeToRefs(vendorStore);
 
 const products = ref([]);
 
-// To filter products based on selected type
 const filteredProducts = computed(() => {
   return products.value.filter((product) => {
     if (
@@ -94,6 +82,13 @@ const filteredProducts = computed(() => {
 
 const setProductTypes = (fetchedProducts) => {
   let productTypes = [];
+
+  if (fetchedProducts.length == 0) {
+    (productTypes = [{ id: 0, name: "All", selected: true }]),
+      (products.value = []);
+    return productTypes;
+  }
+
   productTypes = fetchedProducts.map((product, index) => {
     return {
       id: product.id,
@@ -122,12 +117,12 @@ const fetchVendorFromStoreOrApi = async (id) => {
 
   foundVendor = vendorStore.findVendorById(id);
 
-  if (!foundVendor) {
-    try {
-      foundVendor = await $vendorApiService.getVendorById(id);
-    } catch (error) {
-      throw error;
-    }
+  if (foundVendor) return foundVendor;
+
+  try {
+    foundVendor = await $vendorApiService.getVendorById(id);
+  } catch (error) {
+    throw error;
   }
 
   return foundVendor;
@@ -154,15 +149,6 @@ onMounted(async () => {
     const fetchedProducts = await $productApiService.getProductsByVendor(
       vendor.id
     );
-
-    if (fetchedProducts.length == 0) {
-      vendorStore.setVendor({
-        ...vendor,
-        productTypes: [{ id: 0, name: "All", selected: true }],
-      });
-      products.value = [];
-      return;
-    }
 
     const productTypes = setProductTypes(fetchedProducts);
 

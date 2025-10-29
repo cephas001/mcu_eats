@@ -60,8 +60,10 @@ function decrement() {
 
 onMounted(async () => {
   const inCart = await checkProductInCart(props.product.id);
+
   if (inCart) {
     const productInCart = await getProductInCart(props.product.id);
+
     emit("update:productCount", productInCart.quantity);
   }
 });
