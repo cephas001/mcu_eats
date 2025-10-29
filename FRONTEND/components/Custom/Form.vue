@@ -10,6 +10,10 @@
         :state="formState"
         :items="formState[formField.listVariableName]"
         :fileUpload="formField.fileUpload"
+        :acceptFormats="formField.acceptFormats"
+        :description="formField.description"
+        :required="formField.required"
+        :trailingIcon="formField.trailingIcon"
         @update="formState[formField.valueVariableName] = $event"
         v-if="
           !formField.dependentFieldName ||

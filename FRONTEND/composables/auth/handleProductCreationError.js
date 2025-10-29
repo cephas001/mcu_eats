@@ -5,8 +5,8 @@ import { storeToRefs } from "pinia";
 export const handleProductCreationErrors = (error) => {
   const authStore = useAuthStore();
   const productStore = useProductStore();
-  const { productCreationError } = storeToRefs(productStore); 
-  
+  const { productCreationError } = storeToRefs(productStore);
+
   const { displayError, clearError } = authStore;
 
   clearError();
@@ -28,5 +28,11 @@ export const handleProductCreationErrors = (error) => {
     return;
   }
 
-  productCreationError.value = "An unexpected error occurred. Please try again later.";
+  if (error.type == "InvalidTokenError") {
+    navigateTo("/auth/login");
+    return;
+  }
+
+  productCreationError.value =
+    "An unexpected error occurred. Please try again later.";
 };

@@ -5,6 +5,7 @@ export default class Product {
     name,
     description,
     price,
+    productImage = null,
     // isCombo,
     // comboItems = [], // ARRAY OF COMBO ITEMS (CHECK DOMAIN)
     category,
@@ -25,5 +26,6 @@ export default class Product {
     this.isAvailable = isAvailable;
     this.createdAt = createdAt;
     this.updatedAt = updatedAt;
+    this.productImage = productImage;
   }
 }

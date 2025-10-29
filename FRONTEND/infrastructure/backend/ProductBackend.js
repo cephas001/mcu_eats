@@ -4,11 +4,14 @@ export default class ProductBackend {
   }
 
   // Create a new product
-  async createProduct(productData, vendorId) {
+  async createProduct(formData) {
     try {
       return await this.api.request("/products", {
         method: "POST",
-        body: { productData, vendorId },
+        body: formData,
+        headers: {
+          "Content-Type": "multipart/form-data",
+        },
       });
     } catch (error) {
       throw error;

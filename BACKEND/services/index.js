@@ -10,3 +10,4 @@ export * from "./profileService.js";
 export * from "./vendorService.js";
 export * from "./notificationService.js";
 export * from "./paymentService.js";
+export * from "./fileStorageService.js";

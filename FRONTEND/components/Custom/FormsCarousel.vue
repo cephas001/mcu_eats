@@ -15,32 +15,11 @@
 </template>
 
 <script setup>
+import { useAuthStore } from "@/stores/authStore";
+import { storeToRefs } from "pinia";
+
 // This component is a simple wrapper around a carousel of forms.
 // It accepts an array of form schemas and corresponding form states and manages the navigation between them.
-
-const carousel = useTemplateRef("carousel");
-const activeIndex = ref(0);
-
-const onClickPrev = () => {
-  activeIndex.value--;
-};
-
-const onClickNext = () => {
-  activeIndex.value++;
-};
-
-const select = (index) => {
-  activeIndex.value = index;
-
-  carousel.value?.emblaApi?.scrollTo(index);
-};
-
-const goToPrevious = () => {
-  if (activeIndex.value > 0) {
-    onClickPrev();
-    select(activeIndex.value);
-  }
-};
 
 const props = defineProps({
   formFieldsSchemas: {
@@ -65,6 +44,46 @@ const props = defineProps({
     default: false,
   },
 });
+
+const authStore = useAuthStore();
+const { error } = storeToRefs(authStore);
+
+const carousel = useTemplateRef("carousel");
+const activeIndex = ref(0);
+
+const onClickPrev = () => {
+  activeIndex.value--;
+};
+
+const onClickNext = () => {
+  activeIndex.value++;
+};
+
+const select = (index) => {
+  activeIndex.value = index;
+
+  carousel.value?.emblaApi?.scrollTo(index);
+};
+
+const checkFormFieldSchemasAndNavigateToError = () => {
+  for (let i = 0; i < props.formFieldsSchemas.length; i++) {
+    const formFieldsSchema = props.formFieldsSchemas[i];
+    for (const formField of formFieldsSchema) {
+      if ((error.value.inputName = formField.name)) {
+        console.log("Navigating to form index:", i);
+        select(i);
+        return;
+      }
+    }
+  }
+};
+
+const goToPrevious = () => {
+  if (activeIndex.value > 0) {
+    onClickPrev();
+    select(activeIndex.value);
+  }
+};
 
 const goToNext = () => {
   if (activeIndex.value < props.formFieldsSchemas.length - 1) {

@@ -1,9 +1,4 @@
 <template>
-  <FormErrorMessage
-    :errorMessage="productCreationError"
-    classList="text-center mb-4"
-  />
-
   <!-- Product Listings -->
   <section class="mt-15 px-6 pb-2" v-if="!creatingProduct">
     <h1 class="text-2xl font-bold text-black mb-6 text-center tracking-wide">
@@ -12,6 +7,11 @@
 
     <ProductsPageSearchBarAndActions
       @addProductButtonClicked="showAddProductForm = !showAddProductForm"
+    />
+
+    <FormErrorMessage
+      :errorMessage="productCreationError"
+      classList="text-center mb-4"
     />
 
     <p
@@ -52,7 +52,6 @@ definePageMeta({
   specificUserType: ["vendor"],
 });
 
-
 const productStore = useProductStore();
 const { productsForm } = productStore;
 const { showAddProductForm, productCreationError } = storeToRefs(productStore);
@@ -73,18 +72,26 @@ const createProduct = async () => {
     creatingProduct.value = true;
 
     const vendor = profileStore.getProfile("vendor");
-console.log(vendor)
-    if(!vendor) throw new Error("No vendor profile found");
+
+    if (!vendor) throw new Error("No vendor profile found");
+
+    const formData = new FormData();
+    formData.append("vendorId", vendor.id);
+
+    const productToSend = {
+      name: productsForm.name,
+      description: productsForm.description,
+      price: productsForm.price,
+      category: productsForm.category,
+      isAvailable: isAvailable.value,
+      vendorId: vendor.id,
+    };
+    formData.append("productData", JSON.stringify(productToSend));
+
+    formData.append("productImage", productsForm.productImageFile);
 
     const { updatedVendor, createdProduct, createdProductId } =
-      await $productApiService.createProduct({
-        name: productsForm.name,
-        description: productsForm.description,
-        price: productsForm.price,
-        category: productsForm.category,
-        isAvailable: isAvailable.value,
-        vendorId: vendor.id,
-      }, vendor.id);
+      await $productApiService.createProduct(formData);
 
     console.log({ updatedVendor, createdProduct, createdProductId });
 
@@ -99,9 +106,9 @@ console.log(vendor)
 };
 
 const isAvailable = computed(() => {
-  if(productsForm.available == "Yes") {
+  if (productsForm.available == "Yes") {
     return true;
-  } else if(productsForm.available == "No") {
+  } else if (productsForm.available == "No") {
     return false;
   }
   return null;

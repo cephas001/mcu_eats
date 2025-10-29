@@ -3,7 +3,7 @@
     v-slot="{ item }"
     :items="vendorList"
     dots
-    class="rounded-md shadow-md text-sm mb-5 cursor-pointer hover:shadow-lg focus:shadow-lg"
+    class="rounded-md shadow-lg text-sm mb-5 cursor-pointer hover:shadow-lg focus:shadow-lg"
   >
     <!-- <VendorCard :vendor="item" :favouriteIds /> -->
     <VendorCard :vendor="item" />

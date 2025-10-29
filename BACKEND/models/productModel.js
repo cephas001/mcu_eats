@@ -28,6 +28,10 @@ const ProductSchema = new mongoose.Schema(
       required: true,
       trim: true,
     },
+    productImage: {
+      type: String,
+      default: null,
+    },
     description: {
       type: String,
       default: "",

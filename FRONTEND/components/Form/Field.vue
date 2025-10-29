@@ -1,8 +1,8 @@
 <template>
   <UFormField required>
-    <label class="font-manrope font-semibold" v-if="labelText">{{
-      labelText
-    }}</label>
+    <label class="font-manrope font-semibold" v-if="labelText"
+      >{{ labelText }}{{ required ? "*" : "" }}</label
+    >
     <UInput
       v-if="type !== 'select' && !fileUpload"
       :placeholder
@@ -54,7 +54,7 @@
     />
   </UFormField>
   <UFileUpload
-    v-model="state[`${name}`]"
+    v-model="files"
     class="w-full min-h-48 mt-1"
     v-if="fileUpload"
     :accept="acceptFormats"
@@ -65,6 +65,7 @@
       base: 'bg-gray-100',
       label: 'text-black',
     }"
+    @change="updateValue"
   />
 </template>
 
@@ -78,6 +79,8 @@ const authStore = useAuthStore();
 const { error } = storeToRefs(authStore);
 
 const showPassword = ref(false);
+
+const files = ref([]);
 
 const props = defineProps({
   placeholder: {
@@ -128,6 +131,10 @@ const props = defineProps({
     type: String,
     default: "",
   },
+  required: {
+    type: Boolean,
+    default: true,
+  },
 });
 
 const computedType = computed(() => {
@@ -143,6 +150,10 @@ const emit = defineEmits(["update"]);
 
 // Clears an error on input entry and updates the value of the formfield in state
 const updateValue = (event) => {
+  if (props.fileUpload) {
+    emit("update", files.value);
+    return;
+  }
   if (props.name == "cardExpiryDate") {
     let value = event.target.value.replace(/[^0-9]/g, "");
     // Format as MM/YY

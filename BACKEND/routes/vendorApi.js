@@ -15,20 +15,31 @@ import {
   RejectVendorApplicationUseCase,
   UpdateVendorUseCase,
   UpdateVendorAvailabilityUseCase,
+  fileStorageService,
 } from "../services/index.js";
 
 import verifyToken from "../middlewares/verifyToken.js";
 
 // Create a new vendor
 router.post("/vendors", verifyToken, async (req, res, next) => {
+  let imageInfo;
   try {
+    imageInfo = await fileStorageService.saveImage(req, "bannerImage");
+
     const { vendorProfileData } = req.body;
+    const parsedVendorProfileData = JSON.parse(vendorProfileData);
     const { savedProfile, updatedUser } = await CreateVendorUseCase(
-      vendorProfileData,
+      {
+        ...parsedVendorProfileData,
+        bannerImage: imageInfo ? imageInfo.url : undefined,
+      },
       req.user.id
     );
     res.status(201).json({ savedProfile, updatedUser });
   } catch (error) {
+    if (imageInfo?.filePath) {
+      await fileStorageService.deleteFile(imageInfo.filePath);
+    }
     next(error);
   }
 });

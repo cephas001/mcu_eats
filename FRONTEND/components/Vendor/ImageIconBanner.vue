@@ -9,7 +9,9 @@
         @click="$router.back()"
       />
     </div>
-    <div><Media src="/restaurant/food.jpg" /></div>
+    <div>
+      <Media :src="imageUrl" class="w-full h-70 object-cover brightness-90" />
+    </div>
     <UIcon
       :name="`i-material-symbols-favorite${false ? '' : '-outline'}`"
       class="text-white absolute top-5 right-15 font-bold text-3xl"
@@ -21,4 +23,11 @@
   </div>
 </template>
 
-<script setup></script>
+<script setup>
+const props = defineProps({
+  imageUrl: {
+    type: String,
+    default: "/brand_image_placeholder.jpg",
+  },
+});
+</script>

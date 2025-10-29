@@ -15,6 +15,7 @@ export const createProductSchema = z.object({
   category: z.string().min(1, "Category is required"),
   isAvailable: z.boolean("This field is required"),
   isArchived: z.boolean().default(false),
+  productImage: z.string().url().optional().nullable(),
 });
 
 export const updateProductSchema = createProductSchema.partial().strict();

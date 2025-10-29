@@ -20,7 +20,6 @@ const timeSchema = new Schema(
   { _id: false }
 );
 
-
 const locationSchema = new Schema(
   {
     latitude: {
@@ -110,6 +109,10 @@ const vendorProfileSchema = new Schema(
       required: true,
       minlength: 1,
       match: /^[^0-9]*$/,
+    },
+    bannerImage: {
+      type: String,
+      required: false,
     },
     vendorType: {
       type: String,

@@ -9,13 +9,17 @@ export const createApiClient = () => {
   });
 
   return {
-    request: async (url, { method = "GET", body = null, params = {} } = {}) => {
+    request: async (
+      url,
+      { method = "GET", body = null, params = {}, headers = {} } = {}
+    ) => {
       try {
         const response = await instance.request({
           url,
           method,
           data: body,
           params,
+          headers,
         });
 
         return response.data;

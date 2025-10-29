@@ -35,6 +35,7 @@ export default function CreateVendor({ userRepo, vendorRepo }) {
     const validatedVendorData = inputErrorHandler(createVendorProfileSchema, {
       userId,
       ...vendorProfileData,
+      type: "vendor",
     });
 
     let createdProfile = null;

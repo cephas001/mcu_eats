@@ -11,6 +11,7 @@ export const useProductStore = defineStore("product", () => {
     productCategoryList: ["Food", "Beverage", "Snack", "Other"],
     isAvailableList: ["Yes", "No"],
     available: undefined,
+    productImageFile: null,
   });
 
   const showAddProductForm = ref(false);
@@ -24,14 +25,19 @@ export const useProductStore = defineStore("product", () => {
   });
 
   const productsFilterFormSchema = [
-   {
-    name: "productState",
-    type: "select",
-    valueVariableName: "productState",
-    listVariableName: "productStateOptions",
-  },
-    
-  ];  
+    {
+      name: "productState",
+      type: "select",
+      valueVariableName: "productState",
+      listVariableName: "productStateOptions",
+    },
+  ];
 
-  return { productsForm, showAddProductForm,productCreationError, productsFilterForm, productsFilterFormSchema};
+  return {
+    productsForm,
+    showAddProductForm,
+    productCreationError,
+    productsFilterForm,
+    productsFilterFormSchema,
+  };
 });

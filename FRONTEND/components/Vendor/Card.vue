@@ -6,8 +6,8 @@
       {{ capitalizeWords(vendor.category) }}
     </div>
     <Media
-      src="/restaurant/food.jpg"
-      class="rounded-t-md"
+      :src="vendor.bannerImage || '/brand_image_placeholder.jpg'"
+      class="rounded-t-md w-full h-48 object-cover cursor-pointer brightness-84 hover:brightness-90 transition-all"
       @click.self="openVendor()"
     />
     <!-- icon to favorite would be to the top right -->

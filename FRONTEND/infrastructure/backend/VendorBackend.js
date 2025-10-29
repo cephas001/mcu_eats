@@ -5,12 +5,15 @@ export default class VendorBackend {
   }
 
   // Create a new vendor
-  async createVendor(vendorProfileData) {
+  async createVendor(formData) {
     try {
       console.log(this);
       return await this.api.request("/vendors", {
         method: "POST",
-        body: { vendorProfileData },
+        body: formData,
+        headers: {
+          "Content-Type": "multipart/form-data",
+        },
       });
     } catch (error) {
       throw error;

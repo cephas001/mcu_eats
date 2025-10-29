@@ -42,6 +42,8 @@ import { createUserProfile } from "@/composables/auth/createUserProfile";
 import { handleProfileCreationErrors } from "@/composables/auth/handleProfileCreationErrors";
 import { storeUserAndProfilesAndRedirect } from "@/composables/general/storeUserAndProfilesAndRedirect";
 
+const { $vendorApiService } = useNuxtApp();
+
 const authStore = useAuthStore();
 const { profileRegistrationForm } = authStore;
 const {
@@ -56,7 +58,10 @@ const handleFormSubmit = async () => {
   try {
     creatingProfile.value = true;
 
-    await createUserProfile("vendor", {
+    const formData = new FormData();
+    formData.append("bannerImage", profileRegistrationForm.bannerImageFile);
+
+    const vendorProfileData = {
       vendorName: profileRegistrationForm.vendorName?.trim(),
       vendorType: profileRegistrationForm.vendorTypeValue?.toLowerCase(),
       description: profileRegistrationForm.description?.trim(),
@@ -72,8 +77,18 @@ const handleFormSubmit = async () => {
         hour: Number(profileRegistrationForm.closingTime?.split(":")[0]),
         minute: Number(profileRegistrationForm.closingTime?.split(":")[1]),
       },
-    });
+    };
+
+    formData.append("vendorProfileData", JSON.stringify(vendorProfileData));
+
+    const { createdProfile, userToStore } = await createUserProfile(
+      "vendor",
+      formData
+    );
+
+    console.log(createdProfile, userToStore);
   } catch (error) {
+    console.log(error);
     handleProfileCreationErrors(error);
     return;
   } finally {

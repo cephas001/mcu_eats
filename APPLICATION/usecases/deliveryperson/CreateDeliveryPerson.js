@@ -37,7 +37,7 @@ export default function CreateDeliveryPerson(deliveryPersonRepo, userRepo) {
 
     const validatedDeliveryPersonData = inputErrorHandler(
       createDeliveryPersonProfileSchema,
-      deliveryPersonProfileData
+      { userId, ...deliveryPersonProfileData, type: "delivery_person" }
     );
 
     let createdProfile = null;

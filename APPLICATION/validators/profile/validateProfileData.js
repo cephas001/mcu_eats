@@ -162,6 +162,7 @@ export const createVendorProfileSchema = z.object({
     .regex(/^[^0-9]*$/, "Vendor name must not contain numbers"),
   vendorType: z.enum(["restaurant", "retailer", "shop"]),
   description: z.string().min(1, "Description is required"),
+  bannerImage: z.string().url("Banner image must be a valid URL").optional(),
   businessNumber: z
     .string()
     .regex(/^0[789][01]\d{8}$/, "Phone number must be a valid Nigerian number"),

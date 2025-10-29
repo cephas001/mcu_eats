@@ -9,6 +9,7 @@ export default class Vendor extends BaseProfile {
     description,
     businessNumber,
     businessEmail,
+    bannerImage,
     category,
     takingOrders = false,
     openingTime = { hour: 0, minute: 0 },
@@ -47,5 +48,6 @@ export default class Vendor extends BaseProfile {
     this.pendingOrders = pendingOrders;
     this.activeOrders = activeOrders;
     this.completedOrders = completedOrders;
+    this.bannerImage = bannerImage;
   }
 }

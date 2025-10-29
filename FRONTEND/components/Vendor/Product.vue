@@ -28,7 +28,7 @@
 
     <div class="absolute top-0 right-0 bottom-0 w-[40%]">
       <NuxtImg
-        src="/restaurant/food3.jpg"
+        :src="product.productImage || '/restaurant/food3.jpg'"
         alt="Product Image"
         class="w-full h-[100%] object-cover cursor-pointer rounded-r-md bg-gradient-to-t from-black/90 to-transparent bg-blend-overlay"
       />

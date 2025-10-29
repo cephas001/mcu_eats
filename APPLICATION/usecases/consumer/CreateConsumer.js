@@ -52,10 +52,11 @@ export default function CreateConsumer(consumerRepo, userRepo) {
       throw new ValidationError("Invalid user category");
     }
 
-    const validatedConsumerData = inputErrorHandler(
-      consumerSchema,
-      consumerProfileData
-    );
+    const validatedConsumerData = inputErrorHandler(consumerSchema, {
+      userId,
+      ...consumerProfileData,
+      type: "consumer",
+    });
 
     let createdProfile = null;
     let createdProfileId = null;

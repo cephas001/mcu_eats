@@ -17,20 +17,34 @@ import {
   SetProductAvailaibiltyUseCase,
   UpdateComboUseCase,
   UpdateProductUseCase,
+  fileStorageService,
 } from "../services/index.js";
 
 // Create a new product
 router.post("/products", verifyToken, async (req, res, next) => {
+  let imageInfo;
   try {
+    imageInfo = await fileStorageService.saveImage(req, "productImage");
+
     const { vendorId, productData } = req.body;
+
+    const parsedProductData = JSON.parse(productData);
+
     const { updatedVendor, createdProduct, createdProductId } =
       await CreateProductUseCase({
         userId: req.user.id,
         vendorId,
-        productData,
+        productData: {
+          ...parsedProductData,
+          productImage: imageInfo ? imageInfo.url : undefined,
+        },
       });
+
     res.status(201).json({ updatedVendor, createdProduct, createdProductId });
   } catch (error) {
+    if (imageInfo?.filePath) {
+      await fileStorageService.deleteFile(imageInfo.filePath);
+    }
     next(error);
   }
 });

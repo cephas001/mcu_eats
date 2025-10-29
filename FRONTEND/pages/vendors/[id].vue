@@ -1,6 +1,6 @@
 <template>
   <section v-if="!fetchingVendor">
-    <VendorImageIconBanner />
+    <VendorImageIconBanner :imageUrl="vendor.bannerImage" />
 
     <VendorDetails
       :vendorName="vendor.vendorName"

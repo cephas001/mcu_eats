@@ -17,10 +17,10 @@
     }"
   >
     <template #body>
-      <CustomForm
-        :formFieldsSchema="productsFormSchema"
-        :formState="productsForm"
-        submitButtonText="Add Product"
+      <CustomFormsCarousel
+        :formFieldsSchemas="[productsFormSchema1, productsFormSchema2]"
+        :correspondingFormStates="[productsForm, productsForm]"
+        :correspondingSubmitButtonTexts="['Next: Product Image', 'Add Product']"
         @formSubmit="emit('createProduct', true)"
       />
     </template>
@@ -39,7 +39,7 @@ const { showAddProductForm } = storeToRefs(productStore);
 const show = ref(false);
 const emit = defineEmits(["createProduct"]);
 
-const productsFormSchema = ref([
+const productsFormSchema1 = ref([
   {
     label: "Product Name",
     placeholder: "A short but descriptive name",
@@ -90,6 +90,19 @@ const productsFormSchema = ref([
     type: "select",
     valueVariableName: "available",
     listVariableName: "isAvailableList",
+  },
+]);
+
+const productsFormSchema2 = ref([
+  {
+    label: "Product Image",
+    name: "productImage",
+    valueVariableName: "productImageFile",
+    fileUpload: true,
+    acceptFormats: "image/*",
+    description: "SVG, PNG, JPG or GIF",
+    trailingIcon: "i-material-symbols-add-photo-alternate-outline",
+    required: false,
   },
 ]);
 </script>

@@ -1,7 +1,7 @@
 import { useUserStore } from "@/stores/userStore";
 import { useProfileStore } from "@/stores/profileStore";
 
-export const createUserProfile = async (profileType, profileObject) => {
+export const createUserProfile = async (profileType, profileToStore) => {
   const userStore = useUserStore();
   const profileStore = useProfileStore();
 
@@ -15,28 +15,21 @@ export const createUserProfile = async (profileType, profileObject) => {
     let createdProfile = null;
     let userToStore = null;
 
-    const profileTypeAndDataObject = {
-      type: profileType,
-      ...profileObject,
-    };
-
     if (profileType == "consumer") {
       const { savedProfile, updatedUser } =
-        await $consumerApiService.createConsumer(profileTypeAndDataObject);
+        await $consumerApiService.createConsumer(profileToStore);
 
       createdProfile = savedProfile;
       userToStore = updatedUser;
     } else if (profileType == "delivery_person") {
       const { savedProfile, updatedUser } =
-        await $deliverypersonApiService.createDeliveryPerson(
-          profileTypeAndDataObject
-        );
+        await $deliverypersonApiService.createDeliveryPerson(profileToStore);
 
       createdProfile = savedProfile;
       userToStore = updatedUser;
     } else if (profileType == "vendor") {
       const { savedProfile, updatedUser } =
-        await $vendorApiService.createVendor(profileTypeAndDataObject);
+        await $vendorApiService.createVendor(profileToStore);
 
       createdProfile = savedProfile;
       userToStore = updatedUser;
