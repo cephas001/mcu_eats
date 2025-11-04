@@ -15,4 +15,8 @@ const storage = multer.diskStorage({
 
 const upload = multer({ storage });
 
-export const fileStorageService = new MulterFileStorageService(upload, fs);
+export const fileStorageService = new MulterFileStorageService(
+  upload,
+  fs,
+  path
+);

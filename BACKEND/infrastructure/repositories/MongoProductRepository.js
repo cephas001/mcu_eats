@@ -22,13 +22,45 @@ export default class MongoProductRepository extends ProductRepository {
     }
   }
 
-  async deleteProduct(venodrId, productId) {}
+  async deleteProduct(venodrId, productId) {
+    try {
+      const deletedProduct = await this.productRepo.findOneAndDelete({
+        vendorId: venodrId,
+        _id: productId,
+      });
 
-  async findById(vendorId, productId) {}
+      return renameMongoIdFields(deletedProduct);
+    } catch (error) {
+      throw error;
+    }
+  }
+
+  async findById(vendorId, productId) {
+    try {
+      const product = await this.productRepo
+        .findOne({ vendorId, _id: productId })
+        .lean();
+
+      return renameMongoIdFields(product);
+    } catch (error) {
+      throw error;
+    }
+  }
 
   async checkMultipleProductsExistence(vendorId, productIds) {}
 
-  async deleteMultipleProducts(vendorId, productIds) {}
+  async deleteMultipleProducts(vendorId, productIds) {
+    try {
+      const deleteResult = await this.productRepo.deleteMany({
+        vendorId,
+        _id: { $in: productIds },
+      });
+
+      return deleteResult.deletedCount == productIds.length;
+    } catch (error) {
+      throw error;
+    }
+  }
 
   async getProductsByVendor(vendorId) {
     const products = await this.productRepo.find({ vendorId }).lean();

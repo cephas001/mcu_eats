@@ -27,6 +27,10 @@ export const DeleteProductUseCase = ProductUseCases.DeleteProduct(
   vendorRepo,
   productRepo
 );
+export const DeleteProductsUseCase = ProductUseCases.DeleteProducts(
+  vendorRepo,
+  ProductUseCases.DeleteProduct(vendorRepo, productRepo)
+);
 export const GetProductByIdUseCase = ProductUseCases.GetProductById(
   vendorRepo,
   productRepo

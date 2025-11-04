@@ -1,7 +1,8 @@
 export default class MulterFileStorageService {
-  constructor(upload, fileSystem = fs) {
+  constructor(upload, fileSystem = fs, path) {
     this.upload = upload;
     this.fs = fileSystem;
+    this.path = path;
   }
 
   async saveImage(req, fieldName = "file") {
@@ -30,7 +31,14 @@ export default class MulterFileStorageService {
 
   async deleteFile(filePath) {
     try {
-      await this.fs.unlink(`.${filePath}`);
+      if (filePath.startsWith("https:")) {
+        const fileName = this.path.basename(filePath);
+        filePath = `/uploads/${fileName}`;
+      }
+
+      const localPath = `.${filePath}`;
+
+      await this.fs.unlink(localPath);
     } catch (err) {
       throw new Error(`Failed to delete file at ${filePath}: ${err.message}`);
     }

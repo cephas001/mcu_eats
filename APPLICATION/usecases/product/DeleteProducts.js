@@ -1,92 +1,34 @@
-import {
-  ProductExistenceError,
-  ProfileExistenceError,
-  UnauthorizedError,
-  UnexpectedError,
-  ValidationError,
-} from "../../domain/Error.js";
+import { ValidationError } from "../../domain/Error.js";
+import { validateVendorAccess } from "../../validators/vendor/validateVendorAccess.js";
 
-export default function DeleteProducts(vendorRepo, productRepo) {
-  return async function (vendorId, productIds) {
-    let vendor = null;
-    try {
-      vendor = await vendorRepo.findById(vendorId);
-    } catch (error) {
-      throw new UnexpectedError(
-        "An unexpected error occurred while trying to fetch the vendor details",
-        error
+export default function DeleteProducts(vendorRepo, deleteProduct) {
+  return async function ({ userId, vendorId, productIds }) {
+    await validateVendorAccess(vendorRepo, { userId, vendorId });
+
+    if (!Array.isArray(productIds) || productIds.length === 0) {
+      throw new ValidationError(
+        "Product Ids must be defined as a non-empty array"
       );
     }
 
-    if (!vendor) {
-      throw new ProfileExistenceError("Vendor does not exists in database");
-    }
+    const results = await Promise.allSettled(
+      productIds.map((productId) =>
+        deleteProduct({ userId, vendorId, productId })
+      )
+    );
 
-    // CHANGE TO APPROVED LATER ON
-    if (vendor.verificationStatus !== "pending") {
-      throw new UnauthorizedError(
-        "Vendor is not permitted to perform this action"
-      );
-    }
+    const successes = results
+      .filter((r) => r.status === "fulfilled")
+      .map((r) => r.value.deleted);
+    const failures = results
+      .filter((r) => r.status === "rejected")
+      .map((r) => r.reason);
 
-    if (vendor.userId !== userId) {
-      throw new UnauthorizedError(
-        "This user is not permitted to perform this action"
-      );
-    }
-
-    if (!Array.isArray(productIds)) {
-      throw new ValidationError("Product Ids must be defined as an array");
-    }
-
-    let productsExists = null;
-    try {
-      productsExists = await productRepo.checkMultipleProductsExistence(
-        vendorId,
-        productIds
-      );
-    } catch (error) {
-      throw new UnexpectedError(
-        "An unexpected error occurred while trying to fetch product details",
-        error
-      );
-    }
-
-    if (!productsExists) {
-      throw new ProductExistenceError(
-        "Some products do not exist from the ids that were sent in"
-      );
-    }
-
-    let productsDeleted = null;
-    try {
-      const deleted = await productRepo.deleteMultipleProducts(
-        vendorId,
-        productIds
-      );
-
-      productsDeleted = deleted;
-    } catch (error) {
-      throw new UnexpectedError(
-        "An unexpected error occurred while trying to deleted product",
-        error
-      );
-    }
-
-    try {
-      if (!productsDeleted) return;
-
-      const unlinked = await vendorRepo.unlinkMultipleProductsFromVendor(
-        vendorId,
-        productIds
-      );
-
-      return { deleted: productsDeleted, unlinked };
-    } catch (error) {
-      throw new UnexpectedError(
-        "An unexpected error occurred while trying to remove the product id from the vendor",
-        error
-      );
-    }
+    return {
+      deletedCount: successes.length,
+      failedCount: failures.length,
+      errors: failures,
+      deletedProducts: successes,
+    };
   };
 }

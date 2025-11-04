@@ -1,6 +1,7 @@
 import { useProfileStore } from "./profileStore";
 import { defineStore } from "pinia";
 import { ref } from "vue";
+import { useLocalStorage } from "@vueuse/core";
 
 export const useProductStore = defineStore("product", () => {
   const products = ref([]);
@@ -42,6 +43,8 @@ export const useProductStore = defineStore("product", () => {
     },
   ];
 
+  const checkedProductsRecord = useLocalStorage("checkedProductsRecord", []);
+
   const setProducts = async () => {
     const vendorProfile = profileStore.getProfile("vendor");
 
@@ -59,7 +62,12 @@ export const useProductStore = defineStore("product", () => {
     unarchivedProducts.value = vendorProducts.unarchivedProducts;
     allProducts.value = vendorProducts.allProducts;
 
-    products.value = allProducts.value;
+    products.value = allProducts.value.map((product) => {
+      return {
+        ...product,
+        checked: checkedProductsRecord.value.includes(product.id),
+      };
+    });
   };
 
   const filterProducts = async (productState) => {
@@ -80,14 +88,29 @@ export const useProductStore = defineStore("product", () => {
     }
   };
 
+  const deleteProduct = (productId) => {
+    products.value = products.value.filter(
+      (product) => product.id !== productId
+    );
+  };
+
+  const deleteProducts = (productIds) => {
+    products.value = products.value.filter(
+      (product) => !productIds.includes(product.id)
+    );
+  };
+
   return {
     productsForm,
     showAddProductForm,
     productCreationError,
     productsFilterForm,
     productsFilterFormSchema,
+    checkedProductsRecord,
     products,
     filterProducts,
     setProducts,
+    deleteProduct,
+    deleteProducts,
   };
 });

@@ -1,73 +1,69 @@
 <template>
   <UModal
-    v-model:open="showErrorModal"
-    class="bg-white pb-4"
-    title="An error occurred"
-    :dismissible
-    @close:prevent="emit('modalCloseAttempt')"
+    v-model:open="showWarningModal"
+    :close="false"
+    :title="`${warningModalTitle || 'Warning'}`"
+    :ui="{
+      content: 'bg-white text-black font-manrope',
+      title: 'text-red-700  text-sm font-manrope font-bold tracking-wide',
+      description: 'text-black',
+    }"
   >
-    <template #content>
-      <div class="px-5 py-10">
-        <h1 class="mt-2 tracking-wide flex flex-col gap-2">
-          <span
-            >{{ action }} was successful, but an error occurred while trying to
-            save your data locally.
-          </span>
-          <span>This might result in more frequent network calls.</span>
-        </h1>
-        <div class="mt-3 flex gap-2" v-if="showButtons">
-          <button
-            @click="emit('firstButtonClick')"
-            class="bg-black text-white text-sm tracking-wider py-2 px-3 rounded-md"
-          >
-            {{ firstButtonText }}
-          </button>
-          <button
-            @click="emit('secondButtonClick')"
-            class="bg-black text-white text-sm tracking-wider p-2 rounded-md"
-            v-if="showSecondButton"
-          >
-            {{ secondButtonText }}
-          </button>
-        </div>
+    <template #body>
+      <div class="">
+        <p class="leading-relaxed tracking-wide text-md">
+          {{
+            text ||
+            "This action may not be reversible. Please confirm before proceeding."
+          }}
+        </p>
+      </div></template
+    >
+
+    <template #footer>
+      <div class="flex justify-end gap-2">
+        <UButton
+          color="neutral"
+          label="Cancel"
+          @click="closeWarningModalAndEmit"
+          class="px-5 py-2 rounded-lg border border-black bg-gray-200 text-black hover:bg-[#F0F0EB] transition-all duration-200 font-manrope tracking-wide"
+        />
+        <UButton
+          label="Proceed"
+          @click="executeAction"
+          class="px-5 py-2 rounded-lg text-white font-medium shadow-md hover:shadow-lg transition-all duration-200 bg-[#9F7240] hover:bg-[#8C6438] font-manrope tracking-wide"
+        />
       </div>
     </template>
   </UModal>
 </template>
 
 <script setup>
-const emit = defineEmits([
-  "firstButtonClick",
-  "secondButtonClick",
-  "modalCloseAttempt",
-]);
+import { useGlobalStore } from "@/stores/globalStore";
+import { ref } from "vue";
 
-const showErrorModal = true;
+const emit = defineEmits(["proceed"]);
+
+const globalStore = useGlobalStore();
+const { closeWarningModal } = globalStore;
+const { showWarningModal, warningModalTitle } = storeToRefs(globalStore);
 
 const props = defineProps({
+  text: {
+    type: String,
+  },
   action: {
-    type: String,
-    required: true,
-  },
-  showSecondButton: {
-    type: Boolean,
-    default: true,
-  },
-  secondButtonText: {
-    type: String,
-    default: "Retry",
-  },
-  firstButtonText: {
-    type: String,
-    default: "Proceed",
-  },
-  showButtons: {
-    type: Boolean,
-    default: true,
-  },
-  dismissible: {
-    type: Boolean,
-    default: true,
+    type: Function,
   },
 });
+
+const closeWarningModalAndEmit = () => {
+  closeWarningModal();
+  emit("close", true);
+};
+
+const executeAction = async () => {
+  closeWarningModal();
+  await props.action();
+};
 </script>

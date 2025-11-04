@@ -1,38 +1,10 @@
-import {
-  ProductExistenceError,
-  ProfileExistenceError,
-  UnauthorizedError,
-  UnexpectedError,
-} from "../../domain/Error.js";
+import { ProductExistenceError, UnexpectedError } from "../../domain/Error.js";
+
+import { validateVendorAccess } from "../../validators/vendor/validateVendorAccess.js";
 
 export default function DeleteProduct(vendorRepo, productRepo) {
   return async function ({ userId, vendorId, productId }) {
-    let vendor = null;
-    try {
-      vendor = await vendorRepo.findById(vendorId);
-    } catch (error) {
-      throw new UnexpectedError(
-        "An unexpected error occurred while trying to fetch the vendor details",
-        error
-      );
-    }
-
-    if (!vendor) {
-      throw new ProfileExistenceError("Vendor does not exists in database");
-    }
-
-    // CHANGE TO APPROVED LATER ON
-    if (vendor.verificationStatus !== "pending") {
-      throw new UnauthorizedError(
-        "Vendor is not permitted to perform this action"
-      );
-    }
-
-    if (vendor.userId !== userId) {
-      throw new UnauthorizedError(
-        "This user is not permitted to perform this action"
-      );
-    }
+    await validateVendorAccess(vendorRepo, { userId, vendorId });
 
     let product = null;
     try {

@@ -6,14 +6,31 @@
     <!-- Show a placeholder with the same width & height -->
     <img
       v-if="!isLoaded"
-      :width="imgAttrs.width"
-      :height="imgAttrs.height"
+      :width="useImageWidthHeight ? imgAttrs.width : 'auto'"
+      :height="useImageWidthHeight ? imgAttrs.height : 'auto'"
       src="/placeholder_.jpg"
-      class="animate-pulse mx-auto"
+      :class="`animate-pulse mx-auto ${placeholderClass}`"
     />
   </NuxtImg>
 </template>
 
-<script setup lang="ts">
-const props = defineProps<{ src: string; class?: string }>();
+<script setup>
+const props = defineProps({
+  src: {
+    type: String,
+    required: true,
+  },
+  class: {
+    type: String,
+    default: "",
+  },
+  placeholderClass: {
+    type: String,
+    default: "",
+  },
+  useImageWidthHeight: {
+    type: Boolean,
+    default: true,
+  },
+});
 </script>

@@ -20,17 +20,19 @@
 
       <VendorProductActionIconsAndInput
         @update:productCount="updateCart"
-        v-if="!favouritePage && selectedProfile.type !== 'vendor'"
+        v-if="!favouritePage && selectedProfile?.type !== 'vendor'"
         :productCount="product.count"
         :product
       />
     </div>
 
     <div class="absolute top-0 right-0 bottom-0 w-[40%]">
-      <NuxtImg
+      <Media
         :src="product.productImage || '/product_placeholder.jpg'"
         alt="Product Image"
         class="w-full h-[100%] object-cover cursor-pointer rounded-r-md bg-gradient-to-t from-black/90 to-transparent bg-blend-overlay"
+        :useImageWidthHeight="false"
+        placeholderClass="h-full w-full object-cover "
       />
 
       <UIcon
@@ -107,7 +109,6 @@ const checkAndNavigate = () => {
 };
 
 const updateCart = async (count) => {
-  console.log(count);
   props.product.count = count;
 
   try {
@@ -121,8 +122,6 @@ const updateCart = async (count) => {
       cartStore.updateItemInCart(props.product.id, {
         quantity: props.product.count,
       });
-
-      console.log(cartStore.getCart());
 
       return;
     }

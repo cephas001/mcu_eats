@@ -43,7 +43,7 @@ export const checkVendors = async () => {
   let fetchedVendors = null;
   try {
     fetchedVendors = await $vendorApiService.getVendors();
-    console.log(fetchedVendors);
+
     if (!fetchedVendors || fetchedVendors?.length == 0) {
       return;
     }

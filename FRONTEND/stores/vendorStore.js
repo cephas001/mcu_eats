@@ -18,7 +18,6 @@ export const useVendorStore = defineStore("vendor", () => {
 
   const setVendors = (payload) => {
     vendors.value = payload;
-    console.log(vendors.value);
   };
 
   const setRestaurants = (payload) => {

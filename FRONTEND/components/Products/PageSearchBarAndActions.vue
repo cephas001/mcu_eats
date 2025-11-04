@@ -27,9 +27,14 @@
         <UIcon
           name="i-material-symbols-archive-outline-rounded"
           class="text-black text-2xl"
+          @click="emit('archivedProductButtonClicked', true)"
         >
         </UIcon>
-        <UIcon name="i-material-symbols-delete" class="text-red-600 text-2xl">
+        <UIcon
+          name="i-material-symbols-delete"
+          class="text-red-600 text-2xl"
+          @click="emit('deleteProductButtonClicked', true)"
+        >
         </UIcon>
         <UIcon
           name="material-symbols-filter-alt-outline"
@@ -60,7 +65,11 @@ import { onClickOutside } from "@vueuse/core";
 const productStore = useProductStore();
 const { productsFilterForm, productsFilterFormSchema } = productStore;
 
-const emit = defineEmits(["addProductButtonClicked"]);
+const emit = defineEmits([
+  "addProductButtonClicked",
+  "archivedProductButtonClicked",
+  "deleteProductButtonClicked",
+]);
 const showDropdown = ref(false);
 
 const target = ref(null);

@@ -92,7 +92,39 @@ export default class MongoVendorRepository extends VendorRepository {
     }
   }
 
-  async unlinkProductFromVendor(vendorId, productId) {}
+  async unlinkProductFromVendor(vendorId, productId) {
+    try {
+      const updatedVendor = await this.vendorProfileRepo.findByIdAndUpdate(
+        vendorId,
+        { $pull: { products: productId } },
+        { new: true }
+      );
 
-  async unlinkMultipleProductsFromVendor(vendorId, productIds) {}
+      if (!updatedVendor) {
+        throw new Error(`Vendor with ID ${vendorId} not found`);
+      }
+
+      return renameMongoIdFields(updatedVendor.toObject());
+    } catch (error) {
+      throw error;
+    }
+  }
+
+  async unlinkMultipleProductsFromVendor(vendorId, productIds) {
+    try {
+      const updatedVendor = await this.vendorProfileRepo.findByIdAndUpdate(
+        vendorId,
+        { $pull: { products: { $in: productIds } } },
+        { new: true }
+      );
+
+      if (!updatedVendor) {
+        throw new Error(`Vendor with ID ${vendorId} not found`);
+      }
+
+      return renameMongoIdFields(updatedVendor.toObject());
+    } catch (error) {
+      throw error;
+    }
+  }
 }

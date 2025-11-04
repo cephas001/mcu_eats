@@ -10,7 +10,12 @@
       />
     </div>
     <div>
-      <Media :src="imageUrl" class="w-full h-70 object-cover brightness-90" />
+      <Media
+        :src="imageUrl"
+        class="w-full h-70 object-cover brightness-90"
+        :useImageWidthHeight="false"
+        placeholderClass="h-70 w-full object-cover"
+      />
     </div>
     <UIcon
       :name="`i-material-symbols-favorite${false ? '' : '-outline'}`"

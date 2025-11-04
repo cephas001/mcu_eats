@@ -8,6 +8,7 @@ import {
   CreateProductUseCase,
   DeleteComboUseCase,
   DeleteProductUseCase,
+  DeleteProductsUseCase,
   GetProductByIdUseCase,
   GetProductsByCategoryUseCase,
   GetProductsByVendorUseCase,
@@ -136,13 +137,57 @@ router.patch("/products/:productId/availability", async (req, res, next) => {
 // Delete a product
 router.delete("/products/:productId", verifyToken, async (req, res, next) => {
   try {
+    const productId = req.params.productId;
     const { vendorId } = req.body;
-    await DeleteProductUseCase({
+
+    const product = await GetProductByIdUseCase(vendorId, productId);
+
+    await fileStorageService.deleteFile(product.productImage);
+
+    const result = await DeleteProductUseCase({
       userId: req.user.id,
       vendorId,
-      productId: req.params.productId,
+      productId,
     });
-    res.sendStatus(204);
+
+    res.json(result);
+  } catch (error) {
+    next(error);
+  }
+});
+
+// Delete Products
+router.delete("/products", verifyToken, async (req, res, next) => {
+  try {
+    const { vendorId, productIds } = req.body;
+
+    // Get all products before deletion to access their image URLs
+    const products = await GetProductsByVendorUseCase(vendorId);
+
+    // Delete all product images from file storage
+    await Promise.all(
+      products.map(async (product) => {
+        if (product && product.productImage) {
+          try {
+            await fileStorageService.deleteFile(product.productImage);
+          } catch (err) {
+            console.error(
+              `Failed to delete image for product ${product._id}:`,
+              err.message
+            );
+          }
+        }
+      })
+    );
+
+    // Delete all products from the database
+    const result = await DeleteProductsUseCase({
+      userId: req.user.id,
+      vendorId,
+      productIds,
+    });
+
+    res.json(result);
   } catch (error) {
     next(error);
   }

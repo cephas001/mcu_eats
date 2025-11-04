@@ -99,10 +99,22 @@ export default class ProductBackend {
   }
 
   // Delete a product
-  async deleteProduct(productId) {
+  async deleteProduct(vendorId, productId) {
     try {
       return await this.api.request(`/products/${productId}`, {
         method: "DELETE",
+        body: { vendorId },
+      });
+    } catch (error) {
+      throw error;
+    }
+  }
+
+  async deleteProducts(vendorId, productIds) {
+    try {
+      return await this.api.request(`/products`, {
+        method: "DELETE",
+        body: { vendorId, productIds },
       });
     } catch (error) {
       throw error;
