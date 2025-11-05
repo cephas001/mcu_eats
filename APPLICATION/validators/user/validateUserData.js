@@ -5,20 +5,6 @@ const profileRefSchema = z.object({
   profileId: z.string().min(1, "Profile ID is required"),
 });
 
-const dateSchema = z
-  .string()
-  .refine(
-    (val) => {
-      const date = new Date(val);
-      return !isNaN(date.getTime());
-    },
-    {
-      message: "Invalid date string",
-    }
-  )
-  .optional()
-  .default(() => new Date().toISOString());
-
 export const createUserSchema = z.object({
   id: z.string().min(1, "ID is required"),
 
@@ -47,15 +33,16 @@ export const createUserSchema = z.object({
       message: "Category must be student, staff or visitor",
     }),
   }),
+  
   profiles: z.array(profileRefSchema).optional().default([]),
 
   status: z.enum(["active", "inactive", "banned"]).optional().default("active"),
 
-  createdAt: dateSchema,
+  createdAt: z.union([z.date(), z.string()]).optional(),
 
-  updatedAt: dateSchema,
+  updatedAt: z.union([z.date(), z.string()]).optional(),
 
-  lastLogin: dateSchema,
+  lastLogin: z.union([z.date(), z.string()]).optional(),
 });
 
 export const updateUserSchema = createUserSchema.partial().strict();

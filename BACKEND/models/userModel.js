@@ -62,7 +62,8 @@ const UserSchema = new mongoose.Schema(
       required: true,
     },
     lastLogin: {
-      type: String,
+      type: Date,
+      required: false
     },
   },
   { timestamps: false }

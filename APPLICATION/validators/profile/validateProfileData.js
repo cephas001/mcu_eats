@@ -122,7 +122,10 @@ const baseConsumerSchema = z.object({
 
 export const createStudentConsumerProfileSchema = baseConsumerSchema.extend({
   hostel: z.string().min(1, "Hostel is required"),
-  roomNumber: z.string().min(1, "Room number is required"),
+  roomNumber: z
+    .string()
+    .min(1, "Room number is required")
+    .max(2, "Room number cannot exceed two characters"),
 });
 
 export const createStaffConsumerProfileSchema = baseConsumerSchema.extend({

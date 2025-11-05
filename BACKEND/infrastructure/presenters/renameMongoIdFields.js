@@ -6,6 +6,10 @@ const renameMongoIdFields = (data) => {
   }
 
   if (data && typeof data === "object" && data !== null) {
+    if (data instanceof Date) {
+      return data;
+    }
+
     const result = {};
     for (const [key, value] of Object.entries(data)) {
       // Rename _id to id
@@ -13,10 +17,16 @@ const renameMongoIdFields = (data) => {
 
       let newValue;
 
-      // If value is an ObjectId, convert to string
+      // Convert ObjectId to string
       if (value instanceof mongoose.Types.ObjectId) {
         newValue = value.toString();
-      } else {
+      }
+      // Preserve Date objects
+      else if (value instanceof Date) {
+        newValue = value;
+      }
+      // Recurse for other nested objects/arrays
+      else {
         newValue = renameMongoIdFields(value);
       }
 

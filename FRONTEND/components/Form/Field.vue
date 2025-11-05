@@ -1,6 +1,6 @@
 <template>
   <UFormField required>
-    <label class="font-manrope font-semibold" v-if="labelText"
+    <label class="font-manrope font-semibold" v-if="labelText && showLabelText"
       >{{ labelText }}{{ required ? "*" : "" }}</label
     >
     <UInput
@@ -135,6 +135,10 @@ const props = defineProps({
     type: Boolean,
     default: true,
   },
+  showLabelText: {
+    type: Boolean, 
+    default: true
+  }
 });
 
 const computedType = computed(() => {
@@ -151,6 +155,7 @@ const emit = defineEmits(["update"]);
 // Clears an error on input entry and updates the value of the formfield in state
 const updateValue = (event) => {
   if (props.fileUpload) {
+    clearError();
     emit("update", files.value);
     return;
   }

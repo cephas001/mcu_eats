@@ -20,6 +20,7 @@
           <h1 class="text-2xl font-bold text-black mb-2">
             {{ vendorProfile?.vendorName }}
           </h1>
+          <p class="mb-2">{{ vendorProfile?.description }}</p>
           <div class="flex items-center gap-2">
             <span class="text-sm text-gray-500">Status:</span>
             <select

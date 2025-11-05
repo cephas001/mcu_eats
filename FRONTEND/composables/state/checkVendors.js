@@ -32,6 +32,7 @@ export const checkVendors = async () => {
 
   try {
     const storedVendors = await $GetVendorsUseCase();
+    console.log(storedVendors);
     if (storedVendors && storedVendors?.length > 0) {
       setVendors(storedVendors);
       // return;

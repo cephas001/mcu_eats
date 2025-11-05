@@ -93,6 +93,7 @@ export const useAuthStore = defineStore("auth", () => {
     openingTime: undefined,
     closingTime: undefined,
     bannerImageFile: null,
+    logoImageFile: null
   });
 
   // Gets passed dowm to Form Field component and displays the errors if any
@@ -314,15 +315,28 @@ export const useAuthStore = defineStore("auth", () => {
 
   const vendorFormFieldsSchemaThree = ref([
     {
-      label: "Brand Image",
+      label: "A Catchy Image Showcasing Your Business",
       name: "bannerImageFile",
       valueVariableName: "bannerImageFile",
+      showLabelText: false,
       fileUpload: true,
       acceptFormats: "image/*",
       description: "SVG, PNG, JPG or GIF",
       trailingIcon: "i-material-symbols-add-photo-alternate-outline",
       required: false,
     },
+ {
+      label: "Your Business Logo",
+      name: "logoImageFile",
+      valueVariableName: "logoImageFile",
+      showLabelText: false,
+      fileUpload: true,
+      acceptFormats: "image/*",
+      description: "SVG, PNG, JPG or GIF",
+      trailingIcon: "i-material-symbols-add-photo-alternate-outline",
+      required: false,
+    },
+
   ]);
 
   const loginFormSchema = ref([

@@ -20,6 +20,7 @@ export default class MongoUserRepository extends UserRepository {
       const { id, ...restOfUserData } = userData;
       const user = new this.userRepo({ _id: id, ...restOfUserData });
       const savedUser = await user.save();
+      console.log(savedUser);
       return renameMongoIdFields(savedUser.toObject());
     } catch (error) {
       throw error;
@@ -51,7 +52,7 @@ export default class MongoUserRepository extends UserRepository {
           { new: true }
         )
         .lean();
-
+    
       return renameMongoIdFields(updatedUser);
     } catch (error) {
       throw error;

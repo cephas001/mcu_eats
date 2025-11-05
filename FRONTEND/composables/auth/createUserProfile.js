@@ -38,7 +38,7 @@ export const createUserProfile = async (profileType, profileToStore) => {
     }
 
     if (!userToStore || !createdProfile) return;
-
+    console.log(userToStore, createdProfile);
     userStore.setUser(userToStore);
     profileStore.addProfile(createdProfile);
     profileStore.selectProfile(createdProfile.type);

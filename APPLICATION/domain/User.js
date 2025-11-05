@@ -11,7 +11,7 @@ export default class User {
     status = "active", // 'active' | 'inactive' | 'banned'
     createdAt = new Date(),
     updatedAt = new Date(),
-    lastLogin = null,
+    lastLogin = undefined,
   }) {
     this.id = id;
     this.name = name;

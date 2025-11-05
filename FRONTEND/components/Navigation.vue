@@ -223,7 +223,7 @@ const appendProfileSpecificRoutes = (selectedProfile) => {
         color: "info",
       },
       {
-        label: "Live Profile View",
+        label: "View Live Profile",
         icon: "i-material-symbols-fiber-manual-record-outline",
         to: `/vendors/${selectedProfile.id}`,
         color: "info",

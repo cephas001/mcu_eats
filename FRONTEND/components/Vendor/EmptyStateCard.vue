@@ -4,8 +4,7 @@
     v-if="vendorsLength == 0"
   >
     <h1 class="font-manrope">
-      No {{ vendorType }} yet. <br />Check back soon or explore other top
-      choices!
+      No {{ vendorType }} yet. <br />Check back soon.
     </h1>
   </div>
 </template>

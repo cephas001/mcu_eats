@@ -14,6 +14,7 @@
         :description="formField.description"
         :required="formField.required"
         :trailingIcon="formField.trailingIcon"
+        :showLabelText="formField.showLabelText"
         @update="formState[formField.valueVariableName] = $event"
         v-if="
           !formField.dependentFieldName ||

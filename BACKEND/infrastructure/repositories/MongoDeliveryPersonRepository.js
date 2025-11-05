@@ -8,7 +8,7 @@ export default class MongoDeliveryPersonRepository extends DeliveryPersonReposit
     this.deliveryPersonProfileRepo = deliveryPersonProfileRepo;
   }
 
-  async createDeliveryPerson() {
+  async createDeliveryPerson(profileData) {
     try {
       const deliveryPersonProfile = new this.deliveryPersonProfileRepo(
         profileData

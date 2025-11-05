@@ -1,21 +1,16 @@
-import User from "../../domain/User.js";
-import { createUserSchema } from "../../validators/user/validateUserData.js";
 import {
   ValidationError,
   UserExistenceError,
   UnexpectedError,
 } from "../../domain/Error.js";
-import { inputErrorHandler } from "../../utils/errorHandler.js";
 
 export default function CreateUser(userRepo) {
   return async function (userData) {
-    if (!userData) {
-      throw new ValidationError("User data is missing");
+    const id = userData?.id;
+
+    if(!id) {
+        throw new ValidationError("User id has to be defined")
     }
-
-    const validatedUserData = inputErrorHandler(createUserSchema, userData);
-
-    const { id } = validatedUserData;
 
     const existingUser = await userRepo.findById(id);
 
@@ -24,8 +19,7 @@ export default function CreateUser(userRepo) {
     }
 
     try {
-      const user = new User(validatedUserData);
-      return await userRepo.createUser(user);
+      return await userRepo.createUser(userData);
     } catch (error) {
       throw new UnexpectedError(
         "An unexpected error occurred while creating the user",
